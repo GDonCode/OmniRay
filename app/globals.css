@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./omniray-colors.css";
 
 :root {
   --background: #ffffff;

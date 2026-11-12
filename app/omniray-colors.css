@@ -1,0 +1,7 @@
+:root {
+  --omniray-blue: #0F2747;      /* primary: ring, wordmark, dark backgrounds */
+  --omniray-coral: #FF5A36;     /* accent: exclamation point, buttons, highlights */
+  --omniray-off-white: #F6F4F1;  /* light backgrounds, ring on dark */
+  --omniray-slate: #5A6B82;     /* secondary text on light */
+  --omniray-mist: #9FB0C6;      /* secondary text on dark */
+}

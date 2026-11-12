@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OmniRay brand files for Next.js (App Router)
 
-## Getting Started
+Drop-in layout. The folders match where Next.js expects things, so you can copy them straight into the repo root.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+app/
+  favicon.ico              browser tab (16 / 32 / 48 px)
+  icon.svg                 browser tab (vector, simplified small-size mark)
+  apple-icon.png           iOS home screen (180 px)
+  opengraph-image.png      link preview (1200x630)
+  twitter-image.png        same image for X / Twitter cards
+  *.alt.txt                alt text for those two images
+  manifest.ts              web app manifest
+  omniray-colors.css       brand colour variables
+public/
+  icon-192.png, icon-512.png, icon-maskable-512.png    used by manifest.ts
+  brand/svg/               every logo as SVG (use these first)
+  brand/png/               transparent PNGs of the mark and lockups
+components/
+  logo.tsx                 <Logo /> component
+omniray-colors.json        colours for JS / theme config
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+If your project uses a `src/` folder, put `app/` and `components/` under `src/`. `public/` always stays at the repo root.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Copy `app/`, `public/` and `components/` into the repo. If you already have `app/favicon.ico` or `app/manifest.*`, replace them.
+2. Next reads the files in `app/` and writes the `<link>` and `<meta>` tags for the icons, Apple icon, Open Graph image and Twitter image by itself. You don't need to add head tags by hand.
+3. In `app/layout.tsx`, set the site URL (needed so the preview image URL is absolute) and the browser theme colour:
 
-## Learn More
+```tsx
+import type { Metadata, Viewport } from "next";
 
-To learn more about Next.js, take a look at the following resources:
+export const metadata: Metadata = {
+  metadataBase: new URL("https://YOUR-DOMAIN"), // replace with your real domain
+  title: { default: "OmniRay", template: "%s | OmniRay" },
+};
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+export const viewport: Viewport = {
+  themeColor: "#0F2747",
+};
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Import the colours in `app/globals.css`:
 
-## Deploy on Vercel
+```css
+@import "./omniray-colors.css";
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. Browsers cache favicons hard. After swapping them in, hard refresh (or open a private window) to see the new one.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Using the logo
+
+```tsx
+import { Logo } from "@/components/logo";
+
+// Header on a dark background
+<Logo variant="horizontal" on="dark" height={36} priority />
+
+// Footer on a light background
+<Logo variant="stacked" on="light" height={120} />
+
+// Just the face
+<Logo variant="mark" height={48} />
+```
+
+`on` means the background the logo sits on: `"light"` gives the blue version, `"dark"` gives the reversed (off-white) version. `variant` can be `horizontal`, `stacked`, `mark` or `wordmark`. The stacked version includes "Software Solutions".
+
+The component uses `next/image` with `unoptimized`, since these are SVGs and don't need resizing. If your `@/` import alias isn't set up, use a relative path.
+
+## Colours
+
+| Name | Hex | CSS variable | Role |
+|---|---|---|---|
+| Deep blue | `#0F2747` | `--omniray-blue` | Ring, wordmark, dark backgrounds |
+| Coral | `#FF5A36` | `--omniray-coral` | Exclamation point, buttons, highlights |
+| Off-white | `#F6F4F1` | `--omniray-off-white` | Light backgrounds, ring on dark |
+| Slate | `#5A6B82` | `--omniray-slate` | Secondary text on light |
+| Mist | `#9FB0C6` | `--omniray-mist` | Secondary text on dark |
+
+If you use Tailwind v4, add this to your CSS:
+
+```css
+@theme {
+  --color-omniray-blue: #0F2747;
+  --color-omniray-coral: #FF5A36;
+  --color-omniray-off-white: #F6F4F1;
+  --color-omniray-slate: #5A6B82;
+  --color-omniray-mist: #9FB0C6;
+}
+```
+
+On Tailwind v3, put the same values under `theme.extend.colors.omniray` in `tailwind.config`.
+
+Contrast: blue on off-white 13.6:1, slate on off-white 5.0:1, mist on blue 6.8:1, coral on blue 4.8:1. Coral on a light background is only 2.8 to 3.1:1, so don't use it for body text or small labels there. Use it for large shapes, or for buttons with blue text.
+
+## Heading font
+
+The wordmark is Space Grotesk (Bold for "Omni", Regular for "Ray"). It's free on Google Fonts, so you can use the same face for headings:
+
+```tsx
+import { Space_Grotesk } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
+// <html className={spaceGrotesk.variable}> ... then font-family: var(--font-space-grotesk)
+```
+
+## Usage notes
+
+- The full mark reads cleanly from about 48 px wide. For anything smaller, use the favicon mark (`app/icon.svg`): heavier ring, no arrowheads, plain `<` `>` eyes.
+- Keep clear space of at least 20% of the mark's width on every side.
+- Blue version on light backgrounds, reversed version on dark. Don't recolour the coral, stretch or rotate the mark, or retype the wordmark. The text in every SVG is already converted to outlines.
+- This layout is for the App Router. On the Pages Router, put the icons in `public/` and add the `<link>` tags in `_document.tsx` yourself.

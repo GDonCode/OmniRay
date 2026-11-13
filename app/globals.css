@@ -11,34 +11,87 @@
   --font-mono: var(--font-geist-mono);
 }
 
+:root {
+  /* The "folder" layer: the active tab and the page sheet share this colour. */
+  --sheet: #17345c;
+  --sheet-edge: rgb(246 244 241 / 0.14);
+}
+
 html {
   min-height: 100%;
   background-color: var(--omniray-blue);
 }
 
-/* Full-height brand background: light rays fanning from the top-left,
-   a coral glow, a faint grid, and a deep blue base. Fixed so it spans
-   the whole viewport however long the page is. */
+/* Background: a repeating ring-and-dot tile from the logo, over a soft vignette. */
 body {
   min-height: 100vh;
   color: var(--omniray-off-white);
   font-family: var(--font-sans);
   background-color: var(--omniray-blue);
   background-image:
-    radial-gradient(60rem 40rem at 85% 110%, rgb(255 90 54 / 0.22), transparent 60%),
-    radial-gradient(50rem 40rem at 10% -10%, rgb(159 176 198 / 0.20), transparent 60%),
-    repeating-conic-gradient(
-      from 190deg at 0% 0%,
-      rgb(246 244 241 / 0.07) 0deg 2deg,
-      transparent 2deg 9deg
-    ),
-    linear-gradient(rgb(246 244 241 / 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(246 244 241 / 0.035) 1px, transparent 1px),
-    linear-gradient(180deg, #0F2747 0%, #0a1c36 100%);
-  background-size: auto, auto, auto, 56px 56px, 56px 56px, auto;
-  background-attachment: fixed;
-  -webkit-mask-image: none;
+    radial-gradient(120% 90% at 50% 0%, transparent 40%, rgb(5 14 30 / 0.45) 100%),
+    url("/brand/pattern.svg");
+  background-size: auto, 160px 160px;
+  background-attachment: fixed, scroll;
 }
+
+/* Folder sheet that the active tab merges into. */
+.sheet {
+  background: var(--sheet);
+  border: 1px solid var(--sheet-edge);
+  border-radius: 0 1rem 1rem 1rem;
+  box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.6);
+}
+
+/* Folder tabs. */
+.tab {
+  position: relative;
+  padding: 0.6rem clamp(0.8rem, 3vw, 1.4rem);
+  border-radius: 0.75rem 0.75rem 0 0;
+  background: #10294c;
+  border: 1px solid rgb(246 244 241 / 0.1);
+  border-bottom: 0;
+  color: var(--omniray-mist);
+  font-size: 0.875rem;
+  letter-spacing: 0.03em;
+  text-transform: lowercase;
+  transform: translateY(2px);
+  transition: background 0.15s, color 0.15s;
+}
+.tab:hover { background: #142f56; color: var(--omniray-off-white); }
+
+.tab[aria-current="page"] {
+  z-index: 2;
+  background: var(--sheet);
+  border-color: var(--sheet-edge);
+  color: var(--omniray-off-white);
+  font-weight: 600;
+  padding-top: 0.8rem;
+  /* extend over the sheet's top border so tab and sheet read as one piece */
+  margin-bottom: -1px;
+  padding-bottom: calc(0.6rem + 1px);
+  transform: none;
+}
+/* Concave flares where the tab meets the sheet. */
+.tab[aria-current="page"]::before,
+.tab[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  pointer-events: none;
+}
+.tab[aria-current="page"]::before {
+  left: -0.75rem;
+  background: radial-gradient(circle at 0 0, transparent 0.75rem, var(--sheet) calc(0.75rem + 0.5px));
+}
+.tab[aria-current="page"]::after {
+  right: -0.75rem;
+  background: radial-gradient(circle at 100% 0, transparent 0.75rem, var(--sheet) calc(0.75rem + 0.5px));
+}
+/* First tab sits flush with the sheet's left edge: no left flare, square corner. */
+.tab:first-child::before { display: none; }
 
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }

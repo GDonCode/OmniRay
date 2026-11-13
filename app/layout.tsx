@@ -30,7 +30,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${spaceGrotesk.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col"><Header />
-        {children}
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-6 sm:px-8">
+          <main className="sheet flex-1">{children}</main>
+        </div>
       </body>
     </html>
   );

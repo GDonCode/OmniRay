@@ -15,9 +15,9 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-8">
-      <div className="flex flex-col-reverse gap-4 md:flex-row md:items-end">
-        <nav aria-label="main" className="flex items-end gap-1.5">
+    <header className="bg-[var(--omniray-blue)]">
+      <div className="mx-auto flex w-full max-w-6xl flex-col-reverse items-stretch md:h-16 md:flex-row">
+        <nav aria-label="main" className="flex h-12 items-stretch md:h-auto">
           {TABS.map((t) => (
             <Link
               key={t.href}
@@ -30,13 +30,13 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex flex-1 items-center justify-evenly md:pb-2">
-          <Link href="/" aria-label="omniray software solutions">
+        <div className="flex h-16 items-center md:flex-1 justify-evenly md:h-auto">
+          <Link href="/" className="shrink-0" aria-label="omniray software solutions">
             <Logo variant="horizontal" on="dark" height={30} priority />
           </Link>
           <Link
             href="/contact"
-            className="rounded-full bg-[var(--omniray-coral)] px-5 py-2 text-sm font-semibold lowercase text-[var(--omniray-blue)] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="rounded-full bg-[var(--omniray-coral)] px-5 py-2 text-sm font-semibold lowercase text-[var(--omniray-blue)] transition hover:brightness-110"
           >
             contact
           </Link>

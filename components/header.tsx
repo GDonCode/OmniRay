@@ -17,7 +17,7 @@ function PhoneIcon() {
       width="16"
       height="16"
       viewBox="0 0 24 24"
-      fill="none"
+      fill="currentColor"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -33,45 +33,48 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="bg-[var(--omniray-blue)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col-reverse items-stretch md:flex-row">
-        <nav aria-label="main" className="flex h-11 items-stretch md:h-auto">
-          {TABS.map((t) => (
-            <Link
-              key={t.href}
-              href={t.href}
-              className="tab hover-grow"
-              aria-current={pathname === t.href ? "page" : undefined}
-            >
-              <span className="grow-inner">{t.label}</span>
-            </Link>
-          ))}
-        </nav>
+    <header className="flex flex-col-reverse md:flex-row">
+      {/* section 1: nav links, on paper */}
+      <nav
+        aria-label="main"
+        className="flex h-11 items-stretch border-b border-[var(--omniray-blue)]/10 md:h-auto md:flex-[2] md:pl-4"
+      >
+        {TABS.map((t) => (
+          <Link
+            key={t.href}
+            href={t.href}
+            className="tab hover-grow"
+            aria-current={pathname === t.href ? "page" : undefined}
+          >
+            <span className="grow-inner">{t.label}</span>
+          </Link>
+        ))}
+      </nav>
 
-        <div className="flex items-stretch justify-evenly md:flex-1">
-          <Link
-            href="/"
-            aria-label="omniray software solutions"
-            className="hover-grow flex shrink-0 items-center gap-3 py-3"
-          >
-            <span className="grow-inner gap-3">
-              <Logo variant="horizontal" on="dark" height={30} priority />
-              <span className="hidden h-5 w-px bg-white/25 sm:block" aria-hidden />
-              <span className="hidden text-sm font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
-                software solutions
-              </span>
+      {/* section 2: logo + contact, on deep blue */}
+      <div className="flex items-stretch justify-evenly bg-[var(--omniray-blue)] md:flex-[3]">
+        <Link
+          href="/"
+          aria-label="omniray software solutions"
+          className="hover-grow flex shrink-0 items-center py-3"
+        >
+          <span className="grow-inner gap-3">
+            <Logo variant="horizontal" on="dark" height={30} priority />
+            <span className="hidden h-5 w-px bg-white/25 sm:block" aria-hidden />
+            <span className="hidden text-sm font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
+              software solutions
             </span>
-          </Link>
-          <Link
-            href="/contact"
-            className="hover-grow flex items-center bg-[var(--omniray-coral)] px-6 text-sm font-medium lowercase text-[var(--omniray-blue)]"
-          >
-            <span className="grow-inner gap-2">
-              <PhoneIcon />
-              contact
-            </span>
-          </Link>
-        </div>
+          </span>
+        </Link>
+        <Link
+          href="/contact"
+          className="hover-grow flex items-center bg-[var(--omniray-coral)] px-6 text-sm font-medium lowercase text-[var(--omniray-blue)]"
+        >
+          <span className="grow-inner gap-2">
+            <PhoneIcon />
+            contact
+          </span>
+        </Link>
       </div>
     </header>
   );

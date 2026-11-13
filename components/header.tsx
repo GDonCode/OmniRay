@@ -37,7 +37,7 @@ export function Header() {
       {/* section 1: nav links, on paper */}
       <nav
         aria-label="main"
-        className="flex h-11 items-stretch border-b border-[var(--omniray-blue)]/10 md:h-auto md:flex-[2] md:pl-4"
+        className="flex h-11 items-stretch border-b border-[var(--omniray-blue)]/10 md:h-auto md:px-4"
       >
         {TABS.map((t) => (
           <Link
@@ -52,16 +52,16 @@ export function Header() {
       </nav>
 
       {/* section 2: logo + contact, on deep blue */}
-      <div className="flex items-stretch justify-evenly bg-[var(--omniray-blue)] md:flex-[3]">
+      <div className="flex items-stretch justify-evenly bg-[var(--omniray-blue)] md:flex-1">
         <Link
           href="/"
           aria-label="omniray software solutions"
-          className="hover-grow flex shrink-0 items-center py-3"
+          className="flex shrink-0 items-center py-3"
         >
-          <span className="grow-inner gap-3">
-            <Logo variant="horizontal" on="dark" height={30} priority />
-            <span className="hidden h-5 w-px bg-white/25 sm:block" aria-hidden />
-            <span className="hidden text-sm font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
+          <span className="flex items-center gap-[13px]">
+            <Logo variant="horizontal" on="dark" height={33} priority />
+            <span className="hidden h-[22px] w-px bg-white/25 sm:block" aria-hidden />
+            <span className="hidden text-[15.4px] font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
               software solutions
             </span>
           </span>

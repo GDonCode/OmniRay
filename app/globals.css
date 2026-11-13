@@ -1,27 +1,45 @@
 @import "tailwindcss";
 @import "./omniray-colors.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-omniray-blue: var(--omniray-blue);
+  --color-omniray-coral: var(--omniray-coral);
+  --color-omniray-off-white: var(--omniray-off-white);
+  --color-omniray-slate: var(--omniray-slate);
+  --color-omniray-mist: var(--omniray-mist);
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  min-height: 100%;
+  background-color: var(--omniray-blue);
 }
 
+/* Full-height brand background: light rays fanning from the top-left,
+   a coral glow, a faint grid, and a deep blue base. Fixed so it spans
+   the whole viewport however long the page is. */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  color: var(--omniray-off-white);
+  font-family: var(--font-sans);
+  background-color: var(--omniray-blue);
+  background-image:
+    radial-gradient(60rem 40rem at 85% 110%, rgb(255 90 54 / 0.22), transparent 60%),
+    radial-gradient(50rem 40rem at 10% -10%, rgb(159 176 198 / 0.20), transparent 60%),
+    repeating-conic-gradient(
+      from 190deg at 0% 0%,
+      rgb(246 244 241 / 0.07) 0deg 2deg,
+      transparent 2deg 9deg
+    ),
+    linear-gradient(rgb(246 244 241 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(246 244 241 / 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, #0F2747 0%, #0a1c36 100%);
+  background-size: auto, auto, auto, 56px 56px, 56px 56px, auto;
+  background-attachment: fixed;
+  -webkit-mask-image: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }

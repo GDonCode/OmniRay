@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Caveat } from "next/font/google";
 import type { CSSProperties } from "react";
 
@@ -6,117 +5,87 @@ const hand = Caveat({ subsets: ["latin"], weight: "500" });
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-/* ---------- left half: the wireframe (the same project, before polish) ---------- */
+/* ---------- left half: handwritten notes and doodles (static) ---------- */
 
-function WireLines({ n, className = "" }: { n: number; className?: string }) {
+type Note = { text: string; x: number; y: number; r: number; s: number; coral?: boolean; mark?: "circle" | "squiggle" };
+
+const NOTES: Note[] = [
+  { text: "what if…", x: 8, y: 9, r: -4, s: 1.4 },
+  { text: "an app?", x: 44, y: 13, r: 3, s: 1.15 },
+  { text: "booking?", x: 9, y: 33, r: 2, s: 1.05, mark: "squiggle" },
+  { text: "online store", x: 34, y: 37, r: -3, s: 1.2, mark: "circle" },
+  { text: "how do i…?", x: 8, y: 58, r: -2, s: 1.1 },
+  { text: "my business!", x: 33, y: 61, r: 4, s: 1.3 },
+  { text: "?", x: 60, y: 6, r: 8, s: 2.8 },
+  { text: "?", x: 22, y: 76, r: -10, s: 2 },
+  { text: "!", x: 61, y: 38, r: 6, s: 2.6, coral: true },
+];
+
+const doodle = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2.4,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+function Notes() {
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
-      {Array.from({ length: n }).map((_, i) => (
-        <span key={i} className="wire-text" style={{ width: `${92 - i * 16}%` }} />
-      ))}
-    </div>
-  );
-}
-
-function WireSlide({ kind }: { kind: "dash" | "store" | "player" | "booking" }) {
-  if (kind === "dash")
-    return (
-      <div className="grid h-full grid-cols-[28%_1fr] gap-3">
-        <WireLines n={5} className="pt-1" />
-        <div className="flex flex-col gap-3">
-          <div className="flex gap-3">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="wire h-12 flex-1" />
-            ))}
-          </div>
-          <div className="wire flex flex-1 items-end gap-2 p-3">
-            {[40, 65, 50, 80, 60, 92, 70].map((h, i) => (
-              <span key={i} className="wire flex-1" style={{ height: `${h}%` }} />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  if (kind === "store")
-    return (
-      <div className="grid h-full grid-cols-3 gap-3">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="flex flex-col gap-3">
-            <span className="wire wire-x flex-1" />
-            <WireLines n={2} />
-          </div>
-        ))}
-      </div>
-    );
-  if (kind === "player")
-    return (
-      <div className="grid h-full grid-cols-[40%_1fr] items-center gap-5">
-        <span className="wire relative mx-auto aspect-square w-full !rounded-full">
-          <span className="wire absolute inset-[34%] !rounded-full" />
-        </span>
-        <div className="flex flex-col gap-4">
-          <WireLines n={3} />
-          <span className="wire h-2 !rounded-full" />
-        </div>
-      </div>
-    );
-  return (
-    <div className="flex h-full flex-col gap-3">
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="wire h-9" />
-      ))}
-      <span className="wire mt-auto h-10 w-1/3" />
-    </div>
-  );
-}
-
-/* Hand-drawn sketches, one per project, in the same order as REEL below. Drop them in
-   public/sketch/ (transparent PNG or SVG, about 840x490) and list the paths here, e.g.
-   ["/sketch/one.svg", ...]. Each is wiped in left to right as if being drawn.
-   While this is empty, the dashed wireframes below are shown instead. */
-const SKETCHES: string[] = [];
-
-function Wireframe() {
-  return (
-    <div className="relative h-[300px] overflow-hidden md:h-full">
-      {/* pencil wobble applied to the sketches */}
-      <svg width="0" height="0" className="absolute" aria-hidden>
-        <filter id="pencil">
-          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" />
-        </filter>
-      </svg>
-      {REEL.map((s, i) => (
-        <div key={s.name} className="reel-slide" style={{ "--d": `${i * 3}s` } as Vars} aria-hidden>
-          {SKETCHES[i] ? (
-            <Image
-              src={SKETCHES[i]}
-              alt=""
-              width={840}
-              height={490}
-              unoptimized
-              className="sketch sketch-asset h-auto w-[min(78%,420px)]"
-              style={{ "--d": `${i * 3}s` } as Vars}
-            />
-          ) : (
-          <div className="sketch w-[min(78%,420px)]" style={{ "--d": `${i * 3}s` } as Vars}>
-            <p className={`${hand.className} mb-1 pl-1 text-[1.15rem] leading-none text-[var(--omniray-slate)]`}>
-              {s.name.replace("project", "idea")}
-            </p>
-            <div className="wire-frame overflow-hidden">
-              <div className="flex items-center gap-1.5 border-b-[1.5px] border-[var(--omniray-blue)]/45 px-3 py-2">
-                <span className="size-2 rounded-full border-[1.5px] border-[var(--omniray-blue)]/45" />
-                <span className="size-2 rounded-full border-[1.5px] border-[var(--omniray-blue)]/45" />
-                <span className="size-2 rounded-full border-[1.5px] border-[var(--omniray-blue)]/45" />
-              </div>
-              <div className="h-[170px] p-4 sm:h-[200px]">
-                <WireSlide kind={s.kind} />
-              </div>
-            </div>
-          </div>
+    <div
+      className={`${hand.className} relative h-[300px] overflow-hidden text-[var(--omniray-blue)]/70 md:h-full`}
+      aria-hidden
+    >
+      {NOTES.map((n, i) => (
+        <span
+          key={i}
+          className="absolute whitespace-nowrap leading-none"
+          style={{
+            left: `${n.x}%`,
+            top: `${n.y}%`,
+            transform: `rotate(${n.r}deg)`,
+            fontSize: `calc(clamp(1.25rem, 2.3vw, 1.9rem) * ${n.s})`,
+            color: n.coral ? "var(--omniray-coral)" : undefined,
+          }}
+        >
+          {n.text}
+          {n.mark === "circle" && (
+            <svg
+              className="absolute -left-4 -top-3 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)]"
+              viewBox="0 0 150 60"
+              preserveAspectRatio="none"
+              {...doodle}
+            >
+              <path vectorEffect="non-scaling-stroke" d="M14 38 C6 14 60 4 108 8 C148 12 152 40 104 50 C62 58 10 52 8 24" />
+            </svg>
           )}
-        </div>
+          {n.mark === "squiggle" && (
+            <svg
+              className="absolute -bottom-3 left-0 h-3 w-full"
+              viewBox="0 0 84 12"
+              preserveAspectRatio="none"
+              {...doodle}
+            >
+              <path vectorEffect="non-scaling-stroke" d="M2 7 Q12 0 22 7 T42 7 T62 7 T82 7" />
+            </svg>
+          )}
+        </span>
       ))}
+
+      {/* arrow pointing toward the screen */}
+      <svg className="absolute w-[110px]" style={{ left: "47%", top: "50%" }} viewBox="0 0 110 50" {...doodle}>
+        <path d="M4 42 C34 6 74 4 100 26" />
+        <path d="M86 22 L102 28 L96 12" />
+      </svg>
+      {/* little stars and a spark */}
+      <svg className="absolute w-[22px]" style={{ left: "28%", top: "22%" }} viewBox="0 0 20 20" {...doodle}>
+        <path d="M10 2 V18 M2 10 H18 M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" />
+      </svg>
+      <svg className="absolute w-[18px]" style={{ left: "5%", top: "46%" }} viewBox="0 0 20 20" {...doodle}>
+        <path d="M10 2 V18 M2 10 H18" />
+      </svg>
+      <svg className="absolute w-[20px]" style={{ left: "54%", top: "70%" }} viewBox="0 0 20 20" {...doodle}>
+        <path d="M10 2 V18 M2 10 H18 M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" />
+      </svg>
     </div>
   );
 }
@@ -286,7 +255,7 @@ export function Hero({ children }: { children?: React.ReactNode }) {
   return (
     <section aria-label="from thought to digital presence" className="relative overflow-hidden">
       <div className="relative z-10 grid overflow-hidden md:h-[min(68vh,620px)] md:grid-cols-2">
-        <Wireframe />
+        <Notes />
         <Showreel />
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 size-[clamp(190px,24vw,300px)] -translate-x-1/2 -translate-y-1/2">
           <MovingLogo />

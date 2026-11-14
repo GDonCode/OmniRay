@@ -54,39 +54,6 @@ body {
 
 /* ---------- hero motion ---------- */
 
-/* wireframe styling for the left half */
-.wire {
-  border: 1.5px solid rgb(15 39 71 / 0.45);
-  border-radius: 3px;
-}
-.wire-x {
-  background:
-    linear-gradient(to top right, transparent calc(50% - 0.75px), rgb(15 39 71 / 0.3) 50%, transparent calc(50% + 0.75px)),
-    linear-gradient(to bottom right, transparent calc(50% - 0.75px), rgb(15 39 71 / 0.3) 50%, transparent calc(50% + 0.75px));
-}
-.wire-text {
-  display: block;
-  height: 1.5px;
-  background: rgb(15 39 71 / 0.45);
-}
-.wire-frame {
-  border: 1.5px solid rgb(15 39 71 / 0.5);
-  border-radius: 8px;
-}
-
-/* the sketch is drawn in left to right as its slide appears, with a pencil wobble */
-.sketch {
-  filter: url(#pencil);
-  transform: rotate(-1.2deg);
-  animation: sketch-in 12s linear var(--d) infinite;
-}
-.sketch-asset { filter: none; transform: none; }
-@keyframes sketch-in {
-  0%   { clip-path: inset(0 100% 0 0); }
-  12%  { clip-path: inset(0 0 0 0); }
-  100% { clip-path: inset(0 0 0 0); }
-}
-
 /* showreel: slides cross-fade in turn (4 slides x 3s) */
 .reel-slide {
   position: absolute;
@@ -122,6 +89,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .spark { display: none; }
   .sketch-draw { animation: none; }
-  .reel-slide, .sketch { animation: none; }
+  .reel-slide { animation: none; }
   .reel-slide:first-of-type { opacity: 1; }
 }

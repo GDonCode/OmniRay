@@ -1,4 +1,8 @@
+import Image from "next/image";
+import { Caveat } from "next/font/google";
 import type { CSSProperties } from "react";
+
+const hand = Caveat({ subsets: ["latin"], weight: "500" });
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
@@ -66,22 +70,51 @@ function WireSlide({ kind }: { kind: "dash" | "store" | "player" | "booking" }) 
   );
 }
 
+/* Hand-drawn sketches, one per project, in the same order as REEL below. Drop them in
+   public/sketch/ (transparent PNG or SVG, about 840x490) and list the paths here, e.g.
+   ["/sketch/one.svg", ...]. Each is wiped in left to right as if being drawn.
+   While this is empty, the dashed wireframes below are shown instead. */
+const SKETCHES: string[] = [];
+
 function Wireframe() {
   return (
     <div className="relative h-[300px] overflow-hidden md:h-full">
+      {/* pencil wobble applied to the sketches */}
+      <svg width="0" height="0" className="absolute" aria-hidden>
+        <filter id="pencil">
+          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" />
+        </filter>
+      </svg>
       {REEL.map((s, i) => (
         <div key={s.name} className="reel-slide" style={{ "--d": `${i * 3}s` } as Vars} aria-hidden>
-          <div className="wire-frame w-[min(78%,420px)] overflow-hidden">
-            <div className="flex items-center gap-1.5 border-b border-dashed border-[var(--omniray-blue)]/35 px-3 py-2">
-              <span className="size-2 rounded-full border border-[var(--omniray-blue)]/40" />
-              <span className="size-2 rounded-full border border-[var(--omniray-blue)]/40" />
-              <span className="size-2 rounded-full border border-[var(--omniray-blue)]/40" />
-              <span className="ml-3 text-[10px] lowercase text-[var(--omniray-slate)]">{s.name} · draft</span>
-            </div>
-            <div className="h-[170px] p-4 sm:h-[200px]">
-              <WireSlide kind={s.kind} />
+          {SKETCHES[i] ? (
+            <Image
+              src={SKETCHES[i]}
+              alt=""
+              width={840}
+              height={490}
+              unoptimized
+              className="sketch sketch-asset h-auto w-[min(78%,420px)]"
+              style={{ "--d": `${i * 3}s` } as Vars}
+            />
+          ) : (
+          <div className="sketch w-[min(78%,420px)]" style={{ "--d": `${i * 3}s` } as Vars}>
+            <p className={`${hand.className} mb-1 pl-1 text-[1.15rem] leading-none text-[var(--omniray-slate)]`}>
+              {s.name.replace("project", "idea")}
+            </p>
+            <div className="wire-frame overflow-hidden">
+              <div className="flex items-center gap-1.5 border-b-[1.5px] border-[var(--omniray-blue)]/45 px-3 py-2">
+                <span className="size-2 rounded-full border-[1.5px] border-[var(--omniray-blue)]/45" />
+                <span className="size-2 rounded-full border-[1.5px] border-[var(--omniray-blue)]/45" />
+                <span className="size-2 rounded-full border-[1.5px] border-[var(--omniray-blue)]/45" />
+              </div>
+              <div className="h-[170px] p-4 sm:h-[200px]">
+                <WireSlide kind={s.kind} />
+              </div>
             </div>
           </div>
+          )}
         </div>
       ))}
     </div>

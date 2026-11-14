@@ -3,27 +3,22 @@ import type { CSSProperties } from "react";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-/* ---------- left half: a sky with thought clouds ---------- */
+/* ---------- left half: a sky of drifting clouds ---------- */
 
 // plain sky clouds drifting across (top %, width px, seconds per crossing, start offset in seconds)
 const SKY_CLOUDS = [
-  { y: 8, w: 110, t: 80, d: -10, o: 0.9 },
-  { y: 22, w: 80, t: 100, d: -55, o: 0.75 },
-  { y: 38, w: 140, t: 90, d: -30, o: 0.95 },
-  { y: 52, w: 90, t: 110, d: -70, o: 0.7 },
-  { y: 66, w: 130, t: 85, d: -45, o: 0.85 },
-  { y: 78, w: 100, t: 95, d: -20, o: 0.7 },
-  { y: 90, w: 150, t: 105, d: -80, o: 0.8 },
-];
-
-// thought clouds with words in them, fading in and out
-const THOUGHTS = [
-  { text: "idea", x: 8, y: 16, d: 0, t: 9 },
-  { text: "what if…", x: 40, y: 8, d: 2.4, t: 10 },
-  { text: "concept", x: 12, y: 46, d: 4.5, t: 9.5 },
-  { text: "a new app?", x: 44, y: 38, d: 1.2, t: 11 },
-  { text: "thought", x: 6, y: 74, d: 6.6, t: 10 },
-  { text: "big plan", x: 34, y: 64, d: 3.3, t: 10.5 },
+  { y: 2, w: 240, t: 90, d: -10, o: 0.9 },
+  { y: 12, w: 170, t: 70, d: -45, o: 0.8 },
+  { y: 22, w: 300, t: 110, d: -80, o: 0.95 },
+  { y: 33, w: 200, t: 80, d: -25, o: 0.85 },
+  { y: 44, w: 260, t: 100, d: -60, o: 0.9 },
+  { y: 54, w: 160, t: 65, d: -5, o: 0.75 },
+  { y: 63, w: 320, t: 120, d: -95, o: 0.95 },
+  { y: 72, w: 190, t: 75, d: -35, o: 0.8 },
+  { y: 80, w: 250, t: 95, d: -70, o: 0.9 },
+  { y: 88, w: 210, t: 85, d: -20, o: 0.85 },
+  { y: 28, w: 150, t: 60, d: -50, o: 0.7 },
+  { y: 58, w: 230, t: 105, d: -85, o: 0.85 },
 ];
 
 function SkyClouds() {
@@ -48,16 +43,6 @@ function SkyClouds() {
 function Thoughts() {
   return (
     <div className="relative h-[300px] overflow-hidden md:h-full">
-      {THOUGHTS.map((t) => (
-        <span
-          key={t.text}
-          className="thought"
-          style={{ left: `${t.x}%`, top: `${t.y}%`, "--t": `${t.t}s`, "--d": `${t.d}s` } as Vars}
-        >
-          <Image src="/hero/thought-cloud.png" alt="" width={48} height={48} unoptimized aria-hidden />
-          <span>{t.text}</span>
-        </span>
-      ))}
     </div>
   );
 }

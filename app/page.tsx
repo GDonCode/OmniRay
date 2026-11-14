@@ -49,7 +49,7 @@ export default function Home() {
   return (
     <>
       {/* hero */}
-      <Hero />
+      <Hero>
       <section className="mx-auto w-full max-w-6xl px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
         <h1 className="max-w-4xl text-[clamp(2.25rem,6vw,5rem)] font-bold lowercase leading-[1.04] tracking-tight">
           we turn your thoughts and ideas into a digital presence
@@ -71,6 +71,7 @@ export default function Home() {
           </a>
         </div>
       </section>
+      </Hero>
 
       {/* selected work */}
       <section id="work" className="border-t border-[var(--omniray-blue)]/15">

@@ -7,11 +7,13 @@ type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
 // plain sky clouds drifting across (top %, width px, seconds per crossing, start offset in seconds)
 const SKY_CLOUDS = [
-  { y: 12, w: 110, t: 70, d: -10, o: 0.9 },
-  { y: 30, w: 80, t: 90, d: -55, o: 0.75 },
-  { y: 52, w: 140, t: 80, d: -30, o: 0.95 },
-  { y: 70, w: 90, t: 100, d: -70, o: 0.7 },
-  { y: 86, w: 120, t: 75, d: -45, o: 0.85 },
+  { y: 8, w: 110, t: 80, d: -10, o: 0.9 },
+  { y: 22, w: 80, t: 100, d: -55, o: 0.75 },
+  { y: 38, w: 140, t: 90, d: -30, o: 0.95 },
+  { y: 52, w: 90, t: 110, d: -70, o: 0.7 },
+  { y: 66, w: 130, t: 85, d: -45, o: 0.85 },
+  { y: 78, w: 100, t: 95, d: -20, o: 0.7 },
+  { y: 90, w: 150, t: 105, d: -80, o: 0.8 },
 ];
 
 // thought clouds with words in them, fading in and out
@@ -24,12 +26,9 @@ const THOUGHTS = [
   { text: "big plan", x: 34, y: 64, d: 3.3, t: 10.5 },
 ];
 
-function Thoughts() {
+function SkyClouds() {
   return (
-    <div className="hero-sky relative h-[300px] overflow-hidden md:h-full">
-      <p className="absolute left-5 top-4 z-10 text-xs lowercase tracking-wide text-[var(--omniray-blue)]/70">
-        thoughts, ideas, concepts
-      </p>
+    <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
       {SKY_CLOUDS.map((c, i) => (
         <Image
           key={i}
@@ -38,11 +37,20 @@ function Thoughts() {
           width={48}
           height={48}
           unoptimized
-          aria-hidden
           className="sky-cloud"
           style={{ top: `${c.y}%`, width: c.w, "--t": `${c.t}s`, "--d": `${c.d}s`, opacity: c.o } as Vars}
         />
       ))}
+    </div>
+  );
+}
+
+function Thoughts() {
+  return (
+    <div className="relative h-[300px] overflow-hidden md:h-full">
+      <p className="absolute left-5 top-4 z-10 text-xs lowercase tracking-wide text-[var(--omniray-blue)]/70">
+        thoughts, ideas, concepts
+      </p>
       {THOUGHTS.map((t) => (
         <span
           key={t.text}
@@ -200,14 +208,14 @@ function MovingLogo() {
         {RAYS.map((r) => (
           <path
             key={r.angle}
-            d={r.long ? "M0 -11 L0 -30" : "M0 -11 L0 -23"}
+            d={r.long ? "M0 -11 L0 -26" : "M0 -11 L0 -20"}
             transform={`rotate(${r.angle})`}
             pathLength={1}
             className="spark"
             style={{ "--d": `${r.delay}s`, "--t": "1.8s" } as Vars}
             fill="none"
             stroke="#FF5A36"
-            strokeWidth="3"
+            strokeWidth="1.5"
             strokeLinecap="round"
           />
         ))}
@@ -221,18 +229,18 @@ function MovingLogo() {
 
 /* ---------- hero ---------- */
 
-export function Hero() {
+export function Hero({ children }: { children?: React.ReactNode }) {
   return (
-    <section aria-label="from thought to digital presence">
-      <div className="relative grid md:h-[min(68vh,620px)] md:grid-cols-2">
+    <section aria-label="from thought to digital presence" className="hero-sky relative overflow-hidden">
+      <SkyClouds />
+      <div className="relative z-10 grid md:h-[min(68vh,620px)] md:grid-cols-2">
         <Thoughts />
         <Showreel />
-        <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 flex size-[clamp(170px,22vw,260px)] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[var(--omniray-blue)] shadow-[0_0_0_10px_rgb(248_250_253/0.9)]">
-          <div className="size-[68%]">
-            <MovingLogo />
-          </div>
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 size-[clamp(120px,15vw,180px)] -translate-x-1/2 -translate-y-1/2">
+          <MovingLogo />
         </div>
       </div>
+      <div className="relative z-10">{children}</div>
     </section>
   );
 }

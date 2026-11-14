@@ -33,11 +33,11 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="flex flex-col-reverse md:flex-row">
+    <header className="sticky top-0 z-50 flex flex-col-reverse md:flex-row">
       {/* section 1: nav links, on paper */}
       <nav
         aria-label="main"
-        className="flex h-11 items-stretch border-b border-[var(--omniray-blue)]/10 md:h-auto md:px-4"
+        className="flex h-11 items-stretch border-b border-[var(--omniray-blue)]/10 bg-[var(--paper)] md:h-auto md:px-4"
       >
         {TABS.map((t) => (
           <Link

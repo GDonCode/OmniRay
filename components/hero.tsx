@@ -202,7 +202,7 @@ function MovingLogo() {
         {RAYS.map((r) => (
           <path
             key={r.angle}
-            d={r.long ? "M0 -11 L0 -26" : "M0 -11 L0 -20"}
+            d={r.long ? "M0 -9.5 L0 -16.5" : "M0 -9.5 L0 -13.5"}
             transform={`rotate(${r.angle})`}
             pathLength={1}
             className="spark"
@@ -226,11 +226,11 @@ function MovingLogo() {
 export function Hero({ children }: { children?: React.ReactNode }) {
   return (
     <section aria-label="from thought to digital presence" className="hero-sky relative overflow-hidden">
-      <SkyClouds />
-      <div className="relative z-10 grid md:h-[min(68vh,620px)] md:grid-cols-2">
+      <div className="relative z-10 grid overflow-hidden md:h-[min(68vh,620px)] md:grid-cols-2">
+        <SkyClouds />
         <Thoughts />
         <Showreel />
-        <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 size-[clamp(120px,15vw,180px)] -translate-x-1/2 -translate-y-1/2">
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 size-[clamp(190px,24vw,300px)] -translate-x-1/2 -translate-y-1/2">
           <MovingLogo />
         </div>
       </div>

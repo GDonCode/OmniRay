@@ -54,21 +54,24 @@ body {
 
 /* ---------- hero motion ---------- */
 
-/* one sky behind the hero stage and the text/CTA section under it */
-.hero-sky {
-  background: linear-gradient(180deg, #6fb6ee 0%, #a9d5f3 40%, #cfe8f8 75%, #e8f4fc 100%);
+/* wireframe styling for the left half */
+.wire {
+  border: 1.5px solid rgb(15 39 71 / 0.45);
+  border-radius: 3px;
 }
-
-/* plain clouds drift slowly across the sky */
-.sky-cloud {
-  position: absolute;
-  height: auto;
-  left: -25%;
-  animation: drift var(--t) linear var(--d) infinite;
+.wire-x {
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.75px), rgb(15 39 71 / 0.3) 50%, transparent calc(50% + 0.75px)),
+    linear-gradient(to bottom right, transparent calc(50% - 0.75px), rgb(15 39 71 / 0.3) 50%, transparent calc(50% + 0.75px));
 }
-@keyframes drift {
-  from { left: -25%; }
-  to   { left: 110%; }
+.wire-text {
+  display: block;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgb(15 39 71 / 0.4) 0 6px, transparent 6px 10px);
+}
+.wire-frame {
+  border: 1.5px dashed rgb(15 39 71 / 0.45);
+  border-radius: 8px;
 }
 
 /* showreel: slides cross-fade in turn (4 slides x 3s) */
@@ -105,7 +108,6 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .spark { display: none; }
-  .sky-cloud { animation: none; left: var(--x, 20%); }
   .reel-slide { animation: none; }
   .reel-slide:first-of-type { opacity: 1; }
 }

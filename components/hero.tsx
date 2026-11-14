@@ -1,48 +1,89 @@
-import Image from "next/image";
 import type { CSSProperties } from "react";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-/* ---------- left half: a sky of drifting clouds ---------- */
+/* ---------- left half: the wireframe (the same project, before polish) ---------- */
 
-// plain sky clouds drifting across (top %, width px, seconds per crossing, start offset in seconds)
-const SKY_CLOUDS = [
-  { y: 2, w: 240, t: 90, d: -10, o: 0.9 },
-  { y: 12, w: 170, t: 70, d: -45, o: 0.8 },
-  { y: 22, w: 300, t: 110, d: -80, o: 0.95 },
-  { y: 33, w: 200, t: 80, d: -25, o: 0.85 },
-  { y: 44, w: 260, t: 100, d: -60, o: 0.9 },
-  { y: 54, w: 160, t: 65, d: -5, o: 0.75 },
-  { y: 63, w: 320, t: 120, d: -95, o: 0.95 },
-  { y: 72, w: 190, t: 75, d: -35, o: 0.8 },
-  { y: 80, w: 250, t: 95, d: -70, o: 0.9 },
-  { y: 88, w: 210, t: 85, d: -20, o: 0.85 },
-  { y: 28, w: 150, t: 60, d: -50, o: 0.7 },
-  { y: 58, w: 230, t: 105, d: -85, o: 0.85 },
-];
-
-function SkyClouds() {
+function WireLines({ n, className = "" }: { n: number; className?: string }) {
   return (
-    <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
-      {SKY_CLOUDS.map((c, i) => (
-        <Image
-          key={i}
-          src="/hero/cloud.png"
-          alt=""
-          width={48}
-          height={48}
-          unoptimized
-          className="sky-cloud"
-          style={{ top: `${c.y}%`, width: c.w, "--t": `${c.t}s`, "--d": `${c.d}s`, opacity: c.o } as Vars}
-        />
+    <div className={`flex flex-col gap-3 ${className}`}>
+      {Array.from({ length: n }).map((_, i) => (
+        <span key={i} className="wire-text" style={{ width: `${92 - i * 16}%` }} />
       ))}
     </div>
   );
 }
 
-function Thoughts() {
+function WireSlide({ kind }: { kind: "dash" | "store" | "player" | "booking" }) {
+  if (kind === "dash")
+    return (
+      <div className="grid h-full grid-cols-[28%_1fr] gap-3">
+        <WireLines n={5} className="pt-1" />
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="wire h-12 flex-1" />
+            ))}
+          </div>
+          <div className="wire flex flex-1 items-end gap-2 p-3">
+            {[40, 65, 50, 80, 60, 92, 70].map((h, i) => (
+              <span key={i} className="wire flex-1" style={{ height: `${h}%` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  if (kind === "store")
+    return (
+      <div className="grid h-full grid-cols-3 gap-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex flex-col gap-3">
+            <span className="wire wire-x flex-1" />
+            <WireLines n={2} />
+          </div>
+        ))}
+      </div>
+    );
+  if (kind === "player")
+    return (
+      <div className="grid h-full grid-cols-[40%_1fr] items-center gap-5">
+        <span className="wire relative mx-auto aspect-square w-full !rounded-full">
+          <span className="wire absolute inset-[34%] !rounded-full" />
+        </span>
+        <div className="flex flex-col gap-4">
+          <WireLines n={3} />
+          <span className="wire h-2 !rounded-full" />
+        </div>
+      </div>
+    );
+  return (
+    <div className="flex h-full flex-col gap-3">
+      {[0, 1, 2].map((i) => (
+        <span key={i} className="wire h-9" />
+      ))}
+      <span className="wire mt-auto h-10 w-1/3" />
+    </div>
+  );
+}
+
+function Wireframe() {
   return (
     <div className="relative h-[300px] overflow-hidden md:h-full">
+      {REEL.map((s, i) => (
+        <div key={s.name} className="reel-slide" style={{ "--d": `${i * 3}s` } as Vars} aria-hidden>
+          <div className="wire-frame w-[min(78%,420px)] overflow-hidden">
+            <div className="flex items-center gap-1.5 border-b border-dashed border-[var(--omniray-blue)]/35 px-3 py-2">
+              <span className="size-2 rounded-full border border-[var(--omniray-blue)]/40" />
+              <span className="size-2 rounded-full border border-[var(--omniray-blue)]/40" />
+              <span className="size-2 rounded-full border border-[var(--omniray-blue)]/40" />
+              <span className="ml-3 text-[10px] lowercase text-[var(--omniray-slate)]">{s.name} · draft</span>
+            </div>
+            <div className="h-[170px] p-4 sm:h-[200px]">
+              <WireSlide kind={s.kind} />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -210,10 +251,9 @@ function MovingLogo() {
 
 export function Hero({ children }: { children?: React.ReactNode }) {
   return (
-    <section aria-label="from thought to digital presence" className="hero-sky relative overflow-hidden">
+    <section aria-label="from thought to digital presence" className="relative overflow-hidden">
       <div className="relative z-10 grid overflow-hidden md:h-[min(68vh,620px)] md:grid-cols-2">
-        <SkyClouds />
-        <Thoughts />
+        <Wireframe />
         <Showreel />
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 size-[clamp(190px,24vw,300px)] -translate-x-1/2 -translate-y-1/2">
           <MovingLogo />

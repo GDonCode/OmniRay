@@ -54,8 +54,45 @@ body {
 
 /* ---------- hero motion ---------- */
 
-.hero-thoughts {
-  background: rgb(159 176 198 / 0.2);
+.hero-sky {
+  background: linear-gradient(180deg, #6fb6ee 0%, #bcdff6 60%, #e8f4fc 100%);
+}
+
+/* plain clouds drift slowly across the sky */
+.sky-cloud {
+  position: absolute;
+  height: auto;
+  left: -25%;
+  animation: drift var(--t) linear var(--d) infinite;
+}
+@keyframes drift {
+  from { left: -25%; }
+  to   { left: 110%; }
+}
+
+/* thought clouds with words fade in, float up and fade out */
+.thought {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: clamp(104px, 13vw, 150px);
+  opacity: 0;
+  animation: thought var(--t) ease-in-out var(--d) infinite;
+}
+.thought > img { grid-area: 1 / 1; width: 100%; height: auto; }
+.thought > span {
+  grid-area: 1 / 1;
+  font-size: 0.8rem;
+  text-transform: lowercase;
+  color: var(--omniray-blue);
+  text-align: center;
+  padding: 0 0.5rem;
+}
+@keyframes thought {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.85); }
+  20%  { opacity: 1; transform: translateY(0) scale(1); }
+  75%  { opacity: 1; transform: translateY(-12px) scale(1.03); }
+  100% { opacity: 0; transform: translateY(-28px) scale(1.08); }
 }
 
 /* showreel: slides cross-fade in turn (4 slides x 3s) */
@@ -93,6 +130,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .spark { display: none; }
+  .sky-cloud { animation: none; left: var(--x, 20%); }
+  .thought { animation: none; opacity: 1; }
   .reel-slide { animation: none; }
   .reel-slide:first-of-type { opacity: 1; }
 }

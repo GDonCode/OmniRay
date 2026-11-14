@@ -1,16 +1,58 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-/* ---------- left half: thoughts, ideas, concepts ---------- */
-/* Awaiting artwork for the wispy thought / idea / concept clouds. */
+/* ---------- left half: a sky with thought clouds ---------- */
+
+// plain sky clouds drifting across (top %, width px, seconds per crossing, start offset in seconds)
+const SKY_CLOUDS = [
+  { y: 12, w: 110, t: 70, d: -10, o: 0.9 },
+  { y: 30, w: 80, t: 90, d: -55, o: 0.75 },
+  { y: 52, w: 140, t: 80, d: -30, o: 0.95 },
+  { y: 70, w: 90, t: 100, d: -70, o: 0.7 },
+  { y: 86, w: 120, t: 75, d: -45, o: 0.85 },
+];
+
+// thought clouds with words in them, fading in and out
+const THOUGHTS = [
+  { text: "idea", x: 8, y: 16, d: 0, t: 9 },
+  { text: "what if…", x: 40, y: 8, d: 2.4, t: 10 },
+  { text: "concept", x: 12, y: 46, d: 4.5, t: 9.5 },
+  { text: "a new app?", x: 44, y: 38, d: 1.2, t: 11 },
+  { text: "thought", x: 6, y: 74, d: 6.6, t: 10 },
+  { text: "big plan", x: 34, y: 64, d: 3.3, t: 10.5 },
+];
 
 function Thoughts() {
   return (
-    <div className="hero-thoughts relative h-[300px] overflow-hidden md:h-full">
-      <p className="absolute left-5 top-4 z-10 text-xs lowercase tracking-wide text-[var(--omniray-slate)]">
+    <div className="hero-sky relative h-[300px] overflow-hidden md:h-full">
+      <p className="absolute left-5 top-4 z-10 text-xs lowercase tracking-wide text-[var(--omniray-blue)]/70">
         thoughts, ideas, concepts
       </p>
+      {SKY_CLOUDS.map((c, i) => (
+        <Image
+          key={i}
+          src="/hero/cloud.png"
+          alt=""
+          width={48}
+          height={48}
+          unoptimized
+          aria-hidden
+          className="sky-cloud"
+          style={{ top: `${c.y}%`, width: c.w, "--t": `${c.t}s`, "--d": `${c.d}s`, opacity: c.o } as Vars}
+        />
+      ))}
+      {THOUGHTS.map((t) => (
+        <span
+          key={t.text}
+          className="thought"
+          style={{ left: `${t.x}%`, top: `${t.y}%`, "--t": `${t.t}s`, "--d": `${t.d}s` } as Vars}
+        >
+          <Image src="/hero/thought-cloud.png" alt="" width={48} height={48} unoptimized aria-hidden />
+          <span>{t.text}</span>
+        </span>
+      ))}
     </div>
   );
 }

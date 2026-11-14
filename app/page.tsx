@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Hero } from "@/components/hero";
 
 const WORK = [
   {
@@ -48,16 +49,17 @@ export default function Home() {
   return (
     <>
       {/* hero */}
-      <section className="mx-auto w-full max-w-6xl px-5 pb-24 pt-20 sm:px-8 md:pb-32 md:pt-32">
-        <h1 className="max-w-5xl text-[clamp(2.5rem,7.5vw,6.5rem)] font-bold lowercase leading-[1.02] tracking-tight">
-          we build the software your business runs on
+      <Hero />
+      <section className="mx-auto w-full max-w-6xl px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
+        <h1 className="max-w-4xl text-[clamp(2.25rem,6vw,5rem)] font-bold lowercase leading-[1.04] tracking-tight">
+          we turn your thoughts and ideas into a digital presence
           <span className="text-[var(--omniray-coral)]">.</span>
         </h1>
-        <p className="mt-8 max-w-xl text-lg leading-8 text-[var(--omniray-slate)]">
+        <p className="mt-6 max-w-xl text-lg leading-8 text-[var(--omniray-slate)]">
           omniray software solutions designs and builds custom websites, stores
           and platforms, then keeps them running.
         </p>
-        <div className="mt-10 flex flex-wrap items-center gap-6 text-sm font-medium lowercase">
+        <div className="mt-8 flex flex-wrap items-center gap-6 text-sm font-medium lowercase">
           <Link
             href="/contact"
             className="bg-[var(--omniray-blue)] px-6 py-3 text-[var(--omniray-off-white)] transition-opacity hover:opacity-90"

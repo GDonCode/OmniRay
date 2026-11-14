@@ -51,3 +51,103 @@ body {
   color: var(--omniray-blue);
   border-bottom-color: var(--omniray-blue);
 }
+
+/* ---------- hero motion ---------- */
+
+.hero-thoughts {
+  background: rgb(159 176 198 / 0.2);
+}
+
+/* wispy thought clouds that bubble up and fade in and out */
+.thought {
+  position: absolute;
+  padding: 1.2rem 1.8rem;
+  font-size: 0.9rem;
+  text-transform: lowercase;
+  color: var(--omniray-blue);
+  opacity: 0;
+  animation: thought var(--t) ease-in-out var(--d) infinite;
+}
+.thought::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  z-index: -1;
+  filter: blur(7px);
+  --c: rgb(159 176 198 / 0.65);
+  background:
+    radial-gradient(circle at 25% 60%, var(--c) 0 34%, transparent 36%),
+    radial-gradient(circle at 50% 38%, var(--c) 0 42%, transparent 44%),
+    radial-gradient(circle at 76% 58%, var(--c) 0 34%, transparent 36%),
+    radial-gradient(circle at 50% 78%, var(--c) 0 28%, transparent 30%);
+}
+.thought[data-tone="coral"]::before { --c: rgb(255 90 54 / 0.28); }
+@keyframes thought {
+  0%   { opacity: 0; transform: translateY(16px) scale(0.8); }
+  18%  { opacity: 1; transform: translateY(0) scale(1); }
+  70%  { opacity: 1; transform: translateY(-14px) scale(1.04); }
+  100% { opacity: 0; transform: translateY(-36px) scale(1.12); }
+}
+
+.bubble {
+  position: absolute;
+  bottom: -30px;
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  border: 1px solid rgb(90 107 130 / 0.45);
+  background: radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.7), transparent 60%);
+  opacity: 0;
+  animation: rise var(--t) linear var(--d) infinite;
+}
+@keyframes rise {
+  0%   { opacity: 0; transform: translateY(0); }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-340px); }
+}
+
+/* showreel: slides cross-fade in turn (4 slides x 3s) */
+.reel-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: reel 12s ease-in-out var(--d) infinite;
+}
+@keyframes reel {
+  0%   { opacity: 0; transform: translateX(28px); }
+  4%   { opacity: 1; transform: translateX(0); }
+  25%  { opacity: 1; transform: translateX(0); }
+  29%  { opacity: 0; transform: translateX(-28px); }
+  100% { opacity: 0; transform: translateX(-28px); }
+}
+
+/* logo: ring spins clockwise; sparks grow out of the dot and vanish */
+.mark-spin { animation: spin 7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spark {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  filter: drop-shadow(0 0 2px #ff5a36);
+  animation: spark var(--t) ease-out var(--d) infinite;
+}
+@keyframes spark {
+  0%   { stroke-dashoffset: 1; opacity: 1; }
+  30%  { stroke-dashoffset: 0; opacity: 1; }
+  55%  { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thought { animation: none; opacity: 0.9; }
+  .bubble, .spark { display: none; }
+  .reel-slide { animation: none; }
+  .reel-slide:first-of-type { opacity: 1; }
+  .mark-spin { animation: none; }
+}

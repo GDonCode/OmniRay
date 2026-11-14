@@ -48,9 +48,6 @@ function SkyClouds() {
 function Thoughts() {
   return (
     <div className="relative h-[300px] overflow-hidden md:h-full">
-      <p className="absolute left-5 top-4 z-10 text-xs lowercase tracking-wide text-[var(--omniray-blue)]/70">
-        thoughts, ideas, concepts
-      </p>
       {THOUGHTS.map((t) => (
         <span
           key={t.text}
@@ -152,9 +149,6 @@ const REEL_CLIPS: string[] = [];
 function Showreel() {
   return (
     <div className="hero-reel relative h-[300px] overflow-hidden bg-[var(--omniray-blue)] text-[var(--omniray-off-white)] md:h-full">
-      <p className="absolute bottom-4 left-5 z-10 text-xs lowercase tracking-wide text-[var(--omniray-mist)] md:bottom-auto md:left-auto md:right-5 md:top-4">
-        digital presence
-      </p>
       {REEL_CLIPS.map((src, i) => (
         <div key={src} className="reel-slide" style={{ "--d": `${i * 3}s` } as Vars}>
           <video

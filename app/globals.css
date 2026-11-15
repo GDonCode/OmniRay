@@ -54,22 +54,73 @@ body {
 
 /* ---------- hero motion ---------- */
 
-/* showreel: slides cross-fade in turn (4 slides x 3s) */
-.reel-slide {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  animation: reel 12s ease-in-out var(--d) infinite;
+/* shared surface: a deeper paper, recessed into the page, with a notebook gutter at the seam */
+.stage-surface {
+  background-color: #e8eef6;
+  background-image: linear-gradient(
+    180deg,
+    transparent 38%,
+    rgb(15 39 71 / 0.07) 47%,
+    rgb(15 39 71 / 0.2) 50%,
+    rgb(15 39 71 / 0.07) 53%,
+    transparent 62%
+  );
+  box-shadow:
+    inset 0 10px 18px -10px rgb(15 39 71 / 0.35),
+    inset 0 -10px 18px -10px rgb(15 39 71 / 0.25),
+    inset 14px 0 22px -14px rgb(15 39 71 / 0.25),
+    inset -14px 0 22px -14px rgb(15 39 71 / 0.25);
 }
-@keyframes reel {
-  0%   { opacity: 0; transform: translateX(28px); }
-  4%   { opacity: 1; transform: translateX(0); }
-  25%  { opacity: 1; transform: translateX(0); }
-  29%  { opacity: 0; transform: translateX(-28px); }
-  100% { opacity: 0; transform: translateX(-28px); }
+@media (min-width: 768px) {
+  .stage-surface {
+    background-image: linear-gradient(
+      90deg,
+      transparent 38%,
+      rgb(15 39 71 / 0.07) 47%,
+      rgb(15 39 71 / 0.2) 50%,
+      rgb(15 39 71 / 0.07) 53%,
+      transparent 62%
+    );
+  }
+}
+
+/* showreel: a raised card whose viewport scrolls a full-page screenshot, two sites in turn (44s loop) */
+.reel-card {
+  background: #fff;
+  border: 1px solid rgb(15 39 71 / 0.12);
+  border-radius: 10px;
+  box-shadow:
+    0 22px 40px -14px rgb(15 39 71 / 0.4),
+    0 4px 10px rgb(15 39 71 / 0.12);
+}
+.reel-view { container-type: size; }
+.reel-shot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  animation: browse 44s linear infinite;
+}
+@keyframes browse {
+  0%     { opacity: 1; transform: translateY(0); }
+  5%     { opacity: 1; transform: translateY(0); }
+  45%    { opacity: 1; transform: translateY(calc(-100% + 100cqh)); }
+  47%    { opacity: 1; transform: translateY(calc(-100% + 100cqh)); }
+  50%    { opacity: 0; transform: translateY(calc(-100% + 100cqh)); }
+  94%    { opacity: 0; transform: translateY(calc(-100% + 100cqh)); }
+  94.01% { opacity: 0; transform: translateY(0); }
+  100%   { opacity: 1; transform: translateY(0); }
+}
+.reel-label {
+  opacity: 0;
+  animation: label 44s linear infinite;
+}
+@keyframes label {
+  0%, 45% { opacity: 1; }
+  50%, 94% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 /* logo: sun-ray sparks grow out of the dot and vanish */
@@ -89,6 +140,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .spark { display: none; }
   .sketch-draw { animation: none; }
-  .reel-slide { animation: none; }
-  .reel-slide:first-of-type { opacity: 1; }
+  .reel-shot, .reel-label { animation: none; }
+  .reel-shot:first-child, .reel-label:first-child { opacity: 1; }
 }

@@ -84,6 +84,17 @@ body {
   }
 }
 
+/* left side: notes and doodles look pressed into the surface (letterpress / deboss) */
+.engrave {
+  color: rgb(15 39 71 / 0.5);
+  text-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9),
+    0 -1px 0 rgb(15 39 71 / 0.22);
+}
+.engrave svg {
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 0.9)) drop-shadow(0 -1px 0 rgb(15 39 71 / 0.2));
+}
+
 /* showreel: a raised card whose viewport scrolls a full-page screenshot, two sites in turn (44s loop) */
 .reel-card {
   background: #fff;

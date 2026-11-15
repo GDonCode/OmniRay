@@ -14,7 +14,7 @@ const SHOTS = [
 function Showreel() {
   return (
     <div className="relative flex h-[300px] min-h-0 items-center justify-center overflow-hidden md:h-full">
-      <div className="reel-card mt-16 flex h-[min(66%,500px)] w-[min(84%,480px)] md:mt-0 md:h-[min(82%,500px)] flex-col overflow-hidden">
+      <div className="reel-card mt-14 flex h-[72%] w-[90%] flex-col overflow-hidden md:mt-0 md:h-[min(90%,560px)] md:w-[min(84%,700px)]">
         <div className="flex items-center gap-1.5 border-b border-[var(--omniray-blue)]/10 px-3 py-2">
           <span className="size-2 rounded-full bg-[var(--omniray-blue)]/20" />
           <span className="size-2 rounded-full bg-[var(--omniray-blue)]/20" />

@@ -13,7 +13,7 @@ const SHOTS = [
 
 function Showreel() {
   return (
-    <div className="relative flex h-[300px] items-center justify-center md:h-full">
+    <div className="relative flex h-[300px] min-h-0 items-center justify-center overflow-hidden md:h-full">
       <div className="reel-card mt-16 flex h-[min(66%,500px)] w-[min(84%,480px)] md:mt-0 md:h-[min(82%,500px)] flex-col overflow-hidden">
         <div className="flex items-center gap-1.5 border-b border-[var(--omniray-blue)]/10 px-3 py-2">
           <span className="size-2 rounded-full bg-[var(--omniray-blue)]/20" />
@@ -43,7 +43,7 @@ function Showreel() {
               priority={i === 0}
               aria-hidden
               className="reel-shot"
-              style={{ animationDelay: `${-i * 22}s` }}
+              style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "auto", animationDelay: `${-i * 22}s` }}
             />
           ))}
         </div>
@@ -98,7 +98,7 @@ function MovingLogo() {
 export function Hero({ children }: { children?: React.ReactNode }) {
   return (
     <section aria-label="from thought to digital presence" className="relative overflow-hidden">
-      <div className="stage-surface relative z-10 grid overflow-hidden md:h-[min(68vh,620px)] md:grid-cols-2">
+      <div className="stage-surface relative z-10 grid overflow-hidden md:h-[min(68vh,620px)] md:grid-cols-2 md:grid-rows-[minmax(0,1fr)]">
         <Notes />
         <Showreel />
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 size-[clamp(190px,24vw,300px)] -translate-x-1/2 -translate-y-1/2">

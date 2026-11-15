@@ -241,7 +241,7 @@ export function Notes() {
   return (
     <div
       ref={box}
-      className={`${hand.className} relative h-[300px] min-h-0 touch-pan-y select-none overflow-hidden engrave md:h-full`}
+      className={`${hand.className} relative h-[300px] min-h-0 touch-pan-y select-none overflow-hidden stage-surface engrave md:h-full`}
       style={{ fontSize: "clamp(1.25rem, min(2.4vw, 4vh), 3rem)" }}
       aria-hidden
     >

@@ -4,50 +4,30 @@ import { Notes } from "@/components/hero-notes";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
-/* ---------- right half: showreel in a raised browser card ---------- */
+/* ---------- right half: showreel, full bleed ---------- */
 
 const SHOTS = [
-  { src: "/reel/gameboyrecords.webp", w: 649, h: 2000, label: "gameboyrecords.com" },
-  { src: "/reel/fllogistics.webp", w: 717, h: 2000, label: "fllogisticsintl.com" },
+  { src: "/reel/gameboyrecords.webp", w: 649, h: 2000 },
+  { src: "/reel/fllogistics.webp", w: 717, h: 2000 },
 ];
 
 function Showreel() {
   return (
-    <div className="relative flex h-[300px] min-h-0 items-center justify-center overflow-hidden md:h-full">
-      <div className="reel-card mt-14 flex h-[72%] w-[90%] flex-col overflow-hidden md:mt-0 md:h-[min(90%,560px)] md:w-[min(84%,700px)]">
-        <div className="flex items-center gap-1.5 border-b border-[var(--omniray-blue)]/10 px-3 py-2">
-          <span className="size-2 rounded-full bg-[var(--omniray-blue)]/20" />
-          <span className="size-2 rounded-full bg-[var(--omniray-blue)]/20" />
-          <span className="size-2 rounded-full bg-[var(--omniray-blue)]/20" />
-          <span className="relative ml-3 h-4 flex-1">
-            {SHOTS.map((s, i) => (
-              <span
-                key={s.label}
-                className="reel-label absolute inset-y-0 left-0 text-[11px] leading-4 text-[var(--omniray-slate)]"
-                style={{ animationDelay: `${-i * 22}s` }}
-              >
-                {s.label}
-              </span>
-            ))}
-          </span>
-        </div>
-        <div className="reel-view relative min-h-0 flex-1 overflow-hidden bg-white">
-          {SHOTS.map((s, i) => (
-            <Image
-              key={s.src}
-              src={s.src}
-              alt=""
-              width={s.w}
-              height={s.h}
-              unoptimized
-              priority={i === 0}
-              aria-hidden
-              className="reel-shot"
-              style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "auto", animationDelay: `${-i * 22}s` }}
-            />
-          ))}
-        </div>
-      </div>
+    <div className="reel-view relative h-[300px] min-h-0 overflow-hidden bg-white md:h-full">
+      {SHOTS.map((s, i) => (
+        <Image
+          key={s.src}
+          src={s.src}
+          alt=""
+          width={s.w}
+          height={s.h}
+          unoptimized
+          priority={i === 0}
+          aria-hidden
+          className="reel-shot"
+          style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "auto", animationDelay: `${-i * 32}s` }}
+        />
+      ))}
     </div>
   );
 }
@@ -98,7 +78,7 @@ function MovingLogo() {
 export function Hero({ children }: { children?: React.ReactNode }) {
   return (
     <section aria-label="from thought to digital presence" className="relative overflow-hidden">
-      <div className="stage-surface relative z-10 grid overflow-hidden md:h-[min(68vh,620px)] md:grid-cols-2 md:grid-rows-[minmax(0,1fr)]">
+      <div className="relative z-10 grid overflow-hidden md:h-[min(68vh,620px)] md:grid-cols-2 md:grid-rows-[minmax(0,1fr)]">
         <Notes />
         <Showreel />
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 size-[clamp(190px,24vw,300px)] -translate-x-1/2 -translate-y-1/2">

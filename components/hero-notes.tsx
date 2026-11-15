@@ -4,7 +4,7 @@ import { Caveat } from "next/font/google";
 import { useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
-const hand = Caveat({ subsets: ["latin"], weight: "500" });
+const hand = Caveat({ subsets: ["latin"] });
 
 const doodle = {
   fill: "none",
@@ -17,11 +17,13 @@ const doodle = {
 function Word({
   children,
   s = 1,
+  w = 500,
   mark,
   coral,
 }: {
   children: ReactNode;
   s?: number;
+  w?: number;
   mark?: "circle" | "squiggle";
   coral?: boolean;
 }) {
@@ -30,6 +32,7 @@ function Word({
       className="relative block whitespace-pre leading-[1.05]"
       style={{
         fontSize: `${s}em`,
+        fontWeight: w,
         color: coral ? "var(--omniray-coral)" : undefined,
       }}
     >
@@ -53,9 +56,9 @@ function Word({
   );
 }
 
-function Doodle({ w, view, children }: { w: number; view: string; children: ReactNode }) {
+function Doodle({ w, view, sw = 2.4, children }: { w: number; view: string; sw?: number; children: ReactNode }) {
   return (
-    <svg style={{ width: `${(w / 30).toFixed(3)}em` }} viewBox={view} {...doodle}>
+    <svg style={{ width: `${(w / 30).toFixed(3)}em` }} viewBox={view} {...doodle} strokeWidth={sw}>
       {children}
     </svg>
   );
@@ -65,98 +68,98 @@ type Item = { x: number; y: number; r: number; desk?: boolean; node: ReactNode }
 
 const ITEMS: Item[] = [
   // row 1
-  { x: 4, y: 4, r: -4, node: <Word s={1.4}>what if…</Word> },
-  { x: 28, y: 6, r: 3, node: <Word s={1.15}>an app?</Word> },
-  { x: 45, y: 2, r: 8, node: <Word s={2.8}>?</Word> },
+  { x: 4, y: 4, r: -4, node: <Word s={1.7} w={700}>what if…</Word> },
+  { x: 33, y: 8, r: 3, desk: true, node: <Word s={1} w={400}>an app?</Word> },
+  { x: 47, y: 2, r: 8, node: <Word s={2.8} w={600}>?</Word> },
   {
-    x: 55, y: 6, r: 0, desk: true,
+    x: 57, y: 6, r: 0, desk: true,
     node: (
-      <Doodle w={64} view="0 0 60 50">
+      <Doodle w={64} view="0 0 60 50" sw={2}>
         <path d="M14 30 C2 30 2 14 14 14 C14 4 30 2 34 12 C44 8 54 16 48 26 C46 32 38 32 34 30 Z" />
         <circle cx="24" cy="38" r="2.5" />
         <circle cx="17" cy="45" r="1.5" />
       </Doodle>
     ),
   },
-  { x: 68, y: 7, r: 4, desk: true, node: <Word s={1.1}>customers</Word> },
+  { x: 70, y: 8, r: 4, desk: true, node: <Word s={0.9} w={400}>customers</Word> },
   // row 2
-  { x: 5, y: 19, r: -3, desk: true, node: <Word s={1.5}>ideas</Word> },
+  { x: 5, y: 19, r: -3, desk: true, node: <Word s={1.9} w={700}>ideas</Word> },
   {
-    x: 21, y: 18, r: 6, desk: true,
+    x: 26, y: 18, r: 6, desk: true,
     node: (
-      <Doodle w={40} view="0 0 32 40">
+      <Doodle w={48} view="0 0 32 40" sw={2.8}>
         <path d="M12 28 C3 22 3 8 16 6 C29 8 29 22 20 28 L20 33 H12 Z M13 37 H19 M16 1 V-1" />
       </Doodle>
     ),
   },
-  { x: 31, y: 22, r: 4, desk: true, node: <Word s={1.2}>launch?</Word> },
+  { x: 35, y: 22, r: 4, desk: true, node: <Word s={1.05} w={500}>launch?</Word> },
   {
-    x: 53, y: 21, r: -3, desk: true,
+    x: 54, y: 21, r: -3, desk: true,
     node: (
-      <Doodle w={64} view="0 0 44 34">
+      <Doodle w={46} view="0 0 44 34" sw={2}>
         <path d="M3 5 H41 V31 H3 Z M3 12 H41 M8 8.5 H8.1 M12 8.5 H12.1 M16 8.5 H16.1" />
       </Doodle>
     ),
   },
-  { x: 64, y: 21, r: -2, desk: true, node: <Word s={1.2}>dashboard</Word> },
+  { x: 64, y: 21, r: -2, desk: true, node: <Word s={1.4} w={600}>dashboard</Word> },
   // row 3
-  { x: 4, y: 34, r: 2, node: <Word s={1.05} mark="squiggle">booking?</Word> },
+  { x: 4, y: 34, r: 2, node: <Word s={1.25} w={600} mark="squiggle">booking?</Word> },
   {
-    x: 22, y: 32, r: -4, desk: true,
+    x: 27, y: 31, r: -4, desk: true,
     node: (
-      <Doodle w={44} view="0 0 36 36">
+      <Doodle w={38} view="0 0 36 36" sw={2}>
         <path d="M4 8 H32 V32 H4 Z M4 15 H32 M11 3 V10 M25 3 V10" />
       </Doodle>
     ),
   },
-  { x: 33, y: 36, r: -3, node: <Word s={1.2} mark="circle">online store</Word> },
+  { x: 36, y: 36, r: -3, node: <Word s={1.1} w={500} mark="circle">online store</Word> },
   {
-    x: 55, y: 33, r: 5, desk: true,
+    x: 58, y: 32, r: 5, desk: true,
     node: (
-      <Doodle w={50} view="0 0 38 36">
+      <Doodle w={60} view="0 0 38 36" sw={2.8}>
         <path d="M2 4 H8 L12 24 H30 L34 10 H10 M15 30 A2 2 0 1 0 15.1 30 M28 30 A2 2 0 1 0 28.1 30" />
       </Doodle>
     ),
   },
-  { x: 66, y: 37, r: 3, desk: true, node: <Word s={1.1}>checkout</Word> },
+  { x: 69, y: 37, r: 3, desk: true, node: <Word s={0.95} w={400}>checkout</Word> },
   // row 4
-  { x: 5, y: 47, r: -6, desk: true, node: <Word s={1.25}>design</Word> },
+  { x: 5, y: 45, r: -6, desk: true, node: <Word s={1.75} w={700}>design</Word> },
   {
-    x: 22, y: 44, r: 0,
+    x: 25, y: 46, r: 0,
     node: (
-      <Doodle w={120} view="0 0 110 50">
+      <Doodle w={100} view="0 0 110 50" sw={3.2}>
         <path d="M4 42 C34 6 74 4 100 26" />
         <path d="M86 22 L102 28 L96 12" />
       </Doodle>
     ),
   },
-  { x: 42, y: 50, r: 3, desk: true, node: <Word s={1.2}>mobile app</Word> },
+  { x: 42, y: 50, r: 3, desk: true, node: <Word s={1} w={500}>mobile app</Word> },
   {
     x: 66, y: 46, r: -5, desk: true,
     node: (
-      <Doodle w={34} view="0 0 36 40">
+      <Doodle w={28} view="0 0 36 40" sw={2}>
         <path d="M10 2 H26 V38 H10 Z M16 34 H20" />
       </Doodle>
     ),
   },
   // row 5
-  { x: 4, y: 57, r: -2, node: <Word s={1.1}>how do i…?</Word> },
-  { x: 27, y: 59, r: 4, node: <Word s={1.3}>my business!</Word> },
+  { x: 4, y: 59, r: -2, node: <Word s={0.95} w={400}>how do i…?</Word> },
+  { x: 27, y: 62, r: 4, node: <Word s={1.55} w={700}>my business!</Word> },
   {
-    x: 58, y: 59, r: 4, desk: true,
+    x: 66, y: 56, r: 4, desk: true,
     node: (
-      <Doodle w={48} view="0 0 36 34">
+      <Doodle w={40} view="0 0 36 34" sw={2.2}>
         <path d="M4 4 H32 V22 H16 L8 30 V22 H4 Z" />
       </Doodle>
     ),
   },
-  { x: 63, y: 70, r: -3, desk: true, node: <Word s={1.15}>automate it</Word> },
+  { x: 63, y: 70, r: -3, desk: true, node: <Word s={1.25} w={600}>automate it</Word> },
   // row 6
-  { x: 4, y: 71, r: -2, node: <Word s={1}>{"to do:\n– website\n– store"}</Word> },
-  { x: 33, y: 71, r: -10, node: <Word s={2}>?</Word> },
-  { x: 32, y: 86, r: 2, desk: true, node: <Word s={1.1}>payments</Word> },
-  { x: 53, y: 88, r: 4, desk: true, node: <Word s={1.15}>someday…</Word> },
-  { x: 66, y: 82, r: -3, desk: true, node: <Word s={1.1}>track orders</Word> },
+  { x: 4, y: 71, r: -2, node: <Word s={0.95} w={500}>{"to do:\n– website\n– store"}</Word> },
+  { x: 36, y: 74, r: -10, node: <Word s={1.6} w={400}>?</Word> },
+  { x: 32, y: 86, r: 2, desk: true, node: <Word s={0.9} w={400}>payments</Word> },
+  { x: 53, y: 88, r: 4, desk: true, node: <Word s={1.35} w={400}>someday…</Word> },
+  { x: 66, y: 82, r: -3, desk: true, node: <Word s={1} w={600}>track orders</Word> },
 ];
 
 

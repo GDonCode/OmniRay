@@ -55,11 +55,7 @@ export default function Home() {
           we turn your thoughts and ideas into a digital presence
           <span className="text-[var(--omniray-coral)]">.</span>
         </h1>
-        <p className="mt-6 max-w-xl text-lg leading-8 text-[var(--omniray-slate)]">
-          omniray software solutions designs and builds custom websites, stores
-          and platforms, then keeps them running.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center gap-6 text-sm font-medium lowercase">
+        <div className="mt-10 flex flex-wrap items-center gap-6 text-sm font-medium lowercase">
           <Link
             href="/contact"
             className="bg-[var(--omniray-blue)] px-6 py-3 text-[var(--omniray-off-white)] transition-opacity hover:opacity-90"

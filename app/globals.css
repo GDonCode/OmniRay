@@ -12,6 +12,31 @@
 :root {
   --background: var(--omniray-off-white);
   --foreground: var(--omniray-blue);
+  --paper: #f8fafd;
+}
+
+/* Header links: only the text and icon grow on hover. */
+.grow-inner {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.15s ease;
+}
+.hover-grow:hover .grow-inner { transform: scale(1.1); }
+
+/* Nav tabs (on paper): slate by default, deep blue with an underline when active. */
+.tab {
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(0.75rem, 3vw, 1.5rem);
+  color: var(--omniray-slate);
+  font-size: 0.919rem;
+  font-weight: 500;
+  text-transform: lowercase;
+  border-bottom: 3px solid transparent;
+}
+.tab[aria-current="page"] {
+  color: var(--omniray-blue);
+  border-bottom-color: var(--omniray-blue);
 }
 
 @theme inline {

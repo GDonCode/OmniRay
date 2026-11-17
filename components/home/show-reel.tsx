@@ -21,18 +21,20 @@ type Project = {
 // Placeholder work. Swap in real projects and screenshots (16:10 works best).
 const PROJECTS: Project[] = [
   {
-    name: "Northwind Freight",
-    kind: "Logistics platform",
-    theme: {
-      bg: "#0F2747",
-      fg: "#F6F4F1",
-      muted: "#9FB0C6",
-      accent: "#FF5A36",
-      panel: "#16345C",
-      banner: "#FF5A36",
-    },
-    eyebrow: "Fleet operations",
-    headline: "Every shipment, tracked in real time",
+    name: "FL Logistics",
+    kind: "Freight forwarding portal",
+    image: "/reel/fllogistics.webp",
+    theme: { bg: "#fff", fg: "#000", muted: "#666", accent: "#000", panel: "#eee" },
+    eyebrow: "",
+    headline: "",
+  },
+  {
+    name: "Gameboy Records",
+    kind: "Record label e-commerce and membership",
+    image: "/reel/gameboyrecords.gif",
+    theme: { bg: "#fff", fg: "#000", muted: "#666", accent: "#000", panel: "#eee" },
+    eyebrow: "",
+    headline: "",
   },
   {
     name: "Lumen Health",
@@ -122,6 +124,7 @@ function ReelCard({ project }: { project: Project }) {
               alt={`${project.name} — ${project.kind}`}
               fill
               sizes="(min-width: 768px) 640px, 78vw"
+              unoptimized={project.image.endsWith(".gif")}
               className="object-cover object-top"
             />
           ) : (

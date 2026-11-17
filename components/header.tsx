@@ -14,8 +14,8 @@ const TABS = [
 function PhoneIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="17"
+      height="17"
       viewBox="0 0 24 24"
       fill="currentColor"
       stroke="currentColor"
@@ -37,7 +37,7 @@ export function Header() {
       {/* section 1: nav links, on paper */}
       <nav
         aria-label="main"
-        className="flex h-11 items-stretch border-b border-[var(--omniray-blue)]/10 bg-[var(--paper)] md:h-auto md:px-4"
+        className="flex items-stretch border-b border-[var(--omniray-blue)]/10 bg-[var(--paper)] md:h-auto md:px-4 h-[46px]"
       >
         {TABS.map((t) => (
           <Link
@@ -56,19 +56,19 @@ export function Header() {
         <Link
           href="/"
           aria-label="omniray software solutions"
-          className="flex shrink-0 items-center py-3"
+          className="flex shrink-0 items-center py-[12.6px]"
         >
           <span className="flex items-center gap-[13px]">
-            <Logo variant="horizontal" on="dark" height={33} priority />
-            <span className="hidden h-[22px] w-px bg-white/25 sm:block" aria-hidden />
-            <span className="hidden text-[15.4px] font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
+            <Logo variant="horizontal" on="dark" height={34.65} priority />
+            <span className="hidden h-[23px] w-px bg-white/25 sm:block" aria-hidden />
+            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
               software solutions
             </span>
           </span>
         </Link>
         <Link
           href="/contact"
-          className="hover-grow flex items-center bg-[var(--omniray-coral)] px-6 text-sm font-medium lowercase text-[var(--omniray-blue)]"
+          className="hover-grow flex items-center bg-[var(--omniray-coral)] px-[25px] text-[14.7px] font-medium lowercase text-[var(--omniray-blue)]"
         >
           <span className="grow-inner gap-2">
             <PhoneIcon />

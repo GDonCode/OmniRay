@@ -1,0 +1,15 @@
+{
+  "brand": {
+    "slate": "#1B3644",
+    "teal": "#008AA1",
+    "orange": "#FA9442",
+    "offWhite": "#F1F5F6"
+  },
+  "functional": {
+    "slateMuted": "#4F6B7A",
+    "mist": "#9FB8C4",
+    "tealDeep": "#00748A",
+    "tealBright": "#4FC3D8",
+    "orangeDeep": "#B04F08"
+  }
+}

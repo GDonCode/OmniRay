@@ -1,3 +1,4 @@
+import { Header } from "@/components/header";
 import { ShortcutLink } from "@/components/home/shortcut-link";
 import { ShowReel } from "@/components/home/show-reel";
 
@@ -25,46 +26,33 @@ const PILLARS = [
 
 export default function Home() {
   return (
+    <>
+    <Header />
     <main className="relative flex-1 overflow-x-clip">
       {/* Hero */}
       <section className="relative">
         <div aria-hidden className="hero-grid pointer-events-none absolute inset-0" />
         <GuideFrame />
 
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-24 pb-16 text-center sm:pt-32 sm:pb-20">
-          <a
-            href="#work"
-            className="mb-8 inline-flex items-center gap-2 rounded-full border border-omniray-blue/10 bg-white/70 px-3 py-1 font-mono text-[13px] text-omniray-blue backdrop-blur transition-colors hover:border-omniray-blue/25"
-          >
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-omniray-coral opacity-60 motion-reduce:hidden" />
-              <span className="relative inline-flex size-2 rounded-full bg-omniray-coral" />
-            </span>
-            Now booking projects for 2027
-            <span aria-hidden>→</span>
-          </a>
-
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-10 pb-16 text-center sm:pt-12 sm:pb-20">
           <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-omniray-blue sm:text-7xl">
-            Software for what&rsquo;s next
+            Turn your busywork into software that earns
           </h1>
 
           <p className="mt-6 max-w-xl font-mono text-[15px] leading-7 tracking-tight text-pretty text-omniray-slate sm:text-base sm:leading-8">
-            OmniRay is a software studio that designs, builds and ships web
-            platforms, apps and internal tools for teams that move fast.
+            We build the websites, platforms and tools that take bookings,
+            collect payments and keep customers coming back, so you spend
+            less time on manual work and more on growth.
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
             <ShortcutLink href="/contact" shortcut="S" icon={<ArrowIcon />}>
-              Start a project
+              Get your free project plan
             </ShortcutLink>
             <ShortcutLink href="#work" shortcut="W" variant="secondary" icon={<PlayIcon />}>
-              See our work
+              See the results
             </ShortcutLink>
           </div>
-
-          <p className="mt-6 font-mono text-[13px] tracking-tight text-omniray-slate">
-            Strategy · Design · Engineering · Support
-          </p>
         </div>
       </section>
 
@@ -96,6 +84,7 @@ export default function Home() {
         <ShowReel />
       </section>
     </main>
+    </>
   );
 }
 

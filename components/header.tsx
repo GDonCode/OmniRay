@@ -37,7 +37,7 @@ export function Header() {
       {/* section 1: nav links, on paper */}
       <nav
         aria-label="main"
-        className="flex items-stretch border-b border-[var(--omniray-blue)]/10 bg-[var(--paper)] md:h-auto md:px-4 h-[46px]"
+        className="flex items-stretch border-b border-[var(--omniray-blue)]/10 bg-[var(--paper)] md:h-auto md:px-4 h-[46px] dark:border-white/10 dark:bg-[#0a1c36]"
       >
         {TABS.map((t) => (
           <Link
@@ -51,17 +51,18 @@ export function Header() {
         ))}
       </nav>
 
-      {/* section 2: logo + contact, on deep blue */}
-      <div className="flex items-stretch justify-evenly bg-[var(--omniray-blue)] md:flex-1">
+      {/* section 2: logo + contact. Off-white with the blue logo in light mode, deep blue with the reversed logo in dark mode. */}
+      <div className="flex items-stretch justify-evenly bg-[var(--omniray-off-white)] md:flex-1 dark:bg-[var(--omniray-blue)]">
         <Link
           href="/"
           aria-label="omniray software solutions"
           className="flex shrink-0 items-center py-[12.6px]"
         >
           <span className="flex items-center gap-[13px]">
-            <Logo variant="horizontal" on="dark" height={34.65} priority />
-            <span className="hidden h-[23px] w-px bg-white/25 sm:block" aria-hidden />
-            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
+            <Logo variant="horizontal" on="light" height={34.65} priority className="dark:hidden" />
+            <Logo variant="horizontal" on="dark" height={34.65} priority className="hidden dark:block" />
+            <span className="hidden h-[23px] w-px bg-[var(--omniray-blue)]/25 sm:block dark:bg-white/25" aria-hidden />
+            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-[var(--omniray-blue)] sm:block dark:text-[var(--omniray-off-white)]">
               software solutions
             </span>
           </span>

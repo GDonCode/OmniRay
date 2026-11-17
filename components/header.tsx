@@ -37,7 +37,11 @@ export function Header() {
       {/* section 1: nav links (mint in light mode, slate-green in dark mode) */}
       <nav
         aria-label="main"
+<<<<<<< HEAD
         className="flex h-[46px] items-stretch border-b border-omniray-ink/10 bg-omniray-mint md:h-auto md:px-4 dark:border-white/10 dark:bg-[#3A4A44]"
+=======
+        className="flex items-stretch border-b border-[var(--omniray-blue)]/10 bg-[var(--paper)] md:h-auto md:px-4 h-[46px] dark:border-white/10 dark:bg-[#0a1c36]"
+>>>>>>> c81144e6745e3cf7dc039f5435842bcb76143c7a
       >
         {TABS.map((t) => (
           <Link
@@ -51,18 +55,30 @@ export function Header() {
         ))}
       </nav>
 
+<<<<<<< HEAD
       {/* section 2: logo + contact (white in light mode, orange in dark mode) */}
       <div className="flex items-stretch justify-evenly border-b border-omniray-ink/10 bg-white md:flex-1 dark:border-omniray-ink/20 dark:bg-omniray-orange">
+=======
+      {/* section 2: logo + contact. Off-white with the blue logo in light mode, deep blue with the reversed logo in dark mode. */}
+      <div className="flex items-stretch justify-evenly bg-[var(--omniray-off-white)] md:flex-1 dark:bg-[var(--omniray-blue)]">
+>>>>>>> c81144e6745e3cf7dc039f5435842bcb76143c7a
         <Link
           href="/"
           aria-label="omniray software solutions"
           className="flex shrink-0 items-center py-[12.6px]"
         >
           <span className="flex items-center gap-[13px]">
+<<<<<<< HEAD
             <Logo variant="horizontal" tone="color" height={34.65} priority className="dark:hidden" />
             <Logo variant="horizontal" tone="ink" height={34.65} priority className="hidden dark:block" />
             <span className="hidden h-[23px] w-px bg-omniray-ink/25 sm:block" aria-hidden />
             <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-omniray-ink sm:block">
+=======
+            <Logo variant="horizontal" on="light" height={34.65} priority className="dark:hidden" />
+            <Logo variant="horizontal" on="dark" height={34.65} priority className="hidden dark:block" />
+            <span className="hidden h-[23px] w-px bg-[var(--omniray-blue)]/25 sm:block dark:bg-white/25" aria-hidden />
+            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-[var(--omniray-blue)] sm:block dark:text-[var(--omniray-off-white)]">
+>>>>>>> c81144e6745e3cf7dc039f5435842bcb76143c7a
               software solutions
             </span>
           </span>

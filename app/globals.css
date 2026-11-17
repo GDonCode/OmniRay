@@ -45,6 +45,14 @@
   .tab[aria-current="page"] { border-bottom-color: #fff; }
 }
 
+@media (prefers-color-scheme: dark) {
+  .tab { color: var(--omniray-mist); }
+  .tab[aria-current="page"] {
+    color: var(--omniray-off-white);
+    border-bottom-color: var(--omniray-coral);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

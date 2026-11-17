@@ -1,69 +1,135 @@
-import Image from "next/image";
+import { ShortcutLink } from "@/components/home/shortcut-link";
+import { ShowReel } from "@/components/home/show-reel";
+
+const PILLARS = [
+  {
+    title: "Design",
+    body: "Product strategy, UX and interface design that makes complex tools feel simple.",
+    icon: (
+      <path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586M11 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+    ),
+  },
+  {
+    title: "Engineering",
+    body: "Web platforms, apps and internal tools built to be fast, tested and easy to grow.",
+    icon: <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" />,
+  },
+  {
+    title: "Partnership",
+    body: "One small senior team from first sketch to launch, and on call long after.",
+    icon: (
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+    ),
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <main className="relative flex-1 overflow-x-clip">
+      {/* Hero */}
+      <section className="relative">
+        <div aria-hidden className="hero-grid pointer-events-none absolute inset-0" />
+        <GuideFrame />
+
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-24 pb-16 text-center sm:pt-32 sm:pb-20">
+          <a
+            href="#work"
+            className="mb-8 inline-flex items-center gap-2 rounded-full border border-omniray-blue/10 bg-white/70 px-3 py-1 font-mono text-[13px] text-omniray-blue backdrop-blur transition-colors hover:border-omniray-blue/25"
+          >
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-omniray-coral opacity-60 motion-reduce:hidden" />
+              <span className="relative inline-flex size-2 rounded-full bg-omniray-coral" />
+            </span>
+            Now booking projects for 2027
+            <span aria-hidden>→</span>
+          </a>
+
+          <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-omniray-blue sm:text-7xl">
+            Software for what&rsquo;s next
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="mt-6 max-w-xl font-mono text-[15px] leading-7 tracking-tight text-pretty text-omniray-slate sm:text-base sm:leading-8">
+            OmniRay is a software studio that designs, builds and ships web
+            platforms, apps and internal tools for teams that move fast.
+          </p>
+
+          <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+            <ShortcutLink href="/contact" shortcut="S" icon={<ArrowIcon />}>
+              Start a project
+            </ShortcutLink>
+            <ShortcutLink href="#work" shortcut="W" variant="secondary" icon={<PlayIcon />}>
+              See our work
+            </ShortcutLink>
+          </div>
+
+          <p className="mt-6 font-mono text-[13px] tracking-tight text-omniray-slate">
+            Strategy · Design · Engineering · Support
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Pillars + show reel */}
+      <section id="work" className="relative scroll-mt-8 pb-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <ul className="grid divide-y divide-omniray-blue/10 rounded-xl border border-omniray-blue/10 bg-white/80 shadow-[0_1px_2px_rgb(15_39_71/0.04)] backdrop-blur sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            {PILLARS.map((pillar) => (
+              <li key={pillar.title} className="p-5 sm:p-6">
+                <h2 className="flex items-center gap-2 font-mono text-[15px] text-omniray-blue">
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 24 24"
+                    className="size-4 fill-none stroke-omniray-coral stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                  >
+                    {pillar.icon}
+                  </svg>
+                  {pillar.title}
+                </h2>
+                <p className="mt-2 font-mono text-[13px] leading-6 tracking-tight text-omniray-slate">
+                  {pillar.body}
+                </p>
+              </li>
+            ))}
+          </ul>
         </div>
-      </main>
+
+        <h2 className="sr-only">Selected work</h2>
+        <ShowReel />
+      </section>
+    </main>
+  );
+}
+
+/** Dashed guide lines with diamond markers framing the hero, like a blueprint. */
+function GuideFrame() {
+  const diamond =
+    "absolute size-2 rotate-45 border border-omniray-blue/25 bg-omniray-off-white";
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
+      <div className="absolute inset-y-0 left-[max(1.5rem,calc(50%-36rem))] border-l border-dashed border-omniray-blue/15" />
+      <div className="absolute inset-y-0 right-[max(1.5rem,calc(50%-36rem))] border-r border-dashed border-omniray-blue/15" />
+      <div className="absolute inset-x-0 top-12 border-t border-dashed border-omniray-blue/15" />
+      <div className="absolute inset-x-0 bottom-0 border-t border-dashed border-omniray-blue/15" />
+      <span className={`${diamond} top-12 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 -translate-y-1/2`} />
+      <span className={`${diamond} top-12 right-[max(1.5rem,calc(50%-36rem))] translate-x-1/2 -translate-y-1/2`} />
+      <span className={`${diamond} bottom-0 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 translate-y-1/2`} />
+      <span className={`${diamond} right-[max(1.5rem,calc(50%-36rem))] bottom-0 translate-x-1/2 translate-y-1/2`} />
     </div>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10 8.5v7l5.5-3.5z" />
+    </svg>
   );
 }

@@ -1,8 +1,17 @@
 @import "tailwindcss";
+@import "./omniray-colors.css";
+
+@theme {
+  --color-omniray-blue: #0F2747;
+  --color-omniray-coral: #FF5A36;
+  --color-omniray-off-white: #F6F4F1;
+  --color-omniray-slate: #5A6B82;
+  --color-omniray-mist: #9FB0C6;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--omniray-off-white);
+  --foreground: var(--omniray-blue);
 }
 
 @theme inline {
@@ -10,17 +19,45 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-serif: var(--font-newsreader);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Faint blueprint grid behind the hero, fading out toward the bottom. */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgb(15 39 71 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(15 39 71 / 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, black 55%, transparent);
+}
+
+/* Show reel: the track holds the slides twice and slides left by half its width. */
+@keyframes reel {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.reel-track {
+  animation: reel var(--reel-duration, 60s) linear infinite;
+}
+
+.reel:hover .reel-track,
+.reel:focus-within .reel-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reel-track {
+    animation: none;
+  }
+  .reel {
+    overflow-x: auto;
+  }
 }

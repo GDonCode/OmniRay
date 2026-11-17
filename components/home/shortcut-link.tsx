@@ -47,15 +47,15 @@ export function ShortcutLink({
 
   const styles =
     variant === "primary"
-      ? "border-omniray-blue bg-omniray-blue text-omniray-off-white shadow-[0_1px_0_0_rgb(255_255_255/0.12)_inset,0_1px_2px_rgb(15_39_71/0.3)] hover:bg-[#183a66]"
-      : "border-omniray-blue/15 bg-white text-omniray-blue shadow-[0_1px_2px_rgb(15_39_71/0.06)] hover:border-omniray-blue/30 hover:bg-omniray-off-white";
+      ? "border-omniray-ink bg-omniray-ink text-omniray-paper shadow-[0_1px_0_0_rgb(255_255_255/0.12)_inset,0_1px_2px_rgb(15_38_31/0.3)] hover:bg-[#1d3d33]"
+      : "border-omniray-ink/15 bg-white text-omniray-ink shadow-[0_1px_2px_rgb(15_38_31/0.06)] hover:border-omniray-ink/30 hover:bg-omniray-paper";
 
   return (
     <a
       ref={ref}
       href={href}
       aria-keyshortcuts={shortcut.toUpperCase()}
-      className={`group inline-flex h-11 items-center gap-2.5 rounded-md border px-4 font-mono text-[15px] tracking-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-omniray-coral ${styles}`}
+      className={`group inline-flex h-11 items-center gap-2.5 rounded-md border px-4 font-mono text-[15px] tracking-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-omniray-orange ${styles}`}
     >
       {icon}
       <span>{children}</span>

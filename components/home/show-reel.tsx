@@ -70,7 +70,7 @@ const PROJECTS: Project[] = [
       bg: "#FFF6EF",
       fg: "#2B1A12",
       muted: "#8A6F60",
-      accent: "#FF5A36",
+      accent: "#FF5200",
       panel: "#FBE6D8",
     },
     eyebrow: "Research notebook",
@@ -116,7 +116,7 @@ export function ShowReel() {
 function ReelCard({ project }: { project: Project }) {
   return (
     <figure className="group w-[78vw] max-w-[640px] sm:w-[560px] md:w-[640px]">
-      <div className="overflow-hidden rounded-xl border border-omniray-blue/10 bg-white p-1.5 shadow-[0_24px_48px_-16px_rgb(15_39_71/0.28),0_2px_6px_rgb(15_39_71/0.08)] transition-transform duration-500 group-hover:-translate-y-1">
+      <div className="overflow-hidden rounded-xl border border-omniray-ink/10 bg-white p-1.5 shadow-[0_24px_48px_-16px_rgb(15_38_31/0.28),0_2px_6px_rgb(15_38_31/0.08)] transition-transform duration-500 group-hover:-translate-y-1">
         <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
           {project.image ? (
             <Image
@@ -133,8 +133,8 @@ function ReelCard({ project }: { project: Project }) {
         </div>
       </div>
       <figcaption className="mt-4 flex items-baseline justify-between gap-4 px-1 font-mono text-[13px]">
-        <span className="text-omniray-blue">{project.name}</span>
-        <span className="text-omniray-slate">{project.kind}</span>
+        <span className="text-omniray-ink">{project.name}</span>
+        <span className="text-omniray-ink-muted">{project.kind}</span>
       </figcaption>
     </figure>
   );

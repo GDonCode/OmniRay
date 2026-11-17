@@ -27,42 +27,19 @@ const PILLARS = [
 export default function Home() {
   return (
     <>
-<<<<<<< HEAD
-      {/* hero */}
-      <Hero>
-      <section className="mx-auto w-full max-w-6xl px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
-        <h1 className="max-w-4xl text-[clamp(2.25rem,6vw,5rem)] font-bold lowercase leading-[1.04] tracking-tight">
-          turn your thoughts and ideas into a digital presence
-          <span className="text-[var(--omniray-coral)]">.</span>
-        </h1>
-        <div className="mt-10 flex flex-wrap items-center gap-6 text-sm font-medium lowercase">
-          <Link
-            href="/contact"
-            className="bg-[var(--omniray-blue)] px-6 py-3 text-[var(--omniray-off-white)] transition-opacity hover:opacity-90"
-          >
-            start a project
-          </Link>
-          <a href="#work" className="underline underline-offset-4">
-            view some examples
-          </a>
-        </div>
-      </section>
-      </Hero>
-=======
     <Header />
     <main className="relative flex-1 overflow-x-clip">
       {/* Hero */}
       <section className="relative">
         <div aria-hidden className="hero-grid pointer-events-none absolute inset-0" />
         <GuideFrame />
->>>>>>> a21c111118e4e6437b37461a045d24fb01b0aaf7
 
         <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-10 pb-16 text-center sm:pt-12 sm:pb-20">
-          <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-omniray-blue sm:text-7xl">
+          <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-omniray-ink sm:text-7xl">
             Turn your busywork into software that earns
           </h1>
 
-          <p className="mt-6 max-w-xl font-mono text-[15px] leading-7 tracking-tight text-pretty text-omniray-slate sm:text-base sm:leading-8">
+          <p className="mt-6 max-w-xl font-mono text-[15px] leading-7 tracking-tight text-pretty text-omniray-ink-muted sm:text-base sm:leading-8">
             We build the websites, platforms and tools that take bookings,
             collect payments and keep customers coming back, so you spend
             less time on manual work and more on growth.
@@ -82,20 +59,20 @@ export default function Home() {
       {/* Pillars + show reel */}
       <section id="work" className="relative scroll-mt-8 pb-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <ul className="grid divide-y divide-omniray-blue/10 rounded-xl border border-omniray-blue/10 bg-white/80 shadow-[0_1px_2px_rgb(15_39_71/0.04)] backdrop-blur sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <ul className="grid divide-y divide-omniray-ink/10 rounded-xl border border-omniray-ink/10 bg-white/80 shadow-[0_1px_2px_rgb(15_38_31/0.04)] backdrop-blur sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {PILLARS.map((pillar) => (
               <li key={pillar.title} className="p-5 sm:p-6">
-                <h2 className="flex items-center gap-2 font-mono text-[15px] text-omniray-blue">
+                <h2 className="flex items-center gap-2 font-mono text-[15px] text-omniray-ink">
                   <svg
                     aria-hidden
                     viewBox="0 0 24 24"
-                    className="size-4 fill-none stroke-omniray-coral stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                    className="size-4 fill-none stroke-omniray-orange stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
                   >
                     {pillar.icon}
                   </svg>
                   {pillar.title}
                 </h2>
-                <p className="mt-2 font-mono text-[13px] leading-6 tracking-tight text-omniray-slate">
+                <p className="mt-2 font-mono text-[13px] leading-6 tracking-tight text-omniray-ink-muted">
                   {pillar.body}
                 </p>
               </li>
@@ -114,13 +91,13 @@ export default function Home() {
 /** Dashed guide lines with diamond markers framing the hero, like a blueprint. */
 function GuideFrame() {
   const diamond =
-    "absolute size-2 rotate-45 border border-omniray-blue/25 bg-omniray-off-white";
+    "absolute size-2 rotate-45 border border-omniray-ink/25 bg-omniray-paper";
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
-      <div className="absolute inset-y-0 left-[max(1.5rem,calc(50%-36rem))] border-l border-dashed border-omniray-blue/15" />
-      <div className="absolute inset-y-0 right-[max(1.5rem,calc(50%-36rem))] border-r border-dashed border-omniray-blue/15" />
-      <div className="absolute inset-x-0 top-12 border-t border-dashed border-omniray-blue/15" />
-      <div className="absolute inset-x-0 bottom-0 border-t border-dashed border-omniray-blue/15" />
+      <div className="absolute inset-y-0 left-[max(1.5rem,calc(50%-36rem))] border-l border-dashed border-omniray-ink/15" />
+      <div className="absolute inset-y-0 right-[max(1.5rem,calc(50%-36rem))] border-r border-dashed border-omniray-ink/15" />
+      <div className="absolute inset-x-0 top-12 border-t border-dashed border-omniray-ink/15" />
+      <div className="absolute inset-x-0 bottom-0 border-t border-dashed border-omniray-ink/15" />
       <span className={`${diamond} top-12 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 -translate-y-1/2`} />
       <span className={`${diamond} top-12 right-[max(1.5rem,calc(50%-36rem))] translate-x-1/2 -translate-y-1/2`} />
       <span className={`${diamond} bottom-0 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 translate-y-1/2`} />

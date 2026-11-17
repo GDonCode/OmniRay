@@ -33,7 +33,7 @@ function Word({
       style={{
         fontSize: `${s}em`,
         fontWeight: w,
-        color: coral ? "var(--omniray-coral)" : undefined,
+        color: coral ? "var(--omniray-orange)" : undefined,
       }}
     >
       {children}

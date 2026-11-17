@@ -60,15 +60,15 @@ function MovingLogo() {
             className="spark"
             style={{ "--d": `${r.delay}s`, "--t": "1.8s" } as Vars}
             fill="none"
-            stroke="#FF5A36"
+            stroke="#FF5200"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
         ))}
       </g>
       {/* exclamation point */}
-      <polygon points="54.5,3.5 65.5,3.5 62.5,68.5 57.5,68.5" fill="#FF5A36" stroke="#FF5A36" strokeWidth="3" strokeLinejoin="round" />
-      <circle cx="60" cy="88" r="6.5" fill="#FF5A36" />
+      <polygon points="54.5,3.5 65.5,3.5 62.5,68.5 57.5,68.5" fill="#FF5200" stroke="#FF5200" strokeWidth="3" strokeLinejoin="round" />
+      <circle cx="60" cy="88" r="6.5" fill="#FF5200" />
     </svg>
   );
 }

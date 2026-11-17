@@ -3,31 +3,55 @@ import Image from "next/image";
 const LOGOS = {
   horizontal: {
     ratio: 408.03 / 126,
-    light: "omniray-logo-horizontal",
-    dark: "omniray-logo-horizontal-reversed",
+    files: {
+      color: "omniray-logo-horizontal",
+      reversed: "omniray-logo-horizontal-reversed",
+      ink: "omniray-logo-horizontal-ink",
+      white: "omniray-logo-horizontal-white",
+    },
   },
   stacked: {
     ratio: 266.53 / 232.03,
-    light: "omniray-logo-stacked",
-    dark: "omniray-logo-stacked-reversed",
+    files: {
+      color: "omniray-logo-stacked",
+      reversed: "omniray-logo-stacked-reversed",
+      ink: "omniray-logo-stacked",
+      white: "omniray-logo-stacked-reversed",
+    },
   },
   mark: {
     ratio: 1,
-    light: "omniray-mark",
-    dark: "omniray-mark-reversed",
+    files: {
+      color: "omniray-mark",
+      reversed: "omniray-mark-reversed",
+      ink: "omniray-mark-ink",
+      white: "omniray-mark-white",
+    },
   },
   wordmark: {
     ratio: 254.53 / 64.16,
-    light: "omniray-wordmark",
-    dark: "omniray-wordmark-reversed",
+    files: {
+      color: "omniray-wordmark",
+      reversed: "omniray-wordmark-reversed",
+      ink: "omniray-wordmark",
+      white: "omniray-wordmark-reversed",
+    },
   },
 } as const;
 
 type LogoProps = {
   /** Which lockup to show. */
   variant?: keyof typeof LOGOS;
-  /** The background the logo sits on: "light" uses the blue version, "dark" the reversed one. */
-  on?: "light" | "dark";
+  /**
+   * Which colour version to use:
+   * - "color"    full colour, for white and paper backgrounds (default)
+   * - "reversed" full colour, for deep green (ink) backgrounds
+   * - "ink"      one colour (deep green), for orange, yellow and mint backgrounds
+   * - "white"    one colour (white), for photos and busy images
+   * Note: stacked and wordmark have no one-colour files, so "ink" and "white"
+   * fall back to their full-colour (or reversed) versions for those two.
+   */
+  tone?: "color" | "reversed" | "ink" | "white";
   /** Rendered height in px. Width follows the logo's proportions. */
   height?: number;
   /** Set on the header logo so it loads first. */
@@ -38,14 +62,14 @@ type LogoProps = {
 
 export function Logo({
   variant = "horizontal",
-  on = "light",
+  tone = "color",
   height = 40,
   priority = false,
   alt = "OmniRay",
   className,
 }: LogoProps) {
   const logo = LOGOS[variant];
-  const file = on === "dark" ? logo.dark : logo.light;
+  const file = logo.files[tone];
 
   return (
     <Image

@@ -2,16 +2,16 @@
 @import "./omniray-colors.css";
 
 @theme {
-  --color-omniray-blue: #0F2747;
-  --color-omniray-coral: #FF5A36;
-  --color-omniray-off-white: #F6F4F1;
+  --color-omniray-ink: #0F2747;
+  --color-omniray-orange: #FF5A36;
+  --color-omniray-paper: #F6F4F1;
   --color-omniray-slate: #5A6B82;
   --color-omniray-mist: #9FB0C6;
 }
 
 :root {
-  --background: var(--omniray-off-white);
-  --foreground: var(--omniray-blue);
+  --background: var(--omniray-paper);
+  --foreground: var(--omniray-ink);
   --paper: #f8fafd;
 }
 
@@ -23,20 +23,26 @@
 }
 .hover-grow:hover .grow-inner { transform: scale(1.1); }
 
-/* Nav tabs (on paper): slate by default, deep blue with an underline when active. */
+/* Nav tabs: ink on mint (light), white on #3A4A44 (dark). Active = underline. */
 .tab {
   display: flex;
   align-items: center;
   padding: 0 clamp(0.75rem, 3vw, 1.5rem);
-  color: var(--omniray-slate);
+  color: var(--omniray-ink);
+  opacity: 0.8;
   font-size: 0.919rem;
   font-weight: 500;
   text-transform: lowercase;
   border-bottom: 3px solid transparent;
 }
 .tab[aria-current="page"] {
-  color: var(--omniray-blue);
-  border-bottom-color: var(--omniray-blue);
+  opacity: 1;
+  border-bottom-color: var(--omniray-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tab { color: #fff; }
+  .tab[aria-current="page"] { border-bottom-color: #fff; }
 }
 
 @theme inline {
@@ -45,6 +51,11 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-newsreader);
+  --font-heading: var(--font-space-grotesk);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-space-grotesk), var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 body {

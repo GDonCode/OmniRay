@@ -34,10 +34,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 flex flex-col-reverse md:flex-row">
-      {/* section 1: nav links, on paper */}
+      {/* section 1: nav links (mint in light mode, slate-green in dark mode) */}
       <nav
         aria-label="main"
-        className="flex items-stretch border-b border-[var(--omniray-blue)]/10 bg-[var(--paper)] md:h-auto md:px-4 h-[46px]"
+        className="flex h-[46px] items-stretch border-b border-omniray-ink/10 bg-omniray-mint md:h-auto md:px-4 dark:border-white/10 dark:bg-[#3A4A44]"
       >
         {TABS.map((t) => (
           <Link
@@ -51,24 +51,25 @@ export function Header() {
         ))}
       </nav>
 
-      {/* section 2: logo + contact, on deep blue */}
-      <div className="flex items-stretch justify-evenly bg-[var(--omniray-blue)] md:flex-1">
+      {/* section 2: logo + contact (white in light mode, orange in dark mode) */}
+      <div className="flex items-stretch justify-evenly border-b border-omniray-ink/10 bg-white md:flex-1 dark:border-omniray-ink/20 dark:bg-omniray-orange">
         <Link
           href="/"
           aria-label="omniray software solutions"
           className="flex shrink-0 items-center py-[12.6px]"
         >
           <span className="flex items-center gap-[13px]">
-            <Logo variant="horizontal" on="dark" height={34.65} priority />
-            <span className="hidden h-[23px] w-px bg-white/25 sm:block" aria-hidden />
-            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-[var(--omniray-off-white)] sm:block">
+            <Logo variant="horizontal" tone="color" height={34.65} priority className="dark:hidden" />
+            <Logo variant="horizontal" tone="ink" height={34.65} priority className="hidden dark:block" />
+            <span className="hidden h-[23px] w-px bg-omniray-ink/25 sm:block" aria-hidden />
+            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-omniray-ink sm:block">
               software solutions
             </span>
           </span>
         </Link>
         <Link
           href="/contact"
-          className="hover-grow flex items-center bg-[var(--omniray-coral)] px-[25px] text-[14.7px] font-medium lowercase text-[var(--omniray-blue)]"
+          className="hover-grow flex items-center bg-omniray-orange px-[25px] text-[14.7px] font-medium lowercase text-omniray-ink dark:bg-omniray-ink dark:text-white"
         >
           <span className="grow-inner gap-2">
             <PhoneIcon />

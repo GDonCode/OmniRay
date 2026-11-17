@@ -1,7 +1,18 @@
+/* OmniRay brand tokens. Import once in app/globals.css:  @import "./omniray-colors.css"; */
 :root {
-  --omniray-blue: #0F2747;      /* primary: ring, wordmark, dark backgrounds */
-  --omniray-coral: #FF5A36;     /* accent: exclamation point, buttons, highlights */
-  --omniray-off-white: #F6F4F1;  /* light backgrounds, ring on dark */
-  --omniray-slate: #5A6B82;     /* secondary text on light */
-  --omniray-mist: #9FB0C6;      /* secondary text on dark */
+  /* Brand colours */
+  --omniray-ink: #0F261F;         /* core: text, logo ring, dark sections (deep green) */
+  --omniray-orange: #FF5200;      /* accent: exclamation point, "Ray", one call to action */
+  --omniray-yellow: #D1BD19;      /* secondary: highlights and "Ray" on ink, yellow blocks */
+  --omniray-mint: #B5FFC2;        /* secondary: ring and accents on ink, mint blocks */
+  --omniray-black: #000000;       /* print, stamps, maximum-punch text */
+  --omniray-white: #FFFFFF;       /* cards and surfaces */
+
+  /* Page background (a barely-there mint tint) */
+  --omniray-paper: #F1FAF3;
+
+  /* Functional tints (derived so every text pair passes WCAG AA) */
+  --omniray-ink-muted: #4F6359;   /* secondary text on light */
+  --omniray-orange-deep: #C93B00; /* orange text and links on light */
+  --omniray-yellow-deep: #7A6D00; /* yellow-family text on light (rare) */
 }

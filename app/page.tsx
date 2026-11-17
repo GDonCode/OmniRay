@@ -52,7 +52,7 @@ export default function Home() {
       <Hero>
       <section className="mx-auto w-full max-w-6xl px-5 pb-20 pt-16 sm:px-8 md:pb-28 md:pt-24">
         <h1 className="max-w-4xl text-[clamp(2.25rem,6vw,5rem)] font-bold lowercase leading-[1.04] tracking-tight">
-          we turn your thoughts and ideas into a digital presence
+          turn your thoughts and ideas into a digital presence
           <span className="text-[var(--omniray-coral)]">.</span>
         </h1>
         <div className="mt-10 flex flex-wrap items-center gap-6 text-sm font-medium lowercase">
@@ -63,7 +63,7 @@ export default function Home() {
             start a project
           </Link>
           <a href="#work" className="underline underline-offset-4">
-            see our work
+            view some examples
           </a>
         </div>
       </section>

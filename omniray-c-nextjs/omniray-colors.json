@@ -1,0 +1,18 @@
+{
+  "brand": {
+    "ink": "#0F261F",
+    "orange": "#FF5200",
+    "yellow": "#D1BD19",
+    "mint": "#B5FFC2",
+    "black": "#000000",
+    "white": "#FFFFFF"
+  },
+  "surface": {
+    "paper": "#F1FAF3"
+  },
+  "functional": {
+    "inkMuted": "#4F6359",
+    "orangeDeep": "#C93B00",
+    "yellowDeep": "#7A6D00"
+  }
+}

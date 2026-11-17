@@ -1,31 +1,18 @@
 @import "tailwindcss";
 @import "./omniray-colors.css";
 
-@theme inline {
-  --color-omniray-blue: var(--omniray-blue);
-  --color-omniray-coral: var(--omniray-coral);
-  --color-omniray-off-white: var(--omniray-off-white);
-  --color-omniray-slate: var(--omniray-slate);
-  --color-omniray-mist: var(--omniray-mist);
-  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --color-omniray-blue: #0F2747;
+  --color-omniray-coral: #FF5A36;
+  --color-omniray-off-white: #F6F4F1;
+  --color-omniray-slate: #5A6B82;
+  --color-omniray-mist: #9FB0C6;
 }
 
-/* Paper stock: white with a slight blue tinge, plus texture only:
-   fine grain and a coarser second grain for a paper-fibre feel. No lines or shapes. */
 :root {
+  --background: var(--omniray-off-white);
+  --foreground: var(--omniray-blue);
   --paper: #f8fafd;
-}
-
-body {
-  min-height: 100vh;
-  font-family: var(--font-sans);
-  color: var(--omniray-blue);
-  background-color: var(--paper);
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .15 0 0 0 0 .28 0 0 0 .055 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.35' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .15 0 0 0 0 .28 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23m)'/%3E%3C/svg%3E");
-  background-size: 200px 200px, 300px 300px;
 }
 
 /* Header links: only the text and icon grow on hover. */
@@ -42,7 +29,7 @@ body {
   align-items: center;
   padding: 0 clamp(0.75rem, 3vw, 1.5rem);
   color: var(--omniray-slate);
-  font-size: 0.875rem;
+  font-size: 0.919rem;
   font-weight: 500;
   text-transform: lowercase;
   border-bottom: 3px solid transparent;
@@ -52,43 +39,50 @@ body {
   border-bottom-color: var(--omniray-blue);
 }
 
-/* ---------- hero motion ---------- */
-
-/* showreel: slides cross-fade in turn (4 slides x 3s) */
-.reel-slide {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  animation: reel 12s ease-in-out var(--d) infinite;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-newsreader);
 }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Faint blueprint grid behind the hero, fading out toward the bottom. */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgb(15 39 71 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(15 39 71 / 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, black 55%, transparent);
+}
+
+/* Show reel: the track holds the slides twice and slides left by half its width. */
 @keyframes reel {
-  0%   { opacity: 0; transform: translateX(28px); }
-  4%   { opacity: 1; transform: translateX(0); }
-  25%  { opacity: 1; transform: translateX(0); }
-  29%  { opacity: 0; transform: translateX(-28px); }
-  100% { opacity: 0; transform: translateX(-28px); }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
-/* logo: sun-ray sparks grow out of the dot and vanish */
-.spark {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0;
-  animation: spark var(--t) ease-out var(--d) infinite;
+.reel-track {
+  animation: reel var(--reel-duration, 60s) linear infinite;
 }
-@keyframes spark {
-  0%   { stroke-dashoffset: 1; opacity: 0.55; }
-  35%  { stroke-dashoffset: 0; opacity: 0.55; }
-  70%  { stroke-dashoffset: 0; opacity: 0; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
+
+.reel:hover .reel-track,
+.reel:focus-within .reel-track {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spark { display: none; }
-  .sketch-draw { animation: none; }
-  .reel-slide { animation: none; }
-  .reel-slide:first-of-type { opacity: 1; }
+  .reel-track {
+    animation: none;
+  }
+  .reel {
+    overflow-x: auto;
+  }
 }

@@ -1,0 +1,12 @@
+/* Tailwind v4 only. Import after tailwindcss in app/globals.css:  @import "./omniray-theme.css"; */
+@theme {
+  --color-omniray-slate: #1B3644;
+  --color-omniray-teal: #008AA1;
+  --color-omniray-orange: #FA9442;
+  --color-omniray-off-white: #F1F5F6;
+  --color-omniray-slate-muted: #4F6B7A;
+  --color-omniray-mist: #9FB8C4;
+  --color-omniray-teal-deep: #00748A;
+  --color-omniray-teal-bright: #4FC3D8;
+  --color-omniray-orange-deep: #B04F08;
+}

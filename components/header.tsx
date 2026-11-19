@@ -33,12 +33,9 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col-reverse md:flex-row">
-      {/* section 1: nav links (mint in light mode, slate-green in dark mode) */}
-      <nav
-        aria-label="main"
-        className="flex h-[46px] items-stretch border-b border-omniray-ink/10 bg-omniray-mint md:h-auto md:px-4 dark:border-white/10 dark:bg-[#3A4A44]"
-      >
+    <header className="sticky top-0 z-50 flex flex-col-reverse border-b border-omniray-ink/10 bg-white md:flex-row dark:border-white/10 dark:bg-omniray-ink">
+      {/* section 1: nav links */}
+      <nav aria-label="main" className="flex h-[46px] items-stretch md:h-auto md:px-4">
         {TABS.map((t) => (
           <Link
             key={t.href}
@@ -51,25 +48,19 @@ export function Header() {
         ))}
       </nav>
 
-      {/* section 2: logo + contact (white in light mode, orange in dark mode) */}
-      <div className="flex items-stretch justify-evenly border-b border-omniray-ink/10 bg-white md:flex-1 dark:border-omniray-ink/20 dark:bg-omniray-orange">
+      {/* section 2: logo + contact */}
+      <div className="flex items-stretch justify-evenly md:flex-1">
         <Link
           href="/"
           aria-label="omniray software solutions"
-          className="flex shrink-0 items-center py-[12.6px]"
+          className="flex shrink-0 items-center py-2"
         >
-          <span className="flex items-center gap-[13px]">
-            <Logo variant="horizontal" tone="color" height={34.65} priority className="dark:hidden" />
-            <Logo variant="horizontal" tone="ink" height={34.65} priority className="hidden dark:block" />
-            <span className="hidden h-[23px] w-px bg-omniray-ink/25 sm:block" aria-hidden />
-            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-omniray-ink sm:block">
-              software solutions
-            </span>
-          </span>
+          <Logo variant="stacked" tone="color" height={72} priority className="h-[72px] w-auto dark:hidden" />
+          <Logo variant="stacked" tone="reversed" height={72} priority className="hidden h-[72px] w-auto dark:block" />
         </Link>
         <Link
           href="/contact"
-          className="hover-grow flex items-center bg-omniray-orange px-[25px] text-[14.7px] font-medium lowercase text-omniray-ink dark:bg-omniray-ink dark:text-white"
+          className="hover-grow flex items-center bg-omniray-orange px-[25px] text-[14.7px] font-medium lowercase text-omniray-ink"
         >
           <span className="grow-inner gap-2">
             <PhoneIcon />

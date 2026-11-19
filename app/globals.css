@@ -23,7 +23,7 @@
 }
 .hover-grow:hover .grow-inner { transform: scale(1.1); }
 
-/* Nav tabs: ink on mint (light), white on #3A4A44 (dark). Active = underline. */
+/* Nav tabs: ink on white (light), white on ink (dark). Active = underline. */
 .tab {
   display: flex;
   align-items: center;

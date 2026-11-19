@@ -33,7 +33,7 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col-reverse border-b border-omniray-ink/10 bg-white md:flex-row dark:border-white/10 dark:bg-omniray-ink">
+    <header className="sticky top-0 z-50 flex flex-col-reverse border-b border-black/10 bg-white md:flex-row dark:border-white/10 dark:bg-black">
       {/* section 1: nav links */}
       <nav aria-label="main" className="flex h-[46px] items-stretch md:h-auto md:px-4">
         {TABS.map((t) => (
@@ -53,14 +53,20 @@ export function Header() {
         <Link
           href="/"
           aria-label="omniray software solutions"
-          className="flex shrink-0 items-center py-2"
+          className="flex shrink-0 items-center py-[12.6px]"
         >
-          <Logo variant="stacked" tone="color" height={72} priority className="h-[72px] w-auto dark:hidden" />
-          <Logo variant="stacked" tone="reversed" height={72} priority className="hidden h-[72px] w-auto dark:block" />
+          <span className="flex items-center gap-[13px]">
+            <Logo variant="horizontal" tone="color" height={34.65} priority className="dark:hidden" />
+            <Logo variant="horizontal" tone="reversed" height={34.65} priority className="hidden dark:block" />
+            <span className="hidden h-[23px] w-px bg-black/25 sm:block dark:bg-white/30" aria-hidden />
+            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-black sm:block dark:text-white">
+              software solutions
+            </span>
+          </span>
         </Link>
         <Link
           href="/contact"
-          className="hover-grow flex items-center bg-omniray-orange px-[25px] text-[14.7px] font-medium lowercase text-omniray-ink"
+          className="hover-grow flex items-center bg-black px-[25px] text-[14.7px] font-medium lowercase text-white dark:bg-white dark:text-black"
         >
           <span className="grow-inner gap-2">
             <PhoneIcon />

@@ -1,18 +1,17 @@
 @import "tailwindcss";
 @import "./omniray-colors.css";
 
+/* Site UI is black & white; only the logo and the show reel carry colour. */
 @theme {
-  --color-omniray-ink: #0F2747;
-  --color-omniray-orange: #FF5A36;
-  --color-omniray-paper: #F6F4F1;
-  --color-omniray-slate: #5A6B82;
-  --color-omniray-mist: #9FB0C6;
+  --color-omniray-ink: #000000;
+  --color-omniray-ink-muted: #555555;
+  --color-omniray-orange: #000000;
+  --color-omniray-paper: #ffffff;
 }
 
 :root {
-  --background: var(--omniray-paper);
-  --foreground: var(--omniray-ink);
-  --paper: #f8fafd;
+  --background: #ffffff;
+  --foreground: #000000;
 }
 
 /* Header links: only the text and icon grow on hover. */
@@ -28,7 +27,7 @@
   display: flex;
   align-items: center;
   padding: 0 clamp(0.75rem, 3vw, 1.5rem);
-  color: var(--omniray-ink);
+  color: #000;
   opacity: 0.8;
   font-size: 0.919rem;
   font-weight: 500;
@@ -37,7 +36,7 @@
 }
 .tab[aria-current="page"] {
   opacity: 1;
-  border-bottom-color: var(--omniray-ink);
+  border-bottom-color: #000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -67,8 +66,8 @@ body {
 /* Faint blueprint grid behind the hero, fading out toward the bottom. */
 .hero-grid {
   background-image:
-    linear-gradient(to right, rgb(15 39 71 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(15 39 71 / 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgb(0 0 0 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
   mask-image: linear-gradient(to bottom, black 55%, transparent);
 }
@@ -99,8 +98,7 @@ body {
 }
 
 /* ---------- Buttons (components/button.tsx) ----------
-   Primary = orange with ink text (brand rule: never white on orange).
-   Secondary = ink with paper text. The label slides out and the icon glides
+   Primary = black with white text. Secondary = white with black text. The label slides out and the icon glides
    to the centre on hover; width follows the label. */
 .btn {
   --btn-pad: 16px;
@@ -130,20 +128,20 @@ body {
     inset 0 20px 20px -12px rgba(255, 255, 255, 0.12),
     inset 0 0 0 1px rgba(255, 255, 255, 0.18),
     0 3px 0 var(--btn-edge),
-    0 6px 12px rgba(15, 38, 31, 0.15);
+    0 6px 12px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease-in-out, box-shadow 150ms ease-in-out;
 }
 
 .btn-primary {
-  --btn-bg: var(--omniray-orange);
-  --btn-edge: var(--omniray-orange-deep);
-  --btn-fg: var(--omniray-ink);
+  --btn-bg: #000;
+  --btn-edge: #000;
+  --btn-fg: #fff;
 }
 
 .btn-secondary {
-  --btn-bg: var(--omniray-ink);
-  --btn-edge: #050e0b;
-  --btn-fg: var(--omniray-paper);
+  --btn-bg: #fff;
+  --btn-edge: #000;
+  --btn-fg: #000;
 }
 
 .btn-icon {
@@ -178,7 +176,7 @@ body {
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--omniray-orange-deep);
+  outline: 2px solid #000;
   outline-offset: 3px;
 }
 

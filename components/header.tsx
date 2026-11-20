@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/logo";
 
@@ -31,16 +32,30 @@ function PhoneIcon() {
 
 export function Header() {
   const pathname = usePathname();
+  // Transparent over the hero; picks up a dark blurred backing once the page scrolls.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col-reverse border-b border-black/10 bg-white md:flex-row dark:border-white/10 dark:bg-black">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 flex flex-col-reverse border-b transition-colors duration-300 md:flex-row ${
+        scrolled
+          ? "border-white/10 bg-black/80 backdrop-blur-md"
+          : "border-transparent bg-transparent"
+      }`}
+    >
       {/* section 1: nav links */}
       <nav aria-label="main" className="flex h-[46px] items-stretch md:h-auto md:px-4">
         {TABS.map((t) => (
           <Link
             key={t.href}
             href={t.href}
-            className="tab hover-grow"
+            className="tab tab-light hover-grow"
             aria-current={pathname === t.href ? "page" : undefined}
           >
             <span className="grow-inner">{t.label}</span>
@@ -56,17 +71,16 @@ export function Header() {
           className="flex shrink-0 items-center py-[12.6px]"
         >
           <span className="flex items-center gap-[13px]">
-            <Logo variant="horizontal" tone="color" height={34.65} priority className="dark:hidden" />
-            <Logo variant="horizontal" tone="reversed" height={34.65} priority className="hidden dark:block" />
-            <span className="hidden h-[23px] w-px bg-black/25 sm:block dark:bg-white/30" aria-hidden />
-            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-black sm:block dark:text-white">
+            <Logo variant="horizontal" tone="reversed" height={34.65} priority />
+            <span className="hidden h-[23px] w-px bg-white/30 sm:block" aria-hidden />
+            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-white sm:block">
               software solutions
             </span>
           </span>
         </Link>
         <Link
           href="/contact"
-          className="hover-grow flex items-center bg-black px-[25px] text-[14.7px] font-medium lowercase text-white dark:bg-white dark:text-black"
+          className="hover-grow flex items-center bg-[#FF5200] px-[25px] text-[14.7px] font-medium lowercase text-black"
         >
           <span className="grow-inner gap-2">
             <PhoneIcon />

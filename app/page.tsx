@@ -35,7 +35,7 @@ export default function Home() {
         <HeroBackground />
         <GuideFrame />
 
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-16 pb-24 text-center sm:pt-24 sm:pb-32">
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-36 pb-24 text-center sm:pt-44 sm:pb-32">
           <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-white [text-shadow:0_2px_24px_rgb(0_0_0/0.35)] sm:text-7xl">
             Turn your busywork into software that earns
           </h1>
@@ -98,10 +98,7 @@ function GuideFrame() {
     <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
       <div className="absolute inset-y-0 left-[max(1.5rem,calc(50%-36rem))] border-l border-dashed border-white/20" />
       <div className="absolute inset-y-0 right-[max(1.5rem,calc(50%-36rem))] border-r border-dashed border-white/20" />
-      <div className="absolute inset-x-0 top-12 border-t border-dashed border-white/20" />
       <div className="absolute inset-x-0 bottom-0 border-t border-dashed border-white/20" />
-      <span className={`${diamond} top-12 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 -translate-y-1/2`} />
-      <span className={`${diamond} top-12 right-[max(1.5rem,calc(50%-36rem))] translate-x-1/2 -translate-y-1/2`} />
       <span className={`${diamond} bottom-0 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 translate-y-1/2`} />
       <span className={`${diamond} right-[max(1.5rem,calc(50%-36rem))] bottom-0 translate-x-1/2 translate-y-1/2`} />
     </div>

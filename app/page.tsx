@@ -41,7 +41,7 @@ export default function Home() {
             <span className="block">software that earns.</span>
           </h1>
 
-          <p className="mt-6 max-w-md font-mono text-[15px] leading-7 tracking-tight text-[#939393] sm:text-base sm:leading-8">
+          <p className="mt-6 max-w-md font-mono text-[15px] leading-7 tracking-tight text-white/85 sm:text-base sm:leading-8">
             We build the websites, platforms and tools that take bookings,
             collect payments and keep customers coming back, so you spend
             less time on manual work and more on growth.
@@ -88,7 +88,7 @@ export default function Home() {
                   </svg>
                   {pillar.title}
                 </h2>
-                <p className="mt-2 font-mono text-[13px] leading-6 tracking-tight text-[#939393]">
+                <p className="mt-2 font-mono text-[13px] leading-6 tracking-tight text-white/85">
                   {pillar.body}
                 </p>
               </li>

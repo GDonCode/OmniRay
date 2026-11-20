@@ -132,7 +132,7 @@ export function ShowReel() {
 function ReelCard({ project }: { project: Project }) {
   return (
     <figure className="group w-[78vw] max-w-[640px] sm:w-[560px] md:w-[640px]">
-      <div className="overflow-hidden border border-omniray-ink/10 bg-white p-1.5 shadow-[0_24px_48px_-16px_rgb(15_38_31/0.28),0_2px_6px_rgb(15_38_31/0.08)] transition-transform duration-500 group-hover:-translate-y-1">
+      <div className="overflow-hidden shadow-[0_24px_48px_-16px_rgb(15_38_31/0.28),0_2px_6px_rgb(15_38_31/0.08)] transition-transform duration-500 group-hover:-translate-y-1">
         <div className="relative aspect-[16/10] overflow-hidden">
           {project.image ? (
             <Image

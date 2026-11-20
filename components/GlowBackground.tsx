@@ -22,15 +22,21 @@ export const DOT_LIT_OPACITY = 0.7; // drawn in the shader, only inside the glow
 export const DOT_COLOR = "232,220,200"; // cream
 // Warp: the pointer bends the dots (and the smoke, and any scene texture) themselves.
 export const WARP_ENABLED = true;
-export const WARP_FLOW_SCALE = 0.15; // css px of displacement per velocity unit
-export const WARP_MAX_PX = 18; // clamp for the flow warp
+export const WARP_FLOW_SCALE = 0.1; // css px of displacement per velocity unit
+export const WARP_MAX_PX = 12; // clamp for the flow warp
 export const LENS_RADIUS = 140; // css px
-export const LENS_STRENGTH = 0.35; // magnification pull inside the lens
+export const LENS_STRENGTH = 0.25; // magnification pull inside the lens
 export const LENS_SPEED_REF = 40; // pointer css px per frame (60fps) that gives a full lens
 export const LENS_RISE = 0.3; // per frame at 60fps, when the pointer speeds up
 export const LENS_FALL = 0.04; // per frame at 60fps, when it slows down
 export const POINTER_LERP = 0.2; // smoothed pointer for the lens, per frame at 60fps
 export const DOT_RADIUS = 1; // css px
+// Faint lines joining some dots into small shapes (rectangles, triangles, diamonds, stairs).
+export const SHAPE_BLOCK = 6; // grid cells per shape block; one shape at most per block
+export const SHAPE_CHANCE = 0.4; // share of blocks that get a shape
+export const LINE_WIDTH = 1; // css px
+export const LINE_BASE_OPACITY = 0.09; // everywhere
+export const LINE_LIT_OPACITY = 0.3; // inside the glow
 /** Stop simulating this long after the last splat (the dye has faded to nothing by then). */
 const IDLE_MS = 7000;
 
@@ -125,6 +131,37 @@ uniform float uLens; uniform float uWarpOn; uniform float uFlowScale; uniform fl
 uniform float uLensRadius; uniform float uLensStrength; uniform float uHasScene;
 uniform vec3 uDeep; uniform vec3 uOrange; uniform vec3 uAmber; uniform vec3 uDotColor;
 uniform float uMaxAlpha; uniform float uSpacing; uniform float uBaseOpacity; uniform float uLitOpacity; uniform float uDotRadius;
+uniform float uBlock; uniform float uShapeChance; uniform float uLineWidth; uniform float uLineBase; uniform float uLineLit;
+
+float hash21(vec2 p) { p = fract(p * vec2(123.34, 345.45)); p += dot(p, p + 34.23); return fract(p.x * p.y); }
+float seg(vec2 p, vec2 a, vec2 b) {
+  vec2 pa = p - a, ba = b - a;
+  return length(pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0));
+}
+// Distance (in grid cells) from q to the shape of q's block. q is in cell units with dot
+// centres on integers. Vertices stay in 1..5 of a 6-cell block, so a shape never crosses a block.
+float shapeDist(vec2 q) {
+  vec2 blk = floor(q / uBlock);
+  if (hash21(blk) > uShapeChance) return 1e3;
+  vec2 l = q - blk * uBlock;
+  float t = hash21(blk + 17.3);
+  vec2 o = vec2(1.0 + floor(hash21(blk + 3.1) * 2.0), 1.0 + floor(hash21(blk + 9.7) * 2.0));
+  float s = 1.0 + floor(hash21(blk + 5.5) * 2.0);
+  if (t < 0.25) {                       // rectangle
+    vec2 a = o, b = o + vec2(s + 1.0, 0.0), c = o + vec2(s + 1.0, s), e = o + vec2(0.0, s);
+    return min(min(seg(l, a, b), seg(l, b, c)), min(seg(l, c, e), seg(l, e, a)));
+  } else if (t < 0.5) {                 // right triangle
+    vec2 a = o, b = o + vec2(s + 1.0, 0.0), c = o + vec2(0.0, s + 1.0);
+    return min(min(seg(l, a, b), seg(l, b, c)), seg(l, c, a));
+  } else if (t < 0.75) {                // diamond
+    if (s > 1.5) o = vec2(1.0);
+    vec2 a = o + vec2(s, 0.0), b = o + vec2(2.0 * s, s), c = o + vec2(s, 2.0 * s), e = o + vec2(0.0, s);
+    return min(min(seg(l, a, b), seg(l, b, c)), min(seg(l, c, e), seg(l, e, a)));
+  }
+  vec2 a = o, b = o + vec2(1.0, 0.0), c = o + vec2(1.0, 1.0), e = o + vec2(2.0, 1.0), f = o + vec2(2.0, 2.0);
+  return min(min(seg(l, a, b), seg(l, b, c)), min(seg(l, c, e), seg(l, e, f)));   // stair
+}
+
 void main() {
   // Everything below is sampled at a displaced position, so dots, smoke and scene bend together.
   vec2 pPx = vec2(vUv.x, 1.0 - vUv.y) * uViewport;          // css px, y down
@@ -156,8 +193,15 @@ void main() {
   float dotMask = 1.0 - smoothstep(r - aa, r + aa, dist);
   float dotA = dotMask * mix(uBaseOpacity, uLitOpacity, smoothstep(0.02, 0.5, d));
 
-  vec3 rgb = col * a * (1.0 - dotA) + uDotColor * dotA;     // premultiplied
-  vec4 over = vec4(rgb, a + dotA * (1.0 - a));
+  // Lines between dots share the warped coordinates, so they bend with the grid.
+  float lineDist = shapeDist(srcPx / uSpacing - 0.5) * uSpacing;
+  float laa = max(fwidth(lineDist) * 0.5, 0.0001);
+  float lineMask = 1.0 - smoothstep(0.5 * uLineWidth - laa, 0.5 * uLineWidth + laa, lineDist);
+  float lineA = lineMask * mix(uLineBase, uLineLit, smoothstep(0.02, 0.5, d));
+  float inkA = 1.0 - (1.0 - dotA) * (1.0 - lineA);
+
+  vec3 rgb = col * a * (1.0 - inkA) + uDotColor * inkA;     // premultiplied
+  vec4 over = vec4(rgb, a + inkA * (1.0 - a));
   vec4 scene = uHasScene > 0.5 ? texture(uScene, srcUv) : vec4(0.0);
   o = over + scene * (1.0 - over.a);
 }`,
@@ -448,6 +492,11 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.uniform1f(d.u.uBaseOpacity, DOT_BASE_OPACITY);
     gl.uniform1f(d.u.uLitOpacity, DOT_LIT_OPACITY);
     gl.uniform1f(d.u.uDotRadius, DOT_RADIUS);
+    gl.uniform1f(d.u.uBlock, SHAPE_BLOCK);
+    gl.uniform1f(d.u.uShapeChance, SHAPE_CHANCE);
+    gl.uniform1f(d.u.uLineWidth, LINE_WIDTH);
+    gl.uniform1f(d.u.uLineBase, LINE_BASE_OPACITY);
+    gl.uniform1f(d.u.uLineLit, LINE_LIT_OPACITY);
     blit(null);
   };
 

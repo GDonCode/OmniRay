@@ -115,9 +115,9 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space
 
 ## Hero effects
 
-The page sits on solid `#111111`. `components/FluidBackground.tsx` (a fixed, click-through, `-z-[1]` layer inside the `isolate`d `<main>`) draws a faint cream dot grid and an orange smoke glow from a small GPU fluid simulation (splat, advect, divergence, Jacobi pressure solve, gradient subtract, vorticity). Only pointer movement adds smoke, so there is no glow from hover alone, and the dots brighten inside the glow because the display shader draws them. After about 7 seconds without movement the loop stops and clears the textures. `components/Cursor.tsx` (mounted in `app/layout.tsx`) adds the ring follower on top of the native cursor.
+The page sits on solid `#111111`. `components/GlowBackground.tsx` (optional `sceneTexture` prop: a canvas, video or ImageBitmap that is warped with everything else) (a fixed, click-through, `-z-[1]` layer inside the `isolate`d `<main>`) draws the cream dot grid and an orange smoke glow, and bends both with the pointer (a flow warp from the simulation's velocity field plus a magnifying lens). The shader draws all the dots; the CSS dot grid only shows when WebGL is unavailable or reduced motion is set. It draws from a small GPU fluid simulation (splat, advect, divergence, Jacobi pressure solve, gradient subtract, vorticity). Only pointer movement adds smoke, so there is no glow from hover alone, and the dots brighten inside the glow because the display shader draws them. After about 7 seconds without movement the loop stops and clears the textures. `components/Cursor.tsx` (mounted in `app/layout.tsx`) adds the ring follower on top of the native cursor.
 
-Tunable constants are exported at the top of `FluidBackground.tsx` (and `CURSOR_CONFIG` in `Cursor.tsx`):
+Tunable constants are exported at the top of `GlowBackground.tsx` (and `CURSOR_CONFIG` in `Cursor.tsx`):
 
 | Constant | Default | Effect |
 | --- | --- | --- |
@@ -129,6 +129,12 @@ Tunable constants are exported at the top of `FluidBackground.tsx` (and `CURSOR_
 | `VELOCITY_DISSIPATION` | 0.98 | Velocity kept per frame at 60fps |
 | `PRESSURE`, `PRESSURE_ITERATIONS` | 0.8, 20 | Pressure carry-over and Jacobi iterations |
 | `CURL` | 10 | Vorticity confinement (swirl) |
+| `WARP_ENABLED` | true | Master switch for the warp |
+| `WARP_FLOW_SCALE`, `WARP_MAX_PX` | 0.15, 18 | Flow warp: css px of displacement per velocity unit, and its clamp |
+| `LENS_RADIUS`, `LENS_STRENGTH` | 140px, 0.35 | Magnifying bulge under the pointer |
+| `LENS_SPEED_REF` | 40 | Pointer css px per frame that gives a full lens |
+| `LENS_RISE`, `LENS_FALL` | 0.3, 0.04 | Lens intensity smoothing per frame at 60fps (time-based) |
+| `POINTER_LERP` | 0.2 | Smoothing of the lens position |
 | `GLOW_MAX_ALPHA` | 0.75 | Maximum smoke opacity |
 | `COLORS` | `#7a2a00` / `#ff5f00` / `#ffb066` | Deep, orange and hot amber ramp |
 | `DOT_SPACING`, `DOT_BASE_OPACITY`, `DOT_LIT_OPACITY` | 40px, 0.18, 0.7 | Dot grid, base opacity, and opacity inside the glow |

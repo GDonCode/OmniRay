@@ -1,4 +1,4 @@
-import { FluidBackground } from "@/components/FluidBackground";
+import { GlowBackground } from "@/components/GlowBackground";
 import { Header } from "@/components/header";
 import { ShortcutLink } from "@/components/home/shortcut-link";
 import { ShowReel } from "@/components/home/show-reel";
@@ -31,42 +31,40 @@ export default function Home() {
     <Header />
     {/* Dark page: solid #111, a faint dot grid and a pointer-driven fluid glow behind the content. */}
     <main className="relative isolate flex-1 overflow-x-clip bg-[#111111] text-white">
-      <FluidBackground />
+      <GlowBackground />
 
       {/* Hero */}
       <section className="relative">
-        <div className="mx-auto flex min-h-[min(100svh,860px)] max-w-6xl flex-col justify-center px-6 pt-32 pb-20 sm:pt-36">
-          <div>
-            <h1 className="font-heading text-4xl leading-[1.05] font-medium tracking-tight sm:text-6xl lg:whitespace-nowrap lg:text-[4.25rem]">
-              <span className="block text-white">Turn your busywork into</span>
-              <span className="block text-[#ff5f00]">software that earns.</span>
-            </h1>
+        <div className="mx-auto flex min-h-[min(100svh,860px)] max-w-4xl flex-col items-center justify-center px-6 pt-32 pb-20 text-center sm:pt-36">
+          <h1 className="font-heading text-4xl leading-[1.05] font-medium tracking-tight text-white sm:text-6xl lg:text-[4.25rem]">
+            <span className="block">Turn your ideas into</span>
+            <span className="block">software that earns.</span>
+          </h1>
 
-            <p className="mt-6 max-w-md font-mono text-[15px] leading-7 tracking-tight text-[#939393] sm:text-base sm:leading-8">
-              We build the websites, platforms and tools that take bookings,
-              collect payments and keep customers coming back, so you spend
-              less time on manual work and more on growth.
-            </p>
+          <p className="mt-6 max-w-md font-mono text-[15px] leading-7 tracking-tight text-[#939393] sm:text-base sm:leading-8">
+            We build the websites, platforms and tools that take bookings,
+            collect payments and keep customers coming back, so you spend
+            less time on manual work and more on growth.
+          </p>
 
-            <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row">
-              <ShortcutLink
-                href="/contact"
-                shortcut="S"
-                className="btn-square btn-hero-primary"
-                icon={<SquareBullet />}
-              >
-                Get your free project plan
-              </ShortcutLink>
-              <ShortcutLink
-                href="#work"
-                shortcut="W"
-                variant="secondary"
-                className="btn-square btn-hero-secondary"
-                icon={<SquareBullet />}
-              >
-                See the results
-              </ShortcutLink>
-            </div>
+          <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+            <ShortcutLink
+              href="/contact"
+              shortcut="S"
+              className="btn-square btn-hero-primary"
+              icon={<PowerIcon />}
+            >
+              Start a project
+            </ShortcutLink>
+            <ShortcutLink
+              href="#work"
+              shortcut="W"
+              variant="secondary"
+              className="btn-square btn-hero-secondary"
+              icon={<EyeIcon />}
+            >
+              See our work
+            </ShortcutLink>
           </div>
         </div>
       </section>
@@ -103,10 +101,26 @@ export default function Home() {
   );
 }
 
-function SquareBullet() {
+const iconProps = {
+  "aria-hidden": true,
+  viewBox: "0 0 24 24",
+  className: "size-full fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]",
+} as const;
+
+function PowerIcon() {
   return (
-    <svg aria-hidden viewBox="0 0 18 18" className="size-full">
-      <rect x="5" y="5" width="8" height="8" fill="currentColor" />
+    <svg {...iconProps}>
+      <path d="M12 2.5v9" />
+      <path d="M17.5 5.8a8.5 8.5 0 1 1-11 0" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }

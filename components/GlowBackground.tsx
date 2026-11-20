@@ -7,19 +7,30 @@ export const SIM_RES = 128; // velocity grid, px on the short side
 export const DYE_RES = 512; // density grid, px on the short side
 export const SPLAT_RADIUS = 0.25; // % of viewport area covered by one splat (~80-120px)
 export const SPLAT_FORCE = 6000; // velocity injected per unit of normalised pointer travel
-export const DENSITY_GAIN = 12; // dye added per unit of normalised pointer speed
-export const DENSITY_MAX = 0.22; // clamp for dye added per frame
+export const DENSITY_GAIN = 9; // dye added per unit of normalised pointer speed
+export const DENSITY_MAX = 0.18; // clamp for dye added per frame
 export const DENSITY_DISSIPATION = 0.99; // per frame at 60fps (time-based)
 export const VELOCITY_DISSIPATION = 0.98; // per frame at 60fps (time-based)
 export const PRESSURE = 0.8;
 export const PRESSURE_ITERATIONS = 20;
 export const CURL = 10;
-export const GLOW_MAX_ALPHA = 0.75;
+export const GLOW_MAX_ALPHA = 0.6;
 export const COLORS = { deep: "#7a2a00", orange: "#ff5f00", amber: "#ffb066" };
 export const DOT_SPACING = 40; // px
 export const DOT_BASE_OPACITY = 0.18; // CSS layer, everywhere
 export const DOT_LIT_OPACITY = 0.7; // drawn in the shader, only inside the glow
 export const DOT_COLOR = "232,220,200"; // cream
+// Warp: the pointer bends the dots (and the smoke, and any scene texture) themselves.
+export const WARP_ENABLED = true;
+export const WARP_FLOW_SCALE = 0.15; // css px of displacement per velocity unit
+export const WARP_MAX_PX = 18; // clamp for the flow warp
+export const LENS_RADIUS = 140; // css px
+export const LENS_STRENGTH = 0.35; // magnification pull inside the lens
+export const LENS_SPEED_REF = 40; // pointer css px per frame (60fps) that gives a full lens
+export const LENS_RISE = 0.3; // per frame at 60fps, when the pointer speeds up
+export const LENS_FALL = 0.04; // per frame at 60fps, when it slows down
+export const POINTER_LERP = 0.2; // smoothed pointer for the lens, per frame at 60fps
+export const DOT_RADIUS = 1; // css px
 /** Stop simulating this long after the last splat (the dye has faded to nothing by then). */
 const IDLE_MS = 7000;
 
@@ -108,28 +119,47 @@ void main() {
 uniform sampler2D uTexture; uniform float uValue;
 void main() { o = uValue * texture(uTexture, vUv); }`,
   display: head + `
-uniform sampler2D uDye; uniform vec2 uTexel; uniform vec2 uSize; uniform float uDpr;
+uniform sampler2D uDye; uniform sampler2D uVelocity; uniform sampler2D uScene;
+uniform vec2 uTexel; uniform vec2 uViewport; uniform vec2 uPointer;
+uniform float uLens; uniform float uWarpOn; uniform float uFlowScale; uniform float uWarpMax;
+uniform float uLensRadius; uniform float uLensStrength; uniform float uHasScene;
 uniform vec3 uDeep; uniform vec3 uOrange; uniform vec3 uAmber; uniform vec3 uDotColor;
-uniform float uMaxAlpha; uniform float uSpacing; uniform float uLitOpacity;
+uniform float uMaxAlpha; uniform float uSpacing; uniform float uBaseOpacity; uniform float uLitOpacity; uniform float uDotRadius;
 void main() {
+  // Everything below is sampled at a displaced position, so dots, smoke and scene bend together.
+  vec2 pPx = vec2(vUv.x, 1.0 - vUv.y) * uViewport;          // css px, y down
+  vec2 flow = clamp(texture(uVelocity, vUv).xy * uFlowScale, -uWarpMax, uWarpMax);
+  flow.y = -flow.y;                                          // to screen space
+  vec2 dd = pPx - uPointer;
+  float f = exp(-dot(dd, dd) / (uLensRadius * uLensRadius));
+  // Magnifier: each pixel reads from a point nearer the pointer, so content spreads outward.
+  vec2 lens = dd * uLensStrength * uLens * f;
+  vec2 warp = (flow + lens) * uWarpOn;
+  vec2 srcPx = pPx - warp;
+  vec2 srcUv = vec2(srcPx.x, uViewport.y - srcPx.y) / uViewport;
+
   // Soft 5-tap blur of the density so the smoke edges never look hard.
   vec2 e = uTexel * 1.3;
-  float d = (4.0 * texture(uDye, vUv).x
-    + texture(uDye, vUv + vec2(e.x, 0.0)).x + texture(uDye, vUv - vec2(e.x, 0.0)).x
-    + texture(uDye, vUv + vec2(0.0, e.y)).x + texture(uDye, vUv - vec2(0.0, e.y)).x) / 8.0;
+  float d = (4.0 * texture(uDye, srcUv).x
+    + texture(uDye, srcUv + vec2(e.x, 0.0)).x + texture(uDye, srcUv - vec2(e.x, 0.0)).x
+    + texture(uDye, srcUv + vec2(0.0, e.y)).x + texture(uDye, srcUv - vec2(0.0, e.y)).x) / 8.0;
 
   float t = 1.0 - exp(-1.1 * d);
   vec3 col = t < 0.5 ? mix(uDeep, uOrange, t * 2.0) : mix(uOrange, uAmber, (t - 0.5) * 2.0);
   float a = clamp(d * 1.2, 0.0, uMaxAlpha);
 
-  // Dot grid drawn in the shader, aligned with the CSS grid (top-left origin, dot at cell centre).
-  vec2 css = vec2(gl_FragCoord.x, uSize.y - gl_FragCoord.y) / uDpr;
-  vec2 local = mod(css, uSpacing) - 0.5 * uSpacing;
-  float dotMask = 1.0 - smoothstep(0.6, 1.3, length(local));
-  float lit = dotMask * uLitOpacity * smoothstep(0.02, 0.5, d);
+  // Dot grid: cell maths in displaced css px, anti-aliased with fwidth, swelling under the lens.
+  vec2 local = mod(srcPx, uSpacing) - 0.5 * uSpacing;
+  float dist = length(local);
+  float r = uDotRadius * (1.0 + 0.5 * f * uLens * uWarpOn);
+  float aa = max(fwidth(dist) * 0.5, 0.0001);
+  float dotMask = 1.0 - smoothstep(r - aa, r + aa, dist);
+  float dotA = dotMask * mix(uBaseOpacity, uLitOpacity, smoothstep(0.02, 0.5, d));
 
-  vec3 rgb = col * a * (1.0 - lit) + uDotColor * lit;   // premultiplied
-  o = vec4(rgb, a + lit * (1.0 - a));
+  vec3 rgb = col * a * (1.0 - dotA) + uDotColor * dotA;     // premultiplied
+  vec4 over = vec4(rgb, a + dotA * (1.0 - a));
+  vec4 scene = uHasScene > 0.5 ? texture(uScene, srcUv) : vec4(0.0);
+  o = over + scene * (1.0 - over.a);
 }`,
 };
 
@@ -146,6 +176,9 @@ function resolution(res: number, w: number, h: number) {
   const max = Math.round(res * aspect);
   return w > h ? { w: max, h: min } : { w: min, h: max };
 }
+
+type SceneSource = HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
+type DisplayState = { lens: number; px: number; py: number };
 
 function startGL(canvas: HTMLCanvasElement) {
   const gl = canvas.getContext("webgl2", { alpha: true, antialias: false, premultipliedAlpha: true });
@@ -189,7 +222,7 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.shaderSource(s, src);
     gl.compileShader(s);
     if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-      console.warn("FluidBackground shader error:", gl.getShaderInfoLog(s));
+      console.warn("GlowBackground shader error:", gl.getShaderInfoLog(s));
       return null;
     }
     return s;
@@ -207,7 +240,7 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.attachShader(p, fs);
     gl.linkProgram(p);
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
-      console.warn("FluidBackground link error:", gl.getProgramInfoLog(p));
+      console.warn("GlowBackground link error:", gl.getProgramInfoLog(p));
       return null;
     }
     const u: Prog["u"] = {};
@@ -367,23 +400,54 @@ function startGL(canvas: HTMLCanvasElement) {
     dye.swap();
   };
 
-  const display = () => {
+  let sceneTex: WebGLTexture | null = null;
+  const display = (st: DisplayState, scene: SceneSource | null) => {
     const d = pr.display;
     bindProgram(d);
     gl.clearColor(0, 0, 0, 0);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT);
     tex(d, "uDye", dye.read, 0);
+    tex(d, "uVelocity", velocity.read, 1);
+    if (scene) {
+      // Optional scene: uploaded every frame, premultiplied, y-up, sampled at the warped uv.
+      if (!sceneTex) {
+        sceneTex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      }
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, scene);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.uniform1i(d.u.uScene, 2);
+    }
+    gl.uniform1f(d.u.uHasScene, scene ? 1 : 0);
     gl.uniform2f(d.u.uTexel, dye.read.tx, dye.read.ty);
-    gl.uniform2f(d.u.uSize, canvas.width, canvas.height);
-    gl.uniform1f(d.u.uDpr, dpr);
+    gl.uniform2f(d.u.uViewport, cssW, cssH);
+    gl.uniform2f(d.u.uPointer, st.px, st.py);
+    gl.uniform1f(d.u.uLens, st.lens);
+    gl.uniform1f(d.u.uWarpOn, WARP_ENABLED ? 1 : 0);
+    gl.uniform1f(d.u.uFlowScale, WARP_FLOW_SCALE);
+    gl.uniform1f(d.u.uWarpMax, WARP_MAX_PX);
+    gl.uniform1f(d.u.uLensRadius, LENS_RADIUS);
+    gl.uniform1f(d.u.uLensStrength, LENS_STRENGTH);
     gl.uniform3fv(d.u.uDeep, hex(COLORS.deep));
     gl.uniform3fv(d.u.uOrange, hex(COLORS.orange));
     gl.uniform3fv(d.u.uAmber, hex(COLORS.amber));
     gl.uniform3fv(d.u.uDotColor, DOT_COLOR.split(",").map((n) => Number(n) / 255));
     gl.uniform1f(d.u.uMaxAlpha, GLOW_MAX_ALPHA);
     gl.uniform1f(d.u.uSpacing, DOT_SPACING);
+    gl.uniform1f(d.u.uBaseOpacity, DOT_BASE_OPACITY);
     gl.uniform1f(d.u.uLitOpacity, DOT_LIT_OPACITY);
+    gl.uniform1f(d.u.uDotRadius, DOT_RADIUS);
     blit(null);
   };
 
@@ -397,6 +461,7 @@ function startGL(canvas: HTMLCanvasElement) {
 
   const dispose = () => {
     free();
+    if (sceneTex) gl.deleteTexture(sceneTex);
     programs.forEach((p) => gl.deleteProgram(p.p));
     shaders.forEach((s) => gl.deleteShader(s));
   };
@@ -404,7 +469,8 @@ function startGL(canvas: HTMLCanvasElement) {
   return { splat, step, display, build, wipe, dispose };
 }
 
-/* ---------- 2D fallback: stamped radial gradients that fade out ---------- */
+/* ---------- 2D fallback: stamped radial gradients that fade out ----------
+ * No warp here: the fallback has no velocity field, and the dots stay on the CSS grid. */
 
 function start2D(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d");
@@ -438,25 +504,40 @@ function start2D(canvas: HTMLCanvasElement) {
 
 /* ---------- component ---------- */
 
-export function FluidBackground() {
+export function GlowBackground({ sceneTexture = null }: { sceneTexture?: SceneSource | null }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sceneRef = useRef<SceneSource | null>(sceneTexture);
+  useEffect(() => {
+    sceneRef.current = sceneTexture;
+  }, [sceneTexture]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    // Reduced motion: render nothing; the base dots and #111 are all that show.
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    // Reduced motion: no loop, no warp; the CSS dot grid and #111 are all that show.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const gl = startGL(canvas);
     const flat = gl ? null : start2D(canvas);
     if (!gl && !flat) return;
 
-    // Pointer travel accumulated between frames, in viewport-normalised units.
-    const ptr = { x: 0, y: 0, has: false }; // last position, px
-    const pending = { dx: 0, dy: 0, x: 0, y: 0, moved: false };
+    // Pointer travel accumulated between frames, in viewport-normalised units (and px for the lens).
+    const ptr = { x: 0, y: 0, has: false }; // last position, css px
+    const pending = { dx: 0, dy: 0, px: 0, x: 0, y: 0, moved: false };
+    const smooth = { x: 0, y: 0, lens: 0 }; // smoothed pointer and lens intensity
     let lastSplat = -1e9;
     let raf = 0;
     let last = 0;
+
+    const rest = (): DisplayState => ({ lens: 0, px: smooth.x, py: smooth.y });
+    /** One static frame: zero density, zero warp. Also carries the dots. */
+    const drawStill = () => {
+      smooth.lens = 0;
+      gl?.wipe();
+      gl?.display(rest(), sceneRef.current);
+    };
 
     const onPoint = (cx: number, cy: number) => {
       const r = canvas.getBoundingClientRect();
@@ -465,7 +546,11 @@ export function FluidBackground() {
       if (ptr.has) {
         pending.dx += (x - ptr.x) / r.width;
         pending.dy += (ptr.y - y) / r.height; // GL y points up
+        pending.px += Math.hypot(x - ptr.x, y - ptr.y);
         pending.moved = true;
+      } else {
+        smooth.x = x; // snap the lens to the pointer when it (re)enters
+        smooth.y = y;
       }
       ptr.x = x;
       ptr.y = y;
@@ -491,6 +576,8 @@ export function FluidBackground() {
     const loop = (now: number) => {
       const dt = Math.min((now - last) / 1000, 1 / 30);
       last = now;
+      const frames = dt * 60; // all smoothing is per-frame-at-60fps, made time-based
+      const movedPx = pending.px;
       if (pending.moved) {
         const aspect = canvas.clientWidth / canvas.clientHeight;
         // Same units for both axes: fractions of the viewport, aspect-corrected.
@@ -508,19 +595,28 @@ export function FluidBackground() {
           }
           lastSplat = now;
         }
-        pending.dx = pending.dy = 0;
+        pending.dx = pending.dy = pending.px = 0;
         pending.moved = false;
       }
+
+      // Lens: eased pointer, and an intensity that rises fast on movement and relaxes slowly.
+      const kp = 1 - Math.pow(1 - POINTER_LERP, frames);
+      smooth.x += (ptr.x - smooth.x) * kp;
+      smooth.y += (ptr.y - smooth.y) * kp;
+      const target = ptr.has ? Math.min(movedPx / Math.max(frames, 0.25) / LENS_SPEED_REF, 1) : 0;
+      const rate = target > smooth.lens ? LENS_RISE : LENS_FALL;
+      smooth.lens += (target - smooth.lens) * (1 - Math.pow(1 - rate, frames));
+
       if (gl) {
         gl.step(dt);
-        gl.display();
+        gl.display({ lens: smooth.lens, px: smooth.x, py: smooth.y }, sceneRef.current);
       } else if (flat) {
         flat.fade();
       }
-      if (now - lastSplat > IDLE_MS) {
-        // Nothing visible any more: clear and sleep until the pointer moves again.
-        gl?.wipe();
-        gl?.display();
+      // A live scene (video, canvas) needs a frame every tick, so only sleep without one.
+      if (now - lastSplat > IDLE_MS && !sceneRef.current) {
+        // Nothing visible any more: clear, draw one regular still frame, and sleep.
+        drawStill();
         raf = 0;
         return;
       }
@@ -531,17 +627,29 @@ export function FluidBackground() {
       if (document.hidden) {
         cancelAnimationFrame(raf);
         raf = 0;
-      } else if (!raf && performance.now() - lastSplat < IDLE_MS) {
+      } else if (!raf && (sceneRef.current || performance.now() - lastSplat < IDLE_MS)) {
         last = performance.now();
         raf = requestAnimationFrame(loop);
       }
     };
 
     const ro = new ResizeObserver(() => {
-      gl?.build();
+      if (gl) {
+        gl.build();
+        if (raf) gl.display({ lens: smooth.lens, px: smooth.x, py: smooth.y }, sceneRef.current);
+        else drawStill();
+      }
       flat?.resize();
     });
     ro.observe(canvas);
+
+    // First frame: the shader draws the dots, so hide the CSS grid in the same task (no double dots).
+    if (gl) {
+      drawStill();
+      wrap.dataset.gl = "true";
+      if (sceneRef.current) raf = requestAnimationFrame((t) => { last = t; loop(t); });
+    }
+
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("touchmove", onTouch, { passive: true });
     window.addEventListener("touchend", onEnd);
@@ -552,6 +660,7 @@ export function FluidBackground() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      delete wrap.dataset.gl;
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("touchmove", onTouch);
       window.removeEventListener("touchend", onEnd);
@@ -563,10 +672,10 @@ export function FluidBackground() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 -z-[1] h-lvh">
-      {/* Faint base dot grid, everywhere. The shader redraws brighter dots inside the glow. */}
+    <div ref={wrapRef} aria-hidden className="group/glow pointer-events-none fixed inset-x-0 top-0 -z-[1] h-lvh">
+      {/* CSS dot grid: fallback only (no WebGL, or reduced motion). The shader draws the dots otherwise. */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 group-data-[gl=true]/glow:hidden"
         style={{
           backgroundImage: `radial-gradient(circle, rgba(${DOT_COLOR},${DOT_BASE_OPACITY}) 1px, transparent 1px)`,
           backgroundSize: `${DOT_SPACING}px ${DOT_SPACING}px`,

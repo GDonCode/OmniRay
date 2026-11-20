@@ -172,9 +172,9 @@ body {
   backdrop-filter: none;
 }
 .btn.btn-hero-secondary {
-  --btn-bg: transparent;
-  --btn-edge: rgba(255, 255, 255, 0.5);
-  --btn-fg: #fff;
+  --btn-bg: #fff;
+  --btn-edge: #fff;
+  --btn-fg: #000;
 }
 .btn.btn-square:focus-visible { outline-color: #ff5f00; }
 

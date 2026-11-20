@@ -112,3 +112,25 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space
 - Keep clear space of at least 20% of the mark's width on every side.
 - Blue version on light backgrounds, reversed version on dark. Don't recolour the coral, stretch or rotate the mark, or retype the wordmark. The text in every SVG is already converted to outlines.
 - This layout is for the App Router. On the Pages Router, put the icons in `public/` and add the `<link>` tags in `_document.tsx` yourself.
+
+## Hero effects
+
+The home page hero combines a fixed WebGL particle blob (`components/ParticleBackground.tsx`) with a cursor follower mounted in `app/layout.tsx` (`components/Cursor.tsx`). The page sits on solid `#111111` with a fixed dot grid; both layers use `-z-[1]` inside the `isolate`d `<main>`. The native cursor is untouched.
+
+Tunable constants (each file exports its config object):
+
+| Constant | File | Default | Effect |
+| --- | --- | --- | --- |
+| `latRings` x `pointsPerRing` | `ParticleBackground.tsx` (`PARTICLE_CONFIG`) | 90 x 140 (about 12.6k points) | Point count and lattice density |
+| `sizeVw`, `minDiameter` | same | 0.273, 260px | Sphere diameter (420px at 1536px wide) |
+| `centerX`, `centerY` | same | 0.72, 0.5 | Sphere position in the viewport |
+| `noiseAmplitude` | same | 0.18 | Radius displacement from simplex noise (+/-18%) |
+| `noiseSpeed` | same | 0.22 | How fast the shape morphs |
+| `rotationSpeed`, `tilt` | same | 0.07 rad/s, 0.28 rad | Spin about Y and axis tilt |
+| `pointMin`, `pointMax` | same | 1.5, 5 CSS px | Point size range |
+| `orangeShare` | same | 0.55 | Orange vs cream points (more orange at the rim) |
+| `parallax` | same | 0.12 rad | Pointer parallax (0 disables) |
+| `glowDivisor` | same | 16 | Glow canvas is viewport / 16, blurred by CSS |
+| `lerp` | `Cursor.tsx` (`CURSOR_CONFIG`) | 0.2 per frame at 60fps | Follower smoothing (time-based) |
+
+Cursor states are set by `mouseover` delegation on `a, button, [data-cursor]`: plain links and buttons give the hover disc, `data-cursor="drag"` shows chevrons, `data-cursor="view"` (optional `data-cursor-label="Open"`) shows the orange label circle, and `data-cursor="alt"` shows the translucent disc. The ring turns dark over light surfaces. Touch devices (`pointer: coarse`) hide the follower, and `prefers-reduced-motion` renders the blob as a single still frame.

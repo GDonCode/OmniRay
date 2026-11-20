@@ -148,7 +148,7 @@ function ReelCard({ project }: { project: Project }) {
           )}
         </div>
       </div>
-      <figcaption className="mt-4 px-1 font-mono text-[13px] text-omniray-ink">
+      <figcaption className="mt-4 px-1 font-mono text-[13px] text-[#939393]">
         {project.name}
       </figcaption>
     </figure>

@@ -163,6 +163,21 @@ body {
   outline-color: #fff;
 }
 
+/* Hero buttons: square corners, orange primary with black text, outlined secondary. */
+.btn.btn-square { border-radius: 0; }
+.btn.btn-hero-primary {
+  --btn-bg: #ff5f00;
+  --btn-edge: #ff5f00;
+  --btn-fg: #000;
+  backdrop-filter: none;
+}
+.btn.btn-hero-secondary {
+  --btn-bg: transparent;
+  --btn-edge: rgba(255, 255, 255, 0.5);
+  --btn-fg: #fff;
+}
+.btn.btn-square:focus-visible { outline-color: #ff5f00; }
+
 .btn-icon {
   position: absolute;
   top: 50%;

@@ -10,6 +10,7 @@ type ShortcutLinkProps = {
   variant?: "primary" | "secondary";
   /** Use on dark or shader backgrounds: white text and white edges. */
   onDark?: boolean;
+  className?: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
 };
@@ -23,6 +24,7 @@ export function ShortcutLink({
   shortcut,
   variant = "primary",
   onDark = false,
+  className,
   icon,
   children,
 }: ShortcutLinkProps) {
@@ -54,7 +56,7 @@ export function ShortcutLink({
       ref={ref}
       href={href}
       variant={variant}
-      className={onDark ? "btn-on-dark" : undefined}
+      className={[onDark && "btn-on-dark", className].filter(Boolean).join(" ") || undefined}
       icon={icon}
       aria-keyshortcuts={shortcut.toUpperCase()}
     >

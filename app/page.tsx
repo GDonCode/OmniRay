@@ -1,4 +1,4 @@
-import { HeroBackground } from "@/components/home/hero-background";
+import { ParticleBackground } from "@/components/ParticleBackground";
 import { Header } from "@/components/header";
 import { ShortcutLink } from "@/components/home/shortcut-link";
 import { ShowReel } from "@/components/home/show-reel";
@@ -29,30 +29,48 @@ export default function Home() {
   return (
     <>
     <Header />
-    <main className="relative flex-1 overflow-x-clip">
+    {/* Dark page: solid #111, fixed particle blob and a faint dot grid behind the content. */}
+    <main className="relative isolate flex-1 overflow-x-clip bg-[#111111] text-white">
+      <ParticleBackground />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-[1] [background-image:radial-gradient(circle,rgba(255,255,255,.15)_1px,transparent_1px)] [background-size:40px_40px]"
+      />
+
       {/* Hero */}
-      <section className="relative isolate overflow-hidden bg-black text-white">
-        <HeroBackground />
-        <GuideFrame />
+      <section className="relative">
+        <div className="mx-auto flex min-h-[min(100svh,860px)] max-w-6xl flex-col justify-center px-6 pt-32 pb-20 sm:pt-36">
+          <div>
+            <h1 className="font-heading text-4xl leading-[1.05] font-medium tracking-tight sm:text-6xl lg:whitespace-nowrap lg:text-[4.25rem]">
+              <span className="block text-white">Turn your busywork into</span>
+              <span className="block text-[#ff5f00]">software that earns.</span>
+            </h1>
 
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-36 pb-24 text-center sm:pt-44 sm:pb-32">
-          <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-white [text-shadow:0_2px_24px_rgb(0_0_0/0.35)] sm:text-7xl">
-            Turn your busywork into software that earns
-          </h1>
+            <p className="mt-6 max-w-md font-mono text-[15px] leading-7 tracking-tight text-[#939393] sm:text-base sm:leading-8">
+              We build the websites, platforms and tools that take bookings,
+              collect payments and keep customers coming back, so you spend
+              less time on manual work and more on growth.
+            </p>
 
-          <p className="mt-6 max-w-xl font-mono text-[15px] leading-7 tracking-tight text-pretty text-white [text-shadow:0_1px_12px_rgb(0_0_0/0.4)] sm:text-base sm:leading-8">
-            We build the websites, platforms and tools that take bookings,
-            collect payments and keep customers coming back, so you spend
-            less time on manual work and more on growth.
-          </p>
-
-          <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
-            <ShortcutLink href="/contact" shortcut="S" onDark icon={<ArrowIcon />}>
-              Get your free project plan
-            </ShortcutLink>
-            <ShortcutLink href="#work" shortcut="W" variant="secondary" onDark icon={<PlayIcon />}>
-              See the results
-            </ShortcutLink>
+            <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row">
+              <ShortcutLink
+                href="/contact"
+                shortcut="S"
+                className="btn-square btn-hero-primary"
+                icon={<SquareBullet />}
+              >
+                Get your free project plan
+              </ShortcutLink>
+              <ShortcutLink
+                href="#work"
+                shortcut="W"
+                variant="secondary"
+                className="btn-square btn-hero-secondary"
+                icon={<SquareBullet />}
+              >
+                See the results
+              </ShortcutLink>
+            </div>
           </div>
         </div>
       </section>
@@ -63,61 +81,36 @@ export default function Home() {
         <ShowReel />
 
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <ul className="grid divide-y divide-omniray-ink/10 rounded-xl border border-omniray-ink/10 bg-white/80 shadow-[0_1px_2px_rgb(15_38_31/0.04)] backdrop-blur sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <ul className="grid divide-y divide-white/10 border border-white/10 bg-white/[0.03] backdrop-blur-sm sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {PILLARS.map((pillar) => (
               <li key={pillar.title} className="p-5 sm:p-6">
-                <h2 className="flex items-center gap-2 font-mono text-[15px] text-omniray-ink">
+                <h2 className="flex items-center gap-2 font-mono text-[15px] text-white">
                   <svg
                     aria-hidden
                     viewBox="0 0 24 24"
-                    className="size-4 fill-none stroke-omniray-orange stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                    className="size-4 fill-none stroke-[#ff5f00] stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
                   >
                     {pillar.icon}
                   </svg>
                   {pillar.title}
                 </h2>
-                <p className="mt-2 font-mono text-[13px] leading-6 tracking-tight text-omniray-ink-muted">
+                <p className="mt-2 font-mono text-[13px] leading-6 tracking-tight text-[#939393]">
                   {pillar.body}
                 </p>
               </li>
             ))}
           </ul>
         </div>
-
       </section>
     </main>
     </>
   );
 }
 
-/** Dashed guide lines with diamond markers framing the hero, like a blueprint. */
-function GuideFrame() {
-  const diamond =
-    "absolute size-2 rotate-45 border border-white/50 bg-black";
+function SquareBullet() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
-      <div className="absolute inset-y-0 left-[max(1.5rem,calc(50%-36rem))] border-l border-dashed border-white/20" />
-      <div className="absolute inset-y-0 right-[max(1.5rem,calc(50%-36rem))] border-r border-dashed border-white/20" />
-      <div className="absolute inset-x-0 bottom-0 border-t border-dashed border-white/20" />
-      <span className={`${diamond} bottom-0 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 translate-y-1/2`} />
-      <span className={`${diamond} right-[max(1.5rem,calc(50%-36rem))] bottom-0 translate-x-1/2 translate-y-1/2`} />
-    </div>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" className="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" className="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M10 8.5v7l5.5-3.5z" />
+    <svg aria-hidden viewBox="0 0 18 18" className="size-full">
+      <rect x="5" y="5" width="8" height="8" fill="currentColor" />
     </svg>
   );
 }

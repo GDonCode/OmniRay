@@ -115,22 +115,23 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space
 
 ## Hero effects
 
-The home page hero combines a fixed WebGL particle blob (`components/ParticleBackground.tsx`) with a cursor follower mounted in `app/layout.tsx` (`components/Cursor.tsx`). The page sits on solid `#111111` with a fixed dot grid; both layers use `-z-[1]` inside the `isolate`d `<main>`. The native cursor is untouched.
+The page sits on solid `#111111`. `components/FluidBackground.tsx` (a fixed, click-through, `-z-[1]` layer inside the `isolate`d `<main>`) draws a faint cream dot grid and an orange smoke glow from a small GPU fluid simulation (splat, advect, divergence, Jacobi pressure solve, gradient subtract, vorticity). Only pointer movement adds smoke, so there is no glow from hover alone, and the dots brighten inside the glow because the display shader draws them. After about 7 seconds without movement the loop stops and clears the textures. `components/Cursor.tsx` (mounted in `app/layout.tsx`) adds the ring follower on top of the native cursor.
 
-Tunable constants (each file exports its config object):
+Tunable constants are exported at the top of `FluidBackground.tsx` (and `CURSOR_CONFIG` in `Cursor.tsx`):
 
-| Constant | File | Default | Effect |
-| --- | --- | --- | --- |
-| `latRings` x `pointsPerRing` | `ParticleBackground.tsx` (`PARTICLE_CONFIG`) | 90 x 140 (about 12.6k points) | Point count and lattice density |
-| `sizeVw`, `minDiameter` | same | 0.273, 260px | Sphere diameter (420px at 1536px wide) |
-| `centerX`, `centerY` | same | 0.72, 0.5 | Sphere position in the viewport |
-| `noiseAmplitude` | same | 0.18 | Radius displacement from simplex noise (+/-18%) |
-| `noiseSpeed` | same | 0.22 | How fast the shape morphs |
-| `rotationSpeed`, `tilt` | same | 0.07 rad/s, 0.28 rad | Spin about Y and axis tilt |
-| `pointMin`, `pointMax` | same | 1.5, 5 CSS px | Point size range |
-| `orangeShare` | same | 0.55 | Orange vs cream points (more orange at the rim) |
-| `parallax` | same | 0.12 rad | Pointer parallax (0 disables) |
-| `glowDivisor` | same | 16 | Glow canvas is viewport / 16, blurred by CSS |
-| `lerp` | `Cursor.tsx` (`CURSOR_CONFIG`) | 0.2 per frame at 60fps | Follower smoothing (time-based) |
+| Constant | Default | Effect |
+| --- | --- | --- |
+| `SIM_RES`, `DYE_RES` | 128, 512 | Velocity and density grid size (px, short side) |
+| `SPLAT_RADIUS` | 0.25 | Splat size, % of viewport area (about 80-120px) |
+| `SPLAT_FORCE` | 6000 | Velocity injected per unit of pointer travel |
+| `DENSITY_GAIN`, `DENSITY_MAX` | 12, 0.22 | Dye added per unit of pointer speed, and its per-frame clamp |
+| `DENSITY_DISSIPATION` | 0.99 | Density kept per frame at 60fps (time-based); trail fades in about 2-3s |
+| `VELOCITY_DISSIPATION` | 0.98 | Velocity kept per frame at 60fps |
+| `PRESSURE`, `PRESSURE_ITERATIONS` | 0.8, 20 | Pressure carry-over and Jacobi iterations |
+| `CURL` | 10 | Vorticity confinement (swirl) |
+| `GLOW_MAX_ALPHA` | 0.75 | Maximum smoke opacity |
+| `COLORS` | `#7a2a00` / `#ff5f00` / `#ffb066` | Deep, orange and hot amber ramp |
+| `DOT_SPACING`, `DOT_BASE_OPACITY`, `DOT_LIT_OPACITY` | 40px, 0.18, 0.7 | Dot grid, base opacity, and opacity inside the glow |
+| `lerp` (`Cursor.tsx`) | 0.2 | Ring follower smoothing per frame at 60fps |
 
-Cursor states are set by `mouseover` delegation on `a, button, [data-cursor]`: plain links and buttons give the hover disc, `data-cursor="drag"` shows chevrons, `data-cursor="view"` (optional `data-cursor-label="Open"`) shows the orange label circle, and `data-cursor="alt"` shows the translucent disc. The ring turns dark over light surfaces. Touch devices (`pointer: coarse`) hide the follower, and `prefers-reduced-motion` renders the blob as a single still frame.
+Without WebGL2 the glow falls back to a 2D canvas that stamps blurred radial gradients and fades them out. Reduced motion renders no glow, only the base dots. Touch input is accepted as the pointer. Cursor states come from `a, button, [data-cursor]`: links and buttons show the dark hover disc, `data-cursor="drag"` shows chevrons, `data-cursor="view"` (optional `data-cursor-label`) shows an orange label circle, and `data-cursor="alt"` a translucent disc. The follower is hidden on `pointer: coarse` devices.

@@ -1,4 +1,4 @@
-import { ParticleBackground } from "@/components/ParticleBackground";
+import { FluidBackground } from "@/components/FluidBackground";
 import { Header } from "@/components/header";
 import { ShortcutLink } from "@/components/home/shortcut-link";
 import { ShowReel } from "@/components/home/show-reel";
@@ -29,13 +29,9 @@ export default function Home() {
   return (
     <>
     <Header />
-    {/* Dark page: solid #111, fixed particle blob and a faint dot grid behind the content. */}
+    {/* Dark page: solid #111, a faint dot grid and a pointer-driven fluid glow behind the content. */}
     <main className="relative isolate flex-1 overflow-x-clip bg-[#111111] text-white">
-      <ParticleBackground />
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-[1] [background-image:radial-gradient(circle,rgba(255,255,255,.15)_1px,transparent_1px)] [background-size:40px_40px]"
-      />
+      <FluidBackground />
 
       {/* Hero */}
       <section className="relative">

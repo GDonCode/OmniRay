@@ -37,6 +37,22 @@ const PROJECTS: Project[] = [
     headline: "",
   },
   {
+    name: "Gameboy Records: Music",
+    kind: "Record label music player",
+    image: "/reel/gameboyrecords-music.webp",
+    theme: { bg: "#fff", fg: "#000", muted: "#666", accent: "#000", panel: "#eee" },
+    eyebrow: "",
+    headline: "",
+  },
+  {
+    name: "Gameboy Records: Vibes",
+    kind: "Record label lyrics player",
+    image: "/reel/gameboyrecords-vibes.webp",
+    theme: { bg: "#fff", fg: "#000", muted: "#666", accent: "#000", panel: "#eee" },
+    eyebrow: "",
+    headline: "",
+  },
+  {
     name: "Lumen Health",
     kind: "Patient portal",
     theme: {
@@ -132,9 +148,8 @@ function ReelCard({ project }: { project: Project }) {
           )}
         </div>
       </div>
-      <figcaption className="mt-4 flex items-baseline justify-between gap-4 px-1 font-mono text-[13px]">
-        <span className="text-omniray-ink">{project.name}</span>
-        <span className="text-omniray-ink-muted">{project.kind}</span>
+      <figcaption className="mt-4 px-1 font-mono text-[13px] text-omniray-ink">
+        {project.name}
       </figcaption>
     </figure>
   );

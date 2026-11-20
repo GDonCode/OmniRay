@@ -1,18 +1,17 @@
 @import "tailwindcss";
 @import "./omniray-colors.css";
 
+/* Site UI is black & white; only the logo and the show reel carry colour. */
 @theme {
-  --color-omniray-ink: #0F2747;
-  --color-omniray-orange: #FF5A36;
-  --color-omniray-paper: #F6F4F1;
-  --color-omniray-slate: #5A6B82;
-  --color-omniray-mist: #9FB0C6;
+  --color-omniray-ink: #000000;
+  --color-omniray-ink-muted: #555555;
+  --color-omniray-orange: #000000;
+  --color-omniray-paper: #ffffff;
 }
 
 :root {
-  --background: var(--omniray-paper);
-  --foreground: var(--omniray-ink);
-  --paper: #f8fafd;
+  --background: #ffffff;
+  --foreground: #000000;
 }
 
 /* Header links: only the text and icon grow on hover. */
@@ -23,12 +22,12 @@
 }
 .hover-grow:hover .grow-inner { transform: scale(1.1); }
 
-/* Nav tabs: ink on mint (light), white on #3A4A44 (dark). Active = underline. */
+/* Nav tabs: ink on white (light), white on ink (dark). Active = underline. */
 .tab {
   display: flex;
   align-items: center;
   padding: 0 clamp(0.75rem, 3vw, 1.5rem);
-  color: var(--omniray-ink);
+  color: #000;
   opacity: 0.8;
   font-size: 0.919rem;
   font-weight: 500;
@@ -37,7 +36,7 @@
 }
 .tab[aria-current="page"] {
   opacity: 1;
-  border-bottom-color: var(--omniray-ink);
+  border-bottom-color: #000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -67,8 +66,8 @@ body {
 /* Faint blueprint grid behind the hero, fading out toward the bottom. */
 .hero-grid {
   background-image:
-    linear-gradient(to right, rgb(15 39 71 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(15 39 71 / 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgb(0 0 0 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
   mask-image: linear-gradient(to bottom, black 55%, transparent);
 }
@@ -96,4 +95,123 @@ body {
   .reel {
     overflow-x: auto;
   }
+}
+
+/* ---------- Buttons (components/button.tsx) ----------
+   Primary = black with white text. Secondary = white with black text. The label slides out and the icon glides
+   to the centre on hover; width follows the label. */
+.btn {
+  --btn-pad: 16px;
+  --btn-icon: 18px;
+  --btn-gap: 10px;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  height: 44px;
+  padding: 0 var(--btn-pad) 0 calc(var(--btn-pad) + var(--btn-icon) + var(--btn-gap));
+  border: 1px solid var(--btn-edge);
+  border-radius: 6px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transform: translateY(0);
+  box-shadow:
+    inset 0 20px 20px -12px rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 3px 0 var(--btn-edge),
+    0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease-in-out, box-shadow 150ms ease-in-out;
+}
+
+.btn-primary {
+  --btn-bg: #000;
+  --btn-edge: #000;
+  --btn-fg: #fff;
+}
+
+.btn-secondary {
+  --btn-bg: #fff;
+  --btn-edge: #000;
+  --btn-fg: #000;
+}
+
+/* On dark / shader backgrounds: white text and edges. */
+.btn.btn-on-dark {
+  --btn-fg: #fff;
+  --btn-edge: #fff;
+  --btn-bg: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+}
+.btn.btn-on-dark.btn-secondary {
+  --btn-edge: rgba(255, 255, 255, 0.6);
+  --btn-bg: transparent;
+}
+.btn.btn-on-dark:focus-visible {
+  outline-color: #fff;
+}
+
+.btn-icon {
+  position: absolute;
+  top: 50%;
+  left: var(--btn-pad);
+  width: var(--btn-icon);
+  height: var(--btn-icon);
+  transform: translateY(-50%);
+  transition: left 0.5s ease-in-out;
+}
+
+.btn-text {
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+.btn:hover .btn-text {
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+.btn:hover .btn-icon {
+  left: calc(50% - var(--btn-icon) / 2);
+}
+
+.btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 1px 16px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 0 0 var(--btn-edge);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn-icon,
+  .btn-text {
+    transition: none;
+  }
+  .btn:hover .btn-text {
+    transform: none;
+    opacity: 1;
+  }
+  .btn:hover .btn-icon {
+    left: var(--btn-pad);
+  }
+}
+
+.btn-icon > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }

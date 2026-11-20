@@ -1,3 +1,4 @@
+import { HeroBackground } from "@/components/home/hero-background";
 import { Header } from "@/components/header";
 import { ShortcutLink } from "@/components/home/shortcut-link";
 import { ShowReel } from "@/components/home/show-reel";
@@ -30,34 +31,37 @@ export default function Home() {
     <Header />
     <main className="relative flex-1 overflow-x-clip">
       {/* Hero */}
-      <section className="relative">
-        <div aria-hidden className="hero-grid pointer-events-none absolute inset-0" />
+      <section className="relative isolate overflow-hidden bg-black text-white">
+        <HeroBackground />
         <GuideFrame />
 
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-10 pb-16 text-center sm:pt-12 sm:pb-20">
-          <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-omniray-ink sm:text-7xl">
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pt-16 pb-24 text-center sm:pt-24 sm:pb-32">
+          <h1 className="font-serif text-5xl leading-[1.05] font-medium tracking-tight text-balance text-white [text-shadow:0_2px_24px_rgb(0_0_0/0.35)] sm:text-7xl">
             Turn your busywork into software that earns
           </h1>
 
-          <p className="mt-6 max-w-xl font-mono text-[15px] leading-7 tracking-tight text-pretty text-omniray-ink-muted sm:text-base sm:leading-8">
+          <p className="mt-6 max-w-xl font-mono text-[15px] leading-7 tracking-tight text-pretty text-white [text-shadow:0_1px_12px_rgb(0_0_0/0.4)] sm:text-base sm:leading-8">
             We build the websites, platforms and tools that take bookings,
             collect payments and keep customers coming back, so you spend
             less time on manual work and more on growth.
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
-            <ShortcutLink href="/contact" shortcut="S" icon={<ArrowIcon />}>
+            <ShortcutLink href="/contact" shortcut="S" onDark icon={<ArrowIcon />}>
               Get your free project plan
             </ShortcutLink>
-            <ShortcutLink href="#work" shortcut="W" variant="secondary" icon={<PlayIcon />}>
+            <ShortcutLink href="#work" shortcut="W" variant="secondary" onDark icon={<PlayIcon />}>
               See the results
             </ShortcutLink>
           </div>
         </div>
       </section>
 
-      {/* Pillars + show reel */}
+      {/* Show reel + pillars */}
       <section id="work" className="relative scroll-mt-8 pb-24">
+        <h2 className="sr-only">Selected work</h2>
+        <ShowReel />
+
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <ul className="grid divide-y divide-omniray-ink/10 rounded-xl border border-omniray-ink/10 bg-white/80 shadow-[0_1px_2px_rgb(15_38_31/0.04)] backdrop-blur sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {PILLARS.map((pillar) => (
@@ -80,8 +84,6 @@ export default function Home() {
           </ul>
         </div>
 
-        <h2 className="sr-only">Selected work</h2>
-        <ShowReel />
       </section>
     </main>
     </>
@@ -91,13 +93,13 @@ export default function Home() {
 /** Dashed guide lines with diamond markers framing the hero, like a blueprint. */
 function GuideFrame() {
   const diamond =
-    "absolute size-2 rotate-45 border border-omniray-ink/25 bg-omniray-paper";
+    "absolute size-2 rotate-45 border border-white/50 bg-black";
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
-      <div className="absolute inset-y-0 left-[max(1.5rem,calc(50%-36rem))] border-l border-dashed border-omniray-ink/15" />
-      <div className="absolute inset-y-0 right-[max(1.5rem,calc(50%-36rem))] border-r border-dashed border-omniray-ink/15" />
-      <div className="absolute inset-x-0 top-12 border-t border-dashed border-omniray-ink/15" />
-      <div className="absolute inset-x-0 bottom-0 border-t border-dashed border-omniray-ink/15" />
+      <div className="absolute inset-y-0 left-[max(1.5rem,calc(50%-36rem))] border-l border-dashed border-white/20" />
+      <div className="absolute inset-y-0 right-[max(1.5rem,calc(50%-36rem))] border-r border-dashed border-white/20" />
+      <div className="absolute inset-x-0 top-12 border-t border-dashed border-white/20" />
+      <div className="absolute inset-x-0 bottom-0 border-t border-dashed border-white/20" />
       <span className={`${diamond} top-12 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 -translate-y-1/2`} />
       <span className={`${diamond} top-12 right-[max(1.5rem,calc(50%-36rem))] translate-x-1/2 -translate-y-1/2`} />
       <span className={`${diamond} bottom-0 left-[max(1.5rem,calc(50%-36rem))] -translate-x-1/2 translate-y-1/2`} />

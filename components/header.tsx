@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/logo";
 
+const LOGO_ALT = "OmniRay Software Solutions";
+
 const TABS = [
   { href: "/", label: "home" },
   { href: "/services", label: "services" },
@@ -70,13 +72,11 @@ export function Header() {
           aria-label="omniray software solutions"
           className="flex shrink-0 items-center py-[12.6px]"
         >
-          <span className="flex items-center gap-[13px]">
-            <Logo variant="horizontal" tone="reversed" height={34.65} priority />
-            <span className="hidden h-[23px] w-px bg-white/30 sm:block" aria-hidden />
-            <span className="hidden text-[16.2px] font-medium lowercase tracking-wide text-white sm:block">
-              software solutions
-            </span>
-          </span>
+          {/* Dark-background lockups: full nav lockup from sm up, wordmark lockup on narrow
+              phones, mark only below 380px. The others stay in the DOM but are display:none. */}
+          <Logo variant="nav" tone="web" height={34.65} alt={LOGO_ALT} priority className="hidden sm:block" />
+          <Logo variant="horizontal" tone="web" height={34.65} alt={LOGO_ALT} priority className="hidden min-[380px]:block sm:hidden" />
+          <Logo variant="mark" tone="web" height={34.65} alt={LOGO_ALT} priority className="min-[380px]:hidden" />
         </Link>
         <Link
           href="/contact"

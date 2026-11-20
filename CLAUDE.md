@@ -19,3 +19,7 @@
 - Dark sections are ink, not black. Page background is paper `#F1FAF3`, cards
   are white.
 - Headings use Space Grotesk.
+- Website logo (dark backgrounds only): white mark, ring and code tags; 'Omni' white;
+  'Ray' #FF5200; exclamation point #FF5200; 'software solutions' white. Files in
+  `public/brand/svg/omniray-logo-web-*.svg`. Never place these on light backgrounds; use the
+  full-colour logo there.

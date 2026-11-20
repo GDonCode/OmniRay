@@ -1,6 +1,13 @@
 import Image from "next/image";
 
 const LOGOS = {
+  /** Header lockup: mark + wordmark + divider + "software solutions". Only exists as the "web" tone. */
+  nav: {
+    ratio: 941.04 / 126,
+    files: {
+      web: "omniray-logo-web-nav",
+    },
+  },
   horizontal: {
     ratio: 408.03 / 126,
     files: {
@@ -8,6 +15,7 @@ const LOGOS = {
       reversed: "omniray-logo-horizontal-reversed",
       ink: "omniray-logo-horizontal-ink",
       white: "omniray-logo-horizontal-white",
+      web: "omniray-logo-web-horizontal",
     },
   },
   stacked: {
@@ -17,6 +25,7 @@ const LOGOS = {
       reversed: "omniray-logo-stacked-reversed",
       ink: "omniray-logo-stacked",
       white: "omniray-logo-stacked-reversed",
+      web: "omniray-logo-web-stacked",
     },
   },
   mark: {
@@ -26,6 +35,7 @@ const LOGOS = {
       reversed: "omniray-mark-reversed",
       ink: "omniray-mark-ink",
       white: "omniray-mark-white",
+      web: "omniray-mark-web",
     },
   },
   wordmark: {
@@ -48,10 +58,13 @@ type LogoProps = {
    * - "reversed" full colour, for deep green (ink) backgrounds
    * - "ink"      one colour (deep green), for orange, yellow and mint backgrounds
    * - "white"    one colour (white), for photos and busy images
+   * - "web"      white and #FF5200, for the dark site background (about #111) only.
+   *              The "nav" variant exists only in this tone. The wordmark has no web
+   *              file and falls back to its reversed version.
    * Note: stacked and wordmark have no one-colour files, so "ink" and "white"
    * fall back to their full-colour (or reversed) versions for those two.
    */
-  tone?: "color" | "reversed" | "ink" | "white";
+  tone?: "color" | "reversed" | "ink" | "white" | "web";
   /** Rendered height in px. Width follows the logo's proportions. */
   height?: number;
   /** Set on the header logo so it loads first. */
@@ -68,8 +81,13 @@ export function Logo({
   alt = "OmniRay",
   className,
 }: LogoProps) {
-  const logo = LOGOS[variant];
-  const file = logo.files[tone];
+  // "nav" only has a web file, so other tones use the horizontal logo instead. Any other
+  // variant without a file for the tone (the wordmark in "web") uses its reversed file.
+  type Files = Partial<Record<typeof tone, string>>;
+  const own = LOGOS[variant];
+  const logo = variant === "nav" && !(own.files as Files)[tone] ? LOGOS.horizontal : own;
+  const files = logo.files as Files;
+  const file = files[tone] ?? files.reversed;
 
   return (
     <Image

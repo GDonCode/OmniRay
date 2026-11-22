@@ -23,21 +23,125 @@
 }
 .hover-grow:hover .grow-inner { transform: scale(1.1); }
 
-/* Nav tabs: white on the dark header. Active = underline. */
+/* Nav tabs (components/header.tsx). Flush to the top of the page, full header height.
+   Rest = soft white text. Hover = a brand-orange bar grows across the very top edge.
+   Live (aria-current) = the whole tab fills brand orange with white text. The same states style the
+   call / email / build actions on the right, so every header control speaks one language. */
 .tab {
+  --tab-orange: #ff5f00;
+  position: relative;
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   padding: 0 clamp(0.75rem, 3vw, 1.5rem);
-  color: #fff;
-  opacity: 0.8;
+  color: rgb(255 255 255 / 0.8);
   font-size: 0.919rem;
   font-weight: 500;
   text-transform: lowercase;
-  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.3s ease;
+}
+.tab::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--tab-orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.28s ease;
+}
+.tab:hover,
+.tab:focus-visible {
+  color: #fff;
+  background: rgb(255 255 255 / 0.07);
+}
+.tab:hover::before,
+.tab:focus-visible::before {
+  transform: scaleX(1);
+}
+.tab:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
 }
 .tab[aria-current="page"] {
-  opacity: 1;
-  border-bottom-color: #fff;
+  color: #fff;
+  font-weight: 600;
+  background: var(--tab-orange);
+  box-shadow: 0 14px 34px -14px rgb(255 95 0 / 0.75);
+}
+.tab[aria-current="page"]::before {
+  transform: scaleX(0);
+}
+.tab-icon {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tab::before {
+    transition: none;
+  }
+}
+
+/* ---------- Glass (text fields and panels) ----------
+   Frosted pane: translucent white gradient, backdrop blur over the star sky and nebula, a lit top edge.
+   Applied to every text field by element, and to panels with .glass. Focus turns the edge brand orange. */
+.glass,
+input:not([type="hidden"], [type="checkbox"], [type="radio"], [type="submit"], [type="button"]),
+textarea,
+select {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.04));
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-top-color: rgb(255 255 255 / 0.34);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 10px 30px -12px rgb(0 0 0 / 0.55);
+  color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+input:not([type="hidden"], [type="checkbox"], [type="radio"], [type="submit"], [type="button"]):hover,
+textarea:hover,
+select:hover {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.17), rgb(255 255 255 / 0.06));
+}
+input:not([type="hidden"], [type="checkbox"], [type="radio"], [type="submit"], [type="button"]):focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #ff5f00;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 0 0 1px #ff5f00,
+    0 0 28px -4px rgb(255 95 0 / 0.45);
+}
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: #ff5f00;
+}
+/* Browser autofill paints an opaque yellow; keep the glass. */
+input:-webkit-autofill,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  transition: background-color 9999s ease-out 0s;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  input:not([type="hidden"], [type="checkbox"], [type="radio"], [type="submit"], [type="button"]),
+  textarea,
+  select {
+    background: rgb(30 30 30 / 0.85);
+  }
 }
 
 @theme inline {
@@ -94,8 +198,8 @@ body {
 }
 
 /* ---------- Buttons (components/button.tsx) ----------
-   Primary = black with white text. Secondary = white with black text. The label slides out and the icon glides
-   to the centre on hover; width follows the label. */
+   Primary = black with white text. Secondary = white with black text. On hover a multi-word label folds to its
+   first word beside the icon ("Start a project" -> [icon] Start) and the button shrinks with it. */
 .btn {
   --btn-pad: 16px;
   --btn-icon: 18px;
@@ -105,9 +209,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--btn-gap);
   overflow: hidden;
   height: 44px;
-  padding: 0 var(--btn-pad) 0 calc(var(--btn-pad) + var(--btn-icon) + var(--btn-gap));
+  padding: 0 var(--btn-pad);
   border: 1px solid var(--btn-edge);
   border-radius: 6px;
   background: var(--btn-bg);
@@ -171,26 +276,29 @@ body {
 .btn.btn-square:focus-visible { outline-color: #ff5f00; }
 
 .btn-icon {
-  position: absolute;
-  top: 50%;
-  left: var(--btn-pad);
+  flex: none;
   width: var(--btn-icon);
   height: var(--btn-icon);
-  transform: translateY(-50%);
-  transition: left 0.5s ease-in-out;
 }
 
 .btn-text {
-  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  display: inline-flex;
 }
 
-.btn:hover .btn-text {
-  transform: translateX(120%);
-  opacity: 0;
+/* The words after the first one: they fold away (width and fade) on hover. */
+.btn-rest {
+  display: inline-block;
+  overflow: hidden;
+  white-space: pre;
+  max-width: 24em;
+  transition: max-width 0.45s ease-in-out, opacity 0.3s ease-in-out;
 }
 
-.btn:hover .btn-icon {
-  left: calc(50% - var(--btn-icon) / 2);
+@media (hover: hover) {
+  .btn:hover .btn-rest {
+    max-width: 0;
+    opacity: 0;
+  }
 }
 
 .btn:active {
@@ -208,16 +316,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .btn,
-  .btn-icon,
-  .btn-text {
+  .btn-rest {
     transition: none;
-  }
-  .btn:hover .btn-text {
-    transform: none;
-    opacity: 1;
-  }
-  .btn:hover .btn-icon {
-    left: var(--btn-pad);
   }
 }
 

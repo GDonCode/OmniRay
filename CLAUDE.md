@@ -14,6 +14,14 @@ rules in `docs/brand/BRAND-COLOR-RULES.md` (those still apply to print and any l
   `components/GlowBackground.tsx` (no dot grid); its tunables are exported at the top of that
   file. Stars, lines and nebula noise are baked to textures once per resize; keep per-frame
   work in the display shader to texture lookups.
+- Header (`components/header.tsx`): tabs sit flush to the top of the page at full header height.
+  Live tab (`aria-current`) = filled brand orange with white text; hover = an orange bar grows
+  across the top edge. Call / email / build use the same `.tab` styles. Reuse these states for new
+  navigation-like controls.
+- Buttons: use `<Button>` (`components/button.tsx`). With an icon and a multi-word string label,
+  hover folds the label to its first word ("Start a project" -> [icon] Start). Don't hand-roll buttons.
+- Text fields are glass (frosted blur, lit top edge, orange focus). It is global CSS on
+  `input`/`textarea`/`select`, plus `.glass` for panels, so don't restyle fields per component.
 - Buttons are square-cornered (`btn-square`). Showreel cards have no borders or rounding.
 - Always use the `<Logo />` component (`components/logo.tsx`), never hard-coded logo files. On
   the dark site use `tone="web"`: `nav` in the header, `stacked` in the footer.

@@ -20,7 +20,7 @@ const initial: ContactState = { status: "idle" };
 const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 const input =
-  "block w-full border border-white/20 bg-white/5 px-3.5 py-3 font-mono text-[15px] text-white placeholder:text-white/40 focus:border-[#ff5f00] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#ff5f00] aria-[invalid=true]:border-[#ff5f00]";
+  "block w-full px-3.5 py-3 font-mono text-[15px] placeholder:text-white/45";
 
 export function ContactForm() {
   const [state, action, pending] = useActionState(sendContact, initial);
@@ -33,7 +33,7 @@ export function ContactForm() {
 
   if (state.status === "success") {
     return (
-      <div role="status" className="border border-white/20 bg-white/5 p-8">
+      <div role="status" className="glass p-8">
         <h2 className="font-heading text-2xl text-white">Message sent</h2>
         <p className="mt-3 font-mono text-[15px] leading-7 text-white/85">
           Thanks, we&apos;ll reply from rayne@omniray.org soon.
@@ -52,7 +52,7 @@ export function ContactForm() {
       {siteKey && <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />}
 
       {state.message && (
-        <p role="alert" className="border border-[#ff5f00] bg-[#ff5f00]/10 px-4 py-3 font-mono text-[14px] text-white">
+        <p role="alert" className="glass !border-[#ff5f00] px-4 py-3 font-mono text-[14px] text-white">
           {state.message}
         </p>
       )}

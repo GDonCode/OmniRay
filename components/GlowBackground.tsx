@@ -30,6 +30,10 @@ export const LENS_SPEED_REF = 40; // pointer css px per frame (60fps) that gives
 export const LENS_RISE = 0.3; // per frame at 60fps, when the pointer speeds up
 export const LENS_FALL = 0.04; // per frame at 60fps, when it slows down
 export const POINTER_LERP = 0.2; // smoothed pointer for the lens, per frame at 60fps
+// Drift: stars float on a slow, smooth field, so neighbours move slightly differently. Lines move with them.
+export const STAR_DRIFT_PX = 3; // peak displacement, css px (0 turns the drift off)
+export const STAR_DRIFT_SPEED = 1; // 1 = one gentle sway every ~25-30s
+export const IDLE_FPS = 30; // frame rate once the smoke has faded: only the stars drift, so this is cheap
 // Star field: two layers, both drawn in the shader (no grid; jittered, rotated cells).
 export const STAR_COLOR = "232,220,200"; // cream, the base star colour
 export const FAR_STAR_SPACING = 30; // css px per cell, dim dense layer
@@ -272,6 +276,7 @@ uniform float uLensRadius; uniform float uLensStrength; uniform float uHasScene;
 uniform vec3 uDust; uniform vec3 uDeep; uniform vec3 uOrange; uniform vec3 uAmber; uniform vec3 uHot; uniform vec3 uStarColor;
 uniform float uMaxAlpha; uniform float uNebDust; uniform float uNebHot;
 uniform float uLitBoost; uniform float uLineBase; uniform float uLineLit;
+uniform float uTime; uniform float uDrift;
 
 void main() {
   // Everything below is sampled at a displaced position, so stars, smoke and scene bend together.
@@ -312,7 +317,12 @@ void main() {
   }
 
   // Stars and constellation lines, baked; brighter inside the glow, as the dots used to be.
-  vec4 st = texture(uStars, srcUv);
+  // Drift: a slow low-frequency sway on the star lookup only (smoke and scene stay put). It adds to
+  // the warp above, so the pointer still bends the stars as before.
+  vec2 sway = vec2(sin(uTime * 0.23 + srcPx.y * 0.007) + 0.6 * sin(uTime * 0.11 + srcPx.x * 0.013 + 1.7),
+                   cos(uTime * 0.19 + srcPx.x * 0.006) + 0.6 * cos(uTime * 0.13 + srcPx.y * 0.011)) * (uDrift / 1.6);
+  vec2 starPx = srcPx + sway;
+  vec4 st = texture(uStars, vec2(starPx.x, uViewport.y - starPx.y) / uViewport);
   vec3 starRGB = min(st.rgb * mix(1.0, uLitBoost, lit), vec3(1.0));
   float starA = max(starRGB.r, max(starRGB.g, starRGB.b));
   float lineA = st.a * mix(uLineBase, uLineLit, lit);
@@ -646,6 +656,8 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.uniform1f(d.u.uNebDust, NEBULA_DUST);
     gl.uniform1f(d.u.uNebHot, NEBULA_HOT);
     gl.uniform1f(d.u.uLitBoost, STAR_LIT_BOOST);
+    gl.uniform1f(d.u.uTime, (performance.now() / 1000) * STAR_DRIFT_SPEED);
+    gl.uniform1f(d.u.uDrift, STAR_DRIFT_PX);
     gl.uniform1f(d.u.uLineBase, LINE_BASE_OPACITY);
     gl.uniform1f(d.u.uLineLit, LINE_LIT_OPACITY);
     blit(null);
@@ -741,6 +753,8 @@ export function GlowBackground({ sceneTexture = null }: { sceneTexture?: SceneSo
     const pending = { dx: 0, dy: 0, px: 0, x: 0, y: 0, moved: false };
     const smooth = { x: 0, y: 0, lens: 0 }; // smoothed pointer and lens intensity
     let lastSplat = -1e9;
+    let settled = false; // sim textures already cleared for the idle sky
+    let lastDraw = 0;
     let raf = 0;
     let last = 0;
 
@@ -812,6 +826,21 @@ export function GlowBackground({ sceneTexture = null }: { sceneTexture?: SceneSo
         pending.moved = false;
       }
 
+      // Smoke has faded: stop the fluid sim, keep the sky drifting at a low frame rate.
+      const idle = now - lastSplat > IDLE_MS && !sceneRef.current;
+      if (idle && gl) {
+        if (!settled) {
+          settled = true;
+          drawStill(); // clears the sim textures once
+        } else if (now - lastDraw >= 1000 / IDLE_FPS - 2) {
+          lastDraw = now;
+          gl.display(rest(), null);
+        }
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      settled = false;
+
       // Lens: eased pointer, and an intensity that rises fast on movement and relaxes slowly.
       const kp = 1 - Math.pow(1 - POINTER_LERP, frames);
       smooth.x += (ptr.x - smooth.x) * kp;
@@ -826,10 +855,8 @@ export function GlowBackground({ sceneTexture = null }: { sceneTexture?: SceneSo
       } else if (flat) {
         flat.fade();
       }
-      // A live scene (video, canvas) needs a frame every tick, so only sleep without one.
-      if (now - lastSplat > IDLE_MS && !sceneRef.current) {
-        // Nothing visible any more: clear, draw one regular still frame, and sleep.
-        drawStill();
+      // The 2D fallback has no drift, so it still sleeps once its trail has faded.
+      if (!gl && idle) {
         raf = 0;
         return;
       }
@@ -840,7 +867,7 @@ export function GlowBackground({ sceneTexture = null }: { sceneTexture?: SceneSo
       if (document.hidden) {
         cancelAnimationFrame(raf);
         raf = 0;
-      } else if (!raf && (sceneRef.current || performance.now() - lastSplat < IDLE_MS)) {
+      } else if (!raf && (gl || sceneRef.current || performance.now() - lastSplat < IDLE_MS)) {
         last = performance.now();
         raf = requestAnimationFrame(loop);
       }
@@ -856,11 +883,12 @@ export function GlowBackground({ sceneTexture = null }: { sceneTexture?: SceneSo
     });
     ro.observe(canvas);
 
-    // First frame: the shader draws the dots, so hide the CSS grid in the same task (no double dots).
+    // First frame: the shader draws the stars, so hide the CSS star field in the same task (no double dots).
     if (gl) {
       drawStill();
       wrap.dataset.gl = "true";
-      if (sceneRef.current) raf = requestAnimationFrame((t) => { last = t; loop(t); });
+      // The loop always runs with WebGL: it drifts the stars, and drops to IDLE_FPS once the smoke is gone.
+      raf = requestAnimationFrame((t) => { last = t; settled = true; loop(t); });
     }
 
     window.addEventListener("pointermove", onMove, { passive: true });

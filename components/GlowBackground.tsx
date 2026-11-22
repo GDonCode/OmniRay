@@ -15,12 +15,12 @@ export const PRESSURE = 0.8;
 export const PRESSURE_ITERATIONS = 20;
 export const CURL = 10;
 export const GLOW_MAX_ALPHA = 0.6;
-export const COLORS = { deep: "#7a2a00", orange: "#ff5f00", amber: "#ffb066" };
-export const DOT_SPACING = 40; // px
-export const DOT_BASE_OPACITY = 0.18; // CSS layer, everywhere
-export const DOT_LIT_OPACITY = 0.7; // drawn in the shader, only inside the glow
-export const DOT_COLOR = "232,220,200"; // cream
-// Warp: the pointer bends the dots (and the smoke, and any scene texture) themselves.
+// Nebula ramp: dust lane -> deep rust -> orange -> amber -> white-hot gold on the densest ridges.
+export const COLORS = { dust: "#1f0a02", deep: "#7a2a00", orange: "#ff5f00", amber: "#ffb066", hot: "#ffd9a0" };
+export const NEBULA_SCALE = 260; // css px per noise cell: bigger = broader clouds
+export const NEBULA_DUST = 0.55; // 0-1: how much dark dust lanes cut into the glow
+export const NEBULA_HOT = 0.55; // 0-1: white-hot highlight on the densest filaments
+// Warp: the pointer bends the stars (and the smoke, and any scene texture) themselves.
 export const WARP_ENABLED = true;
 export const WARP_FLOW_SCALE = 0.1; // css px of displacement per velocity unit
 export const WARP_MAX_PX = 12; // clamp for the flow warp
@@ -30,13 +30,23 @@ export const LENS_SPEED_REF = 40; // pointer css px per frame (60fps) that gives
 export const LENS_RISE = 0.3; // per frame at 60fps, when the pointer speeds up
 export const LENS_FALL = 0.04; // per frame at 60fps, when it slows down
 export const POINTER_LERP = 0.2; // smoothed pointer for the lens, per frame at 60fps
-export const DOT_RADIUS = 1; // css px
-// Faint lines joining some dots into small shapes (rectangles, triangles, diamonds, stairs).
-export const SHAPE_BLOCK = 6; // grid cells per shape block; one shape at most per block
-export const SHAPE_CHANCE = 0.4; // share of blocks that get a shape
+// Star field: two layers, both drawn in the shader (no grid; jittered, rotated cells).
+export const STAR_COLOR = "232,220,200"; // cream, the base star colour
+export const FAR_STAR_SPACING = 30; // css px per cell, dim dense layer
+export const FAR_STAR_CHANCE = 0.55; // share of cells holding a star
+export const FAR_STAR_OPACITY = 0.6; // brightest far star, at rest
+export const STAR_SPACING = 88; // css px per cell, bright sparse layer (carries constellations)
+export const STAR_CHANCE = 0.55;
+export const STAR_OPACITY = 0.95; // brightest near star, at rest
+export const STAR_LIT_BOOST = 1.7; // star brightness multiplier inside the glow
+export const STAR_SIZE = 1; // css px core radius of a typical near star
+// Constellations: faint lines joining the stars of some blocks of cells.
+export const CONSTELLATION_BLOCK = 4; // cells per block side
+export const CONSTELLATION_CHANCE = 0.4; // share of blocks that hold a constellation
+export const CONSTELLATION_EDGES = 0.6; // share of possible links drawn inside a block
 export const LINE_WIDTH = 1; // css px
-export const LINE_BASE_OPACITY = 0.09; // everywhere
-export const LINE_LIT_OPACITY = 0.3; // inside the glow
+export const LINE_BASE_OPACITY = 0.12; // everywhere
+export const LINE_LIT_OPACITY = 0.32; // inside the glow
 /** Stop simulating this long after the last splat (the dye has faded to nothing by then). */
 const IDLE_MS = 7000;
 
@@ -60,6 +70,35 @@ const head = `#version 300 es
 precision highp float; precision highp sampler2D;
 in vec2 vUv; in vec2 vL; in vec2 vR; in vec2 vT; in vec2 vB;
 out vec4 o;
+`;
+
+/** Noise and hash helpers shared by the two bake shaders (they run once per resize, so ALU noise is fine). */
+const LIB = `
+float hash21(vec2 p) { vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
+vec2 hash22(vec2 p) { vec3 q = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973)); q += dot(q, q.yxz + 33.33); return fract((q.xx + q.yz) * q.zy); }
+mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+float vnoise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), u.x),
+             mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+float fbm(vec2 p, int oct) {
+  float a = 0.5, s = 0.0;
+  for (int i = 0; i < 4; i++) {
+    if (i >= oct) break;
+    s += a * vnoise(p);
+    p = p * 2.03 + vec2(17.1, 9.3);
+    a *= 0.5;
+  }
+  return s / (1.0 - pow(0.5, float(oct)));                  // normalised to 0..1
+}
+// Distance from p to segment a-b, and the distance to the nearer end point.
+vec2 seg(vec2 p, vec2 a, vec2 b) {
+  vec2 pa = p - a, ba = b - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return vec2(length(pa - ba * h), min(length(pa), length(p - b)));
+}
 `;
 
 const FRAG = {
@@ -124,46 +163,118 @@ void main() {
   clear: head + `
 uniform sampler2D uTexture; uniform float uValue;
 void main() { o = uValue * texture(uTexture, vUv); }`,
-  display: head + `
-uniform sampler2D uDye; uniform sampler2D uVelocity; uniform sampler2D uScene;
-uniform vec2 uTexel; uniform vec2 uViewport; uniform vec2 uPointer;
-uniform float uLens; uniform float uWarpOn; uniform float uFlowScale; uniform float uWarpMax;
-uniform float uLensRadius; uniform float uLensStrength; uniform float uHasScene;
-uniform vec3 uDeep; uniform vec3 uOrange; uniform vec3 uAmber; uniform vec3 uDotColor;
-uniform float uMaxAlpha; uniform float uSpacing; uniform float uBaseOpacity; uniform float uLitOpacity; uniform float uDotRadius;
-uniform float uBlock; uniform float uShapeChance; uniform float uLineWidth; uniform float uLineBase; uniform float uLineLit;
+  // ---- baked once per resize (static in screen space; the display pass only looks them up) ----
+  stars: head + LIB + `
+uniform vec2 uViewport; uniform vec3 uStarColor;
+uniform float uFarSpacing; uniform float uFarChance; uniform float uFarOpacity;
+uniform float uSpacing; uniform float uChance; uniform float uStarOpacity; uniform float uStarSize;
+uniform float uBlock; uniform float uBlockChance; uniform float uEdgeChance; uniform float uLineWidth;
 
-float hash21(vec2 p) { p = fract(p * vec2(123.34, 345.45)); p += dot(p, p + 34.23); return fract(p.x * p.y); }
-float seg(vec2 p, vec2 a, vec2 b) {
-  vec2 pa = p - a, ba = b - a;
-  return length(pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0));
-}
-// Distance (in grid cells) from q to the shape of q's block. q is in cell units with dot
-// centres on integers. Vertices stay in 1..5 of a 6-cell block, so a shape never crosses a block.
-float shapeDist(vec2 q) {
-  vec2 blk = floor(q / uBlock);
-  if (hash21(blk) > uShapeChance) return 1e3;
-  vec2 l = q - blk * uBlock;
-  float t = hash21(blk + 17.3);
-  vec2 o = vec2(1.0 + floor(hash21(blk + 3.1) * 2.0), 1.0 + floor(hash21(blk + 9.7) * 2.0));
-  float s = 1.0 + floor(hash21(blk + 5.5) * 2.0);
-  if (t < 0.25) {                       // rectangle
-    vec2 a = o, b = o + vec2(s + 1.0, 0.0), c = o + vec2(s + 1.0, s), e = o + vec2(0.0, s);
-    return min(min(seg(l, a, b), seg(l, b, c)), min(seg(l, c, e), seg(l, e, a)));
-  } else if (t < 0.5) {                 // right triangle
-    vec2 a = o, b = o + vec2(s + 1.0, 0.0), c = o + vec2(0.0, s + 1.0);
-    return min(min(seg(l, a, b), seg(l, b, c)), seg(l, c, a));
-  } else if (t < 0.75) {                // diamond
-    if (s > 1.5) o = vec2(1.0);
-    vec2 a = o + vec2(s, 0.0), b = o + vec2(2.0 * s, s), c = o + vec2(s, 2.0 * s), e = o + vec2(0.0, s);
-    return min(min(seg(l, a, b), seg(l, b, c)), min(seg(l, c, e), seg(l, e, a)));
+// One star: crisp core, soft halo and, for the brightest, a faint diffraction cross.
+// dpx is the offset from the star centre in css px; size the core radius; mag 0..1 its brightness.
+float starShape(vec2 dpx, float size, float mag, float aa) {
+  float d = length(dpx);
+  float core = 1.0 - smoothstep(size - aa, size + aa, d);
+  float halo = exp(-d / (size * 2.2)) * 0.4 * mag;
+  float spikes = 0.0;
+  if (mag > 0.72) {
+    float len = size * (5.0 + 9.0 * (mag - 0.72));
+    vec2 a = abs(dpx);
+    spikes = (exp(-a.y / 0.45) * exp(-a.x / len) + exp(-a.x / 0.45) * exp(-a.y / len)) * 0.55 * (mag - 0.6);
   }
-  vec2 a = o, b = o + vec2(1.0, 0.0), c = o + vec2(1.0, 1.0), e = o + vec2(2.0, 1.0), f = o + vec2(2.0, 2.0);
-  return min(min(seg(l, a, b), seg(l, b, c)), min(seg(l, c, e), seg(l, e, f)));   // stair
+  return clamp(core + halo + spikes, 0.0, 1.0);
+}
+
+// Warm-white with a little spread: mostly cream, some amber, a few pale cool whites.
+vec3 starTint(float h) {
+  vec3 amber = vec3(1.0, 0.78, 0.55), cool = vec3(0.82, 0.88, 1.0);
+  return h < 0.22 ? mix(uStarColor, amber, 0.8) : h > 0.9 ? mix(uStarColor, cool, 0.7) : uStarColor;
+}
+
+// Near-layer cell: is there a star, where (in cells), how bright. Stars inside a
+// constellation block always exist, so the links never end on nothing.
+bool nearStar(vec2 c, out vec2 pos, out float mag) {
+  vec2 h = hash22(c);
+  float inBlock = step(hash21(floor(c / uBlock) + 9.1), uBlockChance);
+  pos = c + 0.2 + 0.6 * h;
+  mag = hash21(c + 3.3);
+  mag = mix(mag, 0.55 + 0.45 * mag, inBlock);
+  return inBlock > 0.5 || hash21(c + 7.7) < uChance;
 }
 
 void main() {
-  // Everything below is sampled at a displaced position, so dots, smoke and scene bend together.
+  vec2 px = vec2(vUv.x, 1.0 - vUv.y) * uViewport;           // css px, y down
+  float aa = max(fwidth(px.x) * 0.5, 0.35);
+
+  // far stars: dim, dense, one per cell at most; cells rotated so no axis shows
+  vec2 fq = (rot(0.41) * px) / uFarSpacing;
+  vec2 fc = floor(fq);
+  vec2 fh = hash22(fc);
+  float fm = hash21(fc + 3.3);
+  float fpresent = step(hash21(fc + 7.7), uFarChance);
+  vec2 fd = (fract(fq) - (0.2 + 0.6 * fh)) * uFarSpacing;
+  float fsize = mix(0.42, 0.8, fm);
+  float fa = fpresent * starShape(fd, fsize, fm * 0.5, aa) * mix(0.3, 1.0, fm * fm) * uFarOpacity;
+  vec3 farRGB = starTint(hash21(fc + 1.3));
+
+  // near stars + constellations
+  vec2 nq = (rot(-0.23) * px) / uSpacing;
+  vec2 nc = floor(nq);
+  vec2 npos; float nmag;
+  float na = 0.0;
+  vec3 nearRGB = uStarColor;
+  if (nearStar(nc, npos, nmag)) {
+    float size = uStarSize * mix(0.7, 1.55, nmag);
+    na = starShape((nq - npos) * uSpacing, size, nmag, aa) * mix(0.35, 1.0, nmag) * uStarOpacity;
+    nearRGB = starTint(hash21(nc + 1.3));
+  }
+
+  // Links only point right, down or diagonally, so a pixel is only reached by links that
+  // start in its own cell or in the cells to its left / above.
+  float line = 0.0;
+  for (int k = 0; k < 4; k++) {
+    vec2 c = nc - vec2(float(k & 1), float(k >> 1));
+    vec2 blk = floor(c / uBlock);
+    if (hash21(blk + 9.1) > uBlockChance) continue;
+    if (hash21(c + 8.8) > uEdgeChance) continue;
+    float kd = hash21(c + 1.7);
+    vec2 dir = kd < 0.34 ? vec2(1.0, 0.0) : kd < 0.67 ? vec2(0.0, 1.0) : vec2(1.0, 1.0);
+    vec2 nb = c + dir;
+    if (floor(nb / uBlock) != blk) continue;
+    vec2 pa, pb; float ma, mb;
+    nearStar(c, pa, ma);
+    nearStar(nb, pb, mb);
+    vec2 sd = seg(nq * uSpacing, pa * uSpacing, pb * uSpacing);
+    float laa = max(aa * 0.7, 0.4);
+    float m = 1.0 - smoothstep(0.5 * uLineWidth - laa, 0.5 * uLineWidth + laa, sd.x);
+    m *= smoothstep(4.0, 9.0, sd.y);                        // lines stop short of the stars
+    line = max(line, m);
+  }
+  // rgb: premultiplied star light (unboosted). a: constellation line coverage.
+  o = vec4(min(farRGB * fa + nearRGB * na, vec3(1.0)), line);
+}`,
+  nebula: head + LIB + `
+uniform vec2 uViewport; uniform float uNebScale;
+void main() {
+  vec2 px = vec2(vUv.x, 1.0 - vUv.y) * uViewport;
+  vec2 q = px / uNebScale;
+  vec2 w = vec2(fbm(q + vec2(1.7, 9.2), 2), fbm(q + vec2(8.3, 2.8), 2));
+  float n = fbm(q + 1.7 * (w - 0.5) * 2.0, 4);                          // cloud body
+  float r = 1.0 - abs(2.0 * fbm(q * 1.8 + 2.2 * w + 5.1, 3) - 1.0);     // filaments, 1 on the ridge
+  float dust = smoothstep(0.5, 0.85, 1.0 - r) * smoothstep(0.55, 0.3, n);  // dark lanes
+  o = vec4(n, r, dust, 1.0);
+}`,
+  display: head + `
+uniform sampler2D uDye; uniform sampler2D uVelocity; uniform sampler2D uScene; uniform sampler2D uStars; uniform sampler2D uNeb;
+uniform vec2 uTexel; uniform vec2 uViewport; uniform vec2 uPointer;
+uniform float uLens; uniform float uWarpOn; uniform float uFlowScale; uniform float uWarpMax;
+uniform float uLensRadius; uniform float uLensStrength; uniform float uHasScene;
+uniform vec3 uDust; uniform vec3 uDeep; uniform vec3 uOrange; uniform vec3 uAmber; uniform vec3 uHot; uniform vec3 uStarColor;
+uniform float uMaxAlpha; uniform float uNebDust; uniform float uNebHot;
+uniform float uLitBoost; uniform float uLineBase; uniform float uLineLit;
+
+void main() {
+  // Everything below is sampled at a displaced position, so stars, smoke and scene bend together.
   vec2 pPx = vec2(vUv.x, 1.0 - vUv.y) * uViewport;          // css px, y down
   vec2 flow = clamp(texture(uVelocity, vUv).xy * uFlowScale, -uWarpMax, uWarpMax);
   flow.y = -flow.y;                                          // to screen space
@@ -180,28 +291,37 @@ void main() {
   float d = (4.0 * texture(uDye, srcUv).x
     + texture(uDye, srcUv + vec2(e.x, 0.0)).x + texture(uDye, srcUv - vec2(e.x, 0.0)).x
     + texture(uDye, srcUv + vec2(0.0, e.y)).x + texture(uDye, srcUv - vec2(0.0, e.y)).x) / 8.0;
+  float lit = smoothstep(0.02, 0.5, d);
 
-  float t = 1.0 - exp(-1.1 * d);
-  vec3 col = t < 0.5 ? mix(uDeep, uOrange, t * 2.0) : mix(uOrange, uAmber, (t - 0.5) * 2.0);
-  float a = clamp(d * 1.2, 0.0, uMaxAlpha);
+  // Nebula: the dye is the mask; the baked field gives it gas filaments and dark dust lanes.
+  vec4 neb = vec4(0.0);
+  if (d > 0.004) {
+    vec3 nf = texture(uNeb, srcUv).xyz;                      // n (body), r (ridge), dust lane
+    float n = nf.x, r = nf.y, dust = nf.z * uNebDust;
+    float body = d * (0.25 + 1.6 * n);
+    // Tone follows the cloud structure (not just density) so dense smoke keeps its filaments.
+    float t = (1.0 - exp(-2.2 * d)) * (0.2 + 0.95 * n) + uNebHot * r * r * r * smoothstep(0.15, 0.7, d) * 0.3;
+    t = clamp(t, 0.0, 1.0);
+    vec3 col = t < 0.4 ? mix(uDeep, uOrange, t / 0.4)
+             : t < 0.8 ? mix(uOrange, uAmber, (t - 0.4) / 0.4)
+             : mix(uAmber, mix(uAmber, uHot, 0.5), (t - 0.8) / 0.2);   // hot gold stays warm, never white
+    col = mix(col, uDust, dust);
+    float a = clamp(body * 1.35, 0.0, uMaxAlpha);
+    a *= 1.0 - 0.4 * smoothstep(0.7, 1.0, t) * (1.0 - dust);   // the brightest gold stays translucent: text stays readable
+    neb = vec4(col * 0.88 * a, a);                           // slightly under-exposed so white text stays readable
+  }
 
-  // Dot grid: cell maths in displaced css px, anti-aliased with fwidth, swelling under the lens.
-  vec2 local = mod(srcPx, uSpacing) - 0.5 * uSpacing;
-  float dist = length(local);
-  float r = uDotRadius * (1.0 + 0.5 * f * uLens * uWarpOn);
-  float aa = max(fwidth(dist) * 0.5, 0.0001);
-  float dotMask = 1.0 - smoothstep(r - aa, r + aa, dist);
-  float dotA = dotMask * mix(uBaseOpacity, uLitOpacity, smoothstep(0.02, 0.5, d));
+  // Stars and constellation lines, baked; brighter inside the glow, as the dots used to be.
+  vec4 st = texture(uStars, srcUv);
+  vec3 starRGB = min(st.rgb * mix(1.0, uLitBoost, lit), vec3(1.0));
+  float starA = max(starRGB.r, max(starRGB.g, starRGB.b));
+  float lineA = st.a * mix(uLineBase, uLineLit, lit);
 
-  // Lines between dots share the warped coordinates, so they bend with the grid.
-  float lineDist = shapeDist(srcPx / uSpacing - 0.5) * uSpacing;
-  float laa = max(fwidth(lineDist) * 0.5, 0.0001);
-  float lineMask = 1.0 - smoothstep(0.5 * uLineWidth - laa, 0.5 * uLineWidth + laa, lineDist);
-  float lineA = lineMask * mix(uLineBase, uLineLit, smoothstep(0.02, 0.5, d));
-  float inkA = 1.0 - (1.0 - dotA) * (1.0 - lineA);
-
-  vec3 rgb = col * a * (1.0 - inkA) + uDotColor * inkA;     // premultiplied
-  vec4 over = vec4(rgb, a + inkA * (1.0 - a));
+  // Premultiplied composite: nebula first, then lines and stars on top.
+  vec3 ink = uStarColor * lineA + starRGB;
+  float inkA = clamp(lineA + starA, 0.0, 1.0);
+  vec3 rgb = neb.rgb * (1.0 - inkA) + min(ink, vec3(inkA));
+  vec4 over = vec4(rgb, inkA + neb.a * (1.0 - inkA));
   vec4 scene = uHasScene > 0.5 ? texture(uScene, srcUv) : vec4(0.0);
   o = over + scene * (1.0 - over.a);
 }`,
@@ -233,7 +353,7 @@ function startGL(canvas: HTMLCanvasElement) {
     ? { internal: gl.RGBA16F, type: gl.HALF_FLOAT }
     : { internal: gl.RGBA8, type: gl.UNSIGNED_BYTE };
 
-  const makeTex = (w: number, h: number): Tex | null => {
+  const makeTex = (w: number, h: number, rgba8 = false): Tex | null => {
     const tex = gl.createTexture();
     const fbo = gl.createFramebuffer();
     if (!tex || !fbo) return null;
@@ -242,7 +362,7 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, fmt.internal, w, h, 0, gl.RGBA, fmt.type, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, rgba8 ? gl.RGBA8 : fmt.internal, w, h, 0, gl.RGBA, rgba8 ? gl.UNSIGNED_BYTE : fmt.type, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
     gl.viewport(0, 0, w, h);
@@ -302,6 +422,7 @@ function startGL(canvas: HTMLCanvasElement) {
     splat: make(FRAG.splat), advect: make(FRAG.advect), divergence: make(FRAG.divergence),
     curl: make(FRAG.curl), vorticity: make(FRAG.vorticity), pressure: make(FRAG.pressure),
     gradient: make(FRAG.gradient), clear: make(FRAG.clear), display: make(FRAG.display),
+    stars: make(FRAG.stars), nebula: make(FRAG.nebula),
   };
   if (Object.values(P).some((x) => !x)) return null;
   const pr = P as Record<keyof typeof P, Prog>;
@@ -310,8 +431,8 @@ function startGL(canvas: HTMLCanvasElement) {
   gl.disable(gl.DEPTH_TEST);
 
   const textures: Tex[] = [];
-  const single = (w: number, h: number) => {
-    const t = makeTex(w, h)!;
+  const single = (w: number, h: number, rgba8 = false) => {
+    const t = makeTex(w, h, rgba8)!;
     textures.push(t);
     return t;
   };
@@ -328,6 +449,7 @@ function startGL(canvas: HTMLCanvasElement) {
   };
 
   let velocity!: Double, dye!: Double, pressure!: Double, divergence!: Tex, curl!: Tex;
+  let starTex!: Tex, nebTex!: Tex; // baked, static in screen space
   let aspect = 1;
   let cssW = 1, cssH = 1, dpr = 1;
 
@@ -346,6 +468,8 @@ function startGL(canvas: HTMLCanvasElement) {
     divergence = single(sim.w, sim.h);
     curl = single(sim.w, sim.h);
     dye = dbl(dyeR.w, dyeR.h);
+    starTex = single(canvas.width, canvas.height, true); // 1:1 with the canvas: pixel-exact at rest
+    nebTex = single(Math.ceil(canvas.width / 2), Math.ceil(canvas.height / 2)); // smooth, half res is plenty
   };
   build();
 
@@ -444,6 +568,33 @@ function startGL(canvas: HTMLCanvasElement) {
     dye.swap();
   };
 
+  /** Draw the static layers (stars + constellations, nebula field) once. Call after every build(). */
+  const bake = () => {
+    const rgb = (c: string) => c.split(",").map((n) => Number(n) / 255);
+    let p = pr.stars;
+    bindProgram(p);
+    gl.uniform2f(p.u.uViewport, cssW, cssH);
+    gl.uniform3fv(p.u.uStarColor, rgb(STAR_COLOR));
+    gl.uniform1f(p.u.uFarSpacing, FAR_STAR_SPACING);
+    gl.uniform1f(p.u.uFarChance, FAR_STAR_CHANCE);
+    gl.uniform1f(p.u.uFarOpacity, FAR_STAR_OPACITY);
+    gl.uniform1f(p.u.uSpacing, STAR_SPACING);
+    gl.uniform1f(p.u.uChance, STAR_CHANCE);
+    gl.uniform1f(p.u.uStarOpacity, STAR_OPACITY);
+    gl.uniform1f(p.u.uStarSize, STAR_SIZE);
+    gl.uniform1f(p.u.uBlock, CONSTELLATION_BLOCK);
+    gl.uniform1f(p.u.uBlockChance, CONSTELLATION_CHANCE);
+    gl.uniform1f(p.u.uEdgeChance, CONSTELLATION_EDGES);
+    gl.uniform1f(p.u.uLineWidth, LINE_WIDTH);
+    blit(starTex);
+    p = pr.nebula;
+    bindProgram(p);
+    gl.uniform2f(p.u.uViewport, cssW, cssH);
+    gl.uniform1f(p.u.uNebScale, NEBULA_SCALE);
+    blit(nebTex);
+  };
+  bake();
+
   let sceneTex: WebGLTexture | null = null;
   const display = (st: DisplayState, scene: SceneSource | null) => {
     const d = pr.display;
@@ -454,6 +605,8 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     tex(d, "uDye", dye.read, 0);
     tex(d, "uVelocity", velocity.read, 1);
+    tex(d, "uStars", starTex, 3);
+    tex(d, "uNeb", nebTex, 4);
     if (scene) {
       // Optional scene: uploaded every frame, premultiplied, y-up, sampled at the warped uv.
       if (!sceneTex) {
@@ -483,18 +636,16 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.uniform1f(d.u.uWarpMax, WARP_MAX_PX);
     gl.uniform1f(d.u.uLensRadius, LENS_RADIUS);
     gl.uniform1f(d.u.uLensStrength, LENS_STRENGTH);
+    gl.uniform3fv(d.u.uDust, hex(COLORS.dust));
     gl.uniform3fv(d.u.uDeep, hex(COLORS.deep));
     gl.uniform3fv(d.u.uOrange, hex(COLORS.orange));
     gl.uniform3fv(d.u.uAmber, hex(COLORS.amber));
-    gl.uniform3fv(d.u.uDotColor, DOT_COLOR.split(",").map((n) => Number(n) / 255));
+    gl.uniform3fv(d.u.uHot, hex(COLORS.hot));
+    gl.uniform3fv(d.u.uStarColor, STAR_COLOR.split(",").map((n) => Number(n) / 255));
     gl.uniform1f(d.u.uMaxAlpha, GLOW_MAX_ALPHA);
-    gl.uniform1f(d.u.uSpacing, DOT_SPACING);
-    gl.uniform1f(d.u.uBaseOpacity, DOT_BASE_OPACITY);
-    gl.uniform1f(d.u.uLitOpacity, DOT_LIT_OPACITY);
-    gl.uniform1f(d.u.uDotRadius, DOT_RADIUS);
-    gl.uniform1f(d.u.uBlock, SHAPE_BLOCK);
-    gl.uniform1f(d.u.uShapeChance, SHAPE_CHANCE);
-    gl.uniform1f(d.u.uLineWidth, LINE_WIDTH);
+    gl.uniform1f(d.u.uNebDust, NEBULA_DUST);
+    gl.uniform1f(d.u.uNebHot, NEBULA_HOT);
+    gl.uniform1f(d.u.uLitBoost, STAR_LIT_BOOST);
     gl.uniform1f(d.u.uLineBase, LINE_BASE_OPACITY);
     gl.uniform1f(d.u.uLineLit, LINE_LIT_OPACITY);
     blit(null);
@@ -515,7 +666,12 @@ function startGL(canvas: HTMLCanvasElement) {
     shaders.forEach((s) => gl.deleteShader(s));
   };
 
-  return { splat, step, display, build, wipe, dispose };
+  const rebuild = () => {
+    build();
+    bake();
+  };
+
+  return { splat, step, display, build: rebuild, wipe, dispose };
 }
 
 /* ---------- 2D fallback: stamped radial gradients that fade out ----------
@@ -550,6 +706,14 @@ function start2D(canvas: HTMLCanvasElement) {
     },
   };
 }
+
+/* CSS fallback stars: [x%, y%, radius px, opacity, tile px]. */
+const STAR_TILES = [
+  [13, 21, 0.7, 0.5, 131], [71, 64, 0.6, 0.4, 131], [42, 88, 0.5, 0.35, 131],
+  [58, 12, 1.0, 0.7, 197], [9, 74, 0.7, 0.45, 197], [86, 41, 0.6, 0.4, 197],
+  [33, 47, 0.5, 0.3, 83], [78, 9, 0.5, 0.3, 83], [20, 93, 0.5, 0.3, 83],
+  [64, 37, 1.2, 0.75, 311], [27, 81, 0.9, 0.55, 311],
+] as const;
 
 /* ---------- component ---------- */
 
@@ -722,12 +886,14 @@ export function GlowBackground({ sceneTexture = null }: { sceneTexture?: SceneSo
 
   return (
     <div ref={wrapRef} aria-hidden className="group/glow pointer-events-none fixed inset-x-0 top-0 -z-[1] h-lvh">
-      {/* CSS dot grid: fallback only (no WebGL, or reduced motion). The shader draws the dots otherwise. */}
+      {/* CSS star field: fallback only (no WebGL, or reduced motion). Coprime tile sizes keep it from reading as a grid. */}
       <div
         className="absolute inset-0 group-data-[gl=true]/glow:hidden"
         style={{
-          backgroundImage: `radial-gradient(circle, rgba(${DOT_COLOR},${DOT_BASE_OPACITY}) 1px, transparent 1px)`,
-          backgroundSize: `${DOT_SPACING}px ${DOT_SPACING}px`,
+          backgroundImage: STAR_TILES.map(
+            ([x, y, r, a]) => `radial-gradient(circle at ${x}% ${y}%, rgba(${STAR_COLOR},${a}) ${r}px, transparent ${r + 0.8}px)`,
+          ).join(","),
+          backgroundSize: STAR_TILES.map(([, , , , tile]) => `${tile}px ${tile}px`).join(","),
         }}
       />
       <canvas ref={canvasRef} className="absolute inset-0 block size-full" />

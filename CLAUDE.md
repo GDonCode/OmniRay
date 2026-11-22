@@ -9,8 +9,11 @@ rules in `docs/brand/BRAND-COLOR-RULES.md` (those still apply to print and any l
   `text-white/85`; hints and labels may use `text-white/60`. Never use dim greys for body copy.
 - Accent is orange `#ff5f00`: headings accents, the primary call to action (orange background,
   black text), form focus and errors. One primary call to action per screen.
-- Cream `rgb(232,220,200)` is only for the dot grid. Dots, lines and glow are drawn by
-  `components/GlowBackground.tsx`; its tunables are exported at the top of that file.
+- Cream `rgb(232,220,200)` is the base star colour. The background is a night sky: stars,
+  faint constellation lines and a cursor-driven orange nebula, all drawn by
+  `components/GlowBackground.tsx` (no dot grid); its tunables are exported at the top of that
+  file. Stars, lines and nebula noise are baked to textures once per resize; keep per-frame
+  work in the display shader to texture lookups.
 - Buttons are square-cornered (`btn-square`). Showreel cards have no borders or rounding.
 - Always use the `<Logo />` component (`components/logo.tsx`), never hard-coded logo files. On
   the dark site use `tone="web"`: `nav` in the header, `stacked` in the footer.

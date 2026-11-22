@@ -115,7 +115,9 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space
 
 ## Hero effects
 
-The page sits on solid `#111111`. `components/GlowBackground.tsx` (optional `sceneTexture` prop: a canvas, video or ImageBitmap that is warped with everything else) (a fixed, click-through, `-z-[1]` layer inside the `isolate`d `<main>`) draws the cream dot grid and an orange smoke glow, and bends both with the pointer (a flow warp from the simulation's velocity field plus a magnifying lens). The shader draws all the dots; the CSS dot grid only shows when WebGL is unavailable or reduced motion is set. It draws from a small GPU fluid simulation (splat, advect, divergence, Jacobi pressure solve, gradient subtract, vorticity). Only pointer movement adds smoke, so there is no glow from hover alone, and the dots brighten inside the glow because the display shader draws them. After about 7 seconds without movement the loop stops and clears the textures. `components/Cursor.tsx` (mounted in `app/layout.tsx`) adds the ring follower on top of the native cursor.
+The page sits on solid `#111111`. `components/GlowBackground.tsx` (optional `sceneTexture` prop: a canvas, video or ImageBitmap that is warped with everything else) (a fixed, click-through, `-z-[1]` layer inside the `isolate`d `<main>`) draws a night sky and a nebula that the pointer stirs up. Distant stars in two layers (a dim dense one, and a sparse brighter one with halos and faint diffraction spikes on the brightest) sit on jittered, rotated cells, so there is no visible grid. Faint lines join the stars of some cell blocks into constellations. Moving the pointer injects smoke into a small GPU fluid simulation (splat, advect, divergence, Jacobi pressure solve, gradient subtract, vorticity); the smoke density is a mask over a domain-warped noise field, so it reads as gas filaments with dark dust lanes, a rust-to-orange-to-gold ramp and warm highlights on the densest ridges, rather than flat smoke. The pointer also bends everything (a flow warp from the velocity field plus a magnifying lens), and stars and lines brighten inside the glow. Only pointer movement adds smoke, so there is no glow from hover alone. After about 7 seconds without movement the loop stops and clears the textures, leaving the still star field. `components/Cursor.tsx` (mounted in `app/layout.tsx`) adds the ring follower on top of the native cursor.
+
+Performance: the stars, constellation lines and nebula noise are static in screen space, so they are baked once into textures at load and on resize. The per-frame display pass only samples them at the warped position, which makes it cheaper than a procedural version.
 
 Tunable constants are exported at the top of `GlowBackground.tsx` (and `CURSOR_CONFIG` in `Cursor.tsx`):
 
@@ -136,11 +138,17 @@ Tunable constants are exported at the top of `GlowBackground.tsx` (and `CURSOR_C
 | `LENS_RISE`, `LENS_FALL` | 0.3, 0.04 | Lens intensity smoothing per frame at 60fps (time-based) |
 | `POINTER_LERP` | 0.2 | Smoothing of the lens position |
 | `GLOW_MAX_ALPHA` | 0.75 | Maximum smoke opacity |
-| `COLORS` | `#7a2a00` / `#ff5f00` / `#ffb066` | Deep, orange and hot amber ramp |
-| `DOT_SPACING`, `DOT_BASE_OPACITY`, `DOT_LIT_OPACITY` | 40px, 0.18, 0.7 | Dot grid, base opacity, and opacity inside the glow |
+| `COLORS` | dust `#1f0a02`, deep `#7a2a00`, orange `#ff5f00`, amber `#ffb066`, hot `#ffd9a0` | Nebula ramp: dust lanes, rust, orange, amber, warm highlight |
+| `NEBULA_SCALE`, `NEBULA_DUST`, `NEBULA_HOT` | 260px, 0.55, 0.55 | Cloud size, dark dust-lane strength, highlight strength |
+| `STAR_COLOR` | `232,220,200` | Base star colour (cream); a few stars are tinted amber or cool white |
+| `FAR_STAR_SPACING`, `FAR_STAR_CHANCE`, `FAR_STAR_OPACITY` | 30px, 0.55, 0.6 | Dim dense star layer: cell size, share of cells with a star, brightest opacity |
+| `STAR_SPACING`, `STAR_CHANCE`, `STAR_OPACITY`, `STAR_SIZE` | 88px, 0.55, 0.95, 1px | Sparse bright star layer |
+| `STAR_LIT_BOOST` | 1.7 | Star brightness multiplier inside the glow |
+| `CONSTELLATION_BLOCK`, `CONSTELLATION_CHANCE`, `CONSTELLATION_EDGES` | 4, 0.4, 0.6 | Block size in cells, share of blocks with a constellation, share of links drawn |
+| `LINE_WIDTH`, `LINE_BASE_OPACITY`, `LINE_LIT_OPACITY` | 1px, 0.12, 0.32 | Constellation lines, at rest and inside the glow |
 | `lerp` (`Cursor.tsx`) | 0.2 | Ring follower smoothing per frame at 60fps |
 
-Without WebGL2 the glow falls back to a 2D canvas that stamps blurred radial gradients and fades them out. Reduced motion renders no glow, only the base dots. Touch input is accepted as the pointer. Cursor states come from `a, button, [data-cursor]`: links and buttons show the dark hover disc, `data-cursor="drag"` shows chevrons, `data-cursor="view"` (optional `data-cursor-label`) shows an orange label circle, and `data-cursor="alt"` a translucent disc. The follower is hidden on `pointer: coarse` devices.
+Without WebGL2 the glow falls back to a 2D canvas that stamps blurred radial gradients and fades them out. Reduced motion renders no glow, only a static CSS star field. Touch input is accepted as the pointer. Cursor states come from `a, button, [data-cursor]`: links and buttons show the dark hover disc, `data-cursor="drag"` shows chevrons, `data-cursor="view"` (optional `data-cursor-label`) shows an orange label circle, and `data-cursor="alt"` a translucent disc. The follower is hidden on `pointer: coarse` devices.
 
 ## Contact form and deployment (Vercel)
 

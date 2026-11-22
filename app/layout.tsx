@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Newsreader, Space_Grotesk } from "next/font/google";
-import { Cursor } from "@/components/Cursor";
 import { Footer } from "@/components/footer";
 import { GlowBackground } from "@/components/GlowBackground";
 import { Header } from "@/components/header";
@@ -51,7 +50,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="flex flex-1 flex-col">{children}</div>
           <Footer />
         </div>
-        <Cursor />
       </body>
     </html>
   );

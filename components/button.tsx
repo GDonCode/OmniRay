@@ -43,7 +43,9 @@ export function Button(props: ButtonProps) {
           {words ? (
             <>
               {words[1]}
-              <span className="btn-rest">{words[2]}</span>
+              <span className="btn-rest">
+                <span>{words[2]}</span>
+              </span>
             </>
           ) : (
             children

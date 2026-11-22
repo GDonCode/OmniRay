@@ -21,8 +21,6 @@ export function ShowReel() {
             <figure className="group w-[78vw] max-w-[640px] sm:w-[560px] md:w-[640px]">
               <Link
                 href={`/work#${item.project}`}
-                data-cursor="view"
-                data-cursor-label="View"
                 className="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
               >
                 <div className="overflow-hidden shadow-[0_24px_48px_-16px_rgb(0_0_0/0.6)] transition-transform duration-500 group-hover:-translate-y-1">

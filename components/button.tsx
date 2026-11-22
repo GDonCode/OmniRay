@@ -22,23 +22,33 @@ export function Button(props: ButtonProps) {
   const { variant = "primary", icon, children, className, ...rest } = props;
   const classes = ["btn", `btn-${variant}`, className].filter(Boolean).join(" ");
   // With an icon, a multi-word label folds to its first word on hover: "Start a project" -> [icon] Start.
+  // The button keeps its full width: an invisible copy of the whole label (the sizer) sets the width,
+  // and the live content stays centred in it as the extra words fold away.
   const words = typeof children === "string" && icon ? children.match(/^(\S+)(\s[\s\S]+)$/) : null;
   const content = (
     <>
-      {icon && (
-        <span className="btn-icon" aria-hidden>
-          {icon}
+      {words && (
+        <span className="btn-sizer" aria-hidden>
+          <span className="btn-icon" />
+          <span className="btn-text">{children}</span>
         </span>
       )}
-      <span className="btn-text">
-        {words ? (
-          <>
-            {words[1]}
-            <span className="btn-rest">{words[2]}</span>
-          </>
-        ) : (
-          children
+      <span className="btn-live">
+        {icon && (
+          <span className="btn-icon" aria-hidden>
+            {icon}
+          </span>
         )}
+        <span className="btn-text">
+          {words ? (
+            <>
+              {words[1]}
+              <span className="btn-rest">{words[2]}</span>
+            </>
+          ) : (
+            children
+          )}
+        </span>
       </span>
     </>
   );

@@ -19,7 +19,9 @@ rules in `docs/brand/BRAND-COLOR-RULES.md` (those still apply to print and any l
   across the top edge. Call / email / build use the same `.tab` styles. Reuse these states for new
   navigation-like controls.
 - Buttons: use `<Button>` (`components/button.tsx`). With an icon and a multi-word string label,
-  hover folds the label to its first word ("Start a project" -> [icon] Start). Don't hand-roll buttons.
+  hover folds the label to its first word ("Start a project" -> [icon] Start) without changing the
+  button's width. Every button has a square lip (bevelled rim around a dished face; `--btn-lip`),
+  never rounded. Don't hand-roll buttons.
 - Text fields are glass (frosted blur, lit top edge, orange focus). It is global CSS on
   `input`/`textarea`/`select`, plus `.glass` for panels, so don't restyle fields per component.
 - Buttons are square-cornered (`btn-square`). Showreel cards have no borders or rounding.

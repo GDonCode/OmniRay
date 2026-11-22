@@ -31,8 +31,9 @@ export const LENS_RISE = 0.3; // per frame at 60fps, when the pointer speeds up
 export const LENS_FALL = 0.04; // per frame at 60fps, when it slows down
 export const POINTER_LERP = 0.2; // smoothed pointer for the lens, per frame at 60fps
 // Drift: stars float on a slow, smooth field, so neighbours move slightly differently. Lines move with them.
-export const STAR_DRIFT_PX = 3; // peak displacement, css px (0 turns the drift off)
-export const STAR_DRIFT_SPEED = 1; // 1 = one gentle sway every ~25-30s
+export const STAR_DRIFT_PX = 7; // peak displacement, css px (0 turns the drift off)
+export const STAR_DRIFT_SPEED = 1.8; // 1 = one sway every ~25-30s
+export const STAR_TWINKLE = 0.35; // 0-1: how far a star dips in brightness as it twinkles (0 = steady)
 export const IDLE_FPS = 30; // frame rate once the smoke has faded: only the stars drift, so this is cheap
 // Star field: two layers, both drawn in the shader (no grid; jittered, rotated cells).
 export const STAR_COLOR = "232,220,200"; // cream, the base star colour
@@ -276,7 +277,7 @@ uniform float uLensRadius; uniform float uLensStrength; uniform float uHasScene;
 uniform vec3 uDust; uniform vec3 uDeep; uniform vec3 uOrange; uniform vec3 uAmber; uniform vec3 uHot; uniform vec3 uStarColor;
 uniform float uMaxAlpha; uniform float uNebDust; uniform float uNebHot;
 uniform float uLitBoost; uniform float uLineBase; uniform float uLineLit;
-uniform float uTime; uniform float uDrift;
+uniform float uTime; uniform float uDrift; uniform float uTwinkle;
 
 void main() {
   // Everything below is sampled at a displaced position, so stars, smoke and scene bend together.
@@ -317,13 +318,20 @@ void main() {
   }
 
   // Stars and constellation lines, baked; brighter inside the glow, as the dots used to be.
-  // Drift: a slow low-frequency sway on the star lookup only (smoke and scene stay put). It adds to
-  // the warp above, so the pointer still bends the stars as before.
-  vec2 sway = vec2(sin(uTime * 0.23 + srcPx.y * 0.007) + 0.6 * sin(uTime * 0.11 + srcPx.x * 0.013 + 1.7),
-                   cos(uTime * 0.19 + srcPx.x * 0.006) + 0.6 * cos(uTime * 0.13 + srcPx.y * 0.011)) * (uDrift / 1.6);
-  vec2 starPx = srcPx + sway;
+  // Drift: a slow sway on the star lookup only (smoke and scene stay put). A broad component moves
+  // regions together; a finer one (about 100px waves) makes neighbouring stars move differently.
+  // It adds to the warp above, so the pointer still bends the stars as before.
+  vec2 broad = vec2(sin(uTime * 0.23 + srcPx.y * 0.007) + 0.6 * sin(uTime * 0.11 + srcPx.x * 0.013 + 1.7),
+                    cos(uTime * 0.19 + srcPx.x * 0.006) + 0.6 * cos(uTime * 0.13 + srcPx.y * 0.011));
+  vec2 fine = vec2(sin(uTime * 0.61 + srcPx.y * 0.052 + srcPx.x * 0.021),
+                   cos(uTime * 0.53 + srcPx.x * 0.047 - srcPx.y * 0.026));
+  vec2 starPx = srcPx + (broad * 0.55 + fine * 0.45) * (uDrift / 1.6);
   vec4 st = texture(uStars, vec2(starPx.x, uViewport.y - starPx.y) / uViewport);
-  vec3 starRGB = min(st.rgb * mix(1.0, uLitBoost, lit), vec3(1.0));
+  // Twinkle: each ~20px cell gets its own phase and rate, so stars dip and recover out of step.
+  vec2 cell = floor(starPx / 20.0);
+  float ph = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
+  float twinkle = 1.0 - uTwinkle * (0.5 + 0.5 * sin(uTime * (1.1 + 1.6 * ph) + 6.2832 * ph));
+  vec3 starRGB = min(st.rgb * twinkle * mix(1.0, uLitBoost, lit), vec3(1.0));
   float starA = max(starRGB.r, max(starRGB.g, starRGB.b));
   float lineA = st.a * mix(uLineBase, uLineLit, lit);
 
@@ -658,6 +666,7 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.uniform1f(d.u.uLitBoost, STAR_LIT_BOOST);
     gl.uniform1f(d.u.uTime, (performance.now() / 1000) * STAR_DRIFT_SPEED);
     gl.uniform1f(d.u.uDrift, STAR_DRIFT_PX);
+    gl.uniform1f(d.u.uTwinkle, STAR_TWINKLE);
     gl.uniform1f(d.u.uLineBase, LINE_BASE_OPACITY);
     gl.uniform1f(d.u.uLineLit, LINE_LIT_OPACITY);
     blit(null);

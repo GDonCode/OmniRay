@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 /* ---------- tunables (see README, "Hero effects") ---------- */
 export const CURSOR_CONFIG = {
@@ -8,7 +8,28 @@ export const CURSOR_CONFIG = {
   lerp: 0.2,
   /** Wrapper box, px. */
   box: 80,
+  /** Magnification of the glass ball (1 = none). Chromium browsers only. */
+  magnify: 1.3,
 } as const;
+
+/* Displacement map for the lens: red falls left to right and green top to bottom, so every pixel of
+   the ball reads from a point nearer its centre (neutral grey in the middle). */
+const LENS_MAP =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>" +
+      "<defs><linearGradient id='r' x1='0' x2='1' y1='0' y2='0'><stop offset='0' stop-color='#f00'/><stop offset='1' stop-color='#000'/></linearGradient>" +
+      "<linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='#0f0'/><stop offset='1' stop-color='#000'/></linearGradient></defs>" +
+      "<rect width='100' height='100' fill='#000'/><rect width='100' height='100' fill='url(#r)'/>" +
+      "<rect width='100' height='100' fill='url(#g)' style='mix-blend-mode:screen'/></svg>",
+  );
+
+/** SVG filters inside backdrop-filter are only honoured by Chromium (Chrome, Edge, Opera, Brave). */
+const noSubscribe = () => () => {};
+const canMagnify = () =>
+  typeof CSS !== "undefined" &&
+  /Chrome\//.test(navigator.userAgent) &&
+  CSS.supports("backdrop-filter", "url(#a) blur(1px)");
 
 type Mode = "default" | "hover" | "drag" | "label" | "alt";
 type Tone = "dark" | "light";
@@ -132,6 +153,7 @@ export function Cursor() {
   }, []);
 
   const big = mode !== "default"; // ring grows to the 72px disc
+  const magnify = useSyncExternalStore(noSubscribe, canMagnify, () => false);
   const ringStroke = tone === "light" ? "rgba(0,0,0,.4)" : RING;
   const chars = Array.from(label);
 
@@ -158,7 +180,27 @@ export function Cursor() {
           big ? "size-[72px]" : "size-6"
         }`}
         data-tone={tone}
+        data-lens={magnify ? "on" : undefined}
       />
+
+      {/* Lens filter. primitiveUnits are the ball's own box, so one filter fits both sizes:
+          offset = (centre - p) * (1 - 1/magnify), i.e. a zoom of `magnify`. */}
+      {magnify && (
+        <svg width="0" height="0" className="absolute" aria-hidden focusable="false">
+          <defs>
+            <filter id="cursor-lens" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox" colorInterpolationFilters="sRGB">
+              <feImage href={LENS_MAP} x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="map" />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="map"
+                scale={1 - 1 / CURSOR_CONFIG.magnify}
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
+          </defs>
+        </svg>
+      )}
 
       {/* 3. arrow mode: two chevrons for draggable areas */}
       <div

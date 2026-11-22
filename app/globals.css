@@ -354,6 +354,11 @@ body {
   background: linear-gradient(160deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0));
   transform: rotate(-28deg);
 }
+/* Chromium only (the component sets data-lens): an SVG displacement filter zooms what is under the ball. */
+.cursor-glass[data-lens="on"] {
+  -webkit-backdrop-filter: url(#cursor-lens) saturate(1.25) brightness(1.05);
+  backdrop-filter: url(#cursor-lens) saturate(1.25) brightness(1.05);
+}
 /* Over a light surface the white rim would vanish, so it turns to a smoked edge. */
 .cursor-glass[data-tone="light"] {
   border-color: rgb(0 0 0 / 0.28);

@@ -151,23 +151,14 @@ export function Cursor() {
         }`}
       />
 
-      {/* 1 + 2. ring: 24px by default, scales up to a 72px darkened disc on hover */}
-      <svg
-        viewBox="0 0 72 72"
-        className={`absolute inset-0 m-auto size-[72px] origin-center transition-transform duration-300 ease-out ${
-          big ? "scale-100" : "scale-[0.3333]"
+      {/* 1 + 2. glass ball: 24px by default, grows to 72px on hover. Barely blurred, so the content
+          underneath stays readable; a lit rim and a specular highlight sell the glass. */}
+      <div
+        className={`cursor-glass absolute inset-0 m-auto rounded-full transition-[width,height] duration-300 ease-out ${
+          big ? "size-[72px]" : "size-6"
         }`}
-      >
-        <circle
-          cx="36"
-          cy="36"
-          r="35"
-          vectorEffect="non-scaling-stroke"
-          strokeWidth={2}
-          className="transition-[stroke,fill] duration-300"
-          style={{ stroke: ringStroke, fill: big && mode !== "label" ? "rgba(0,0,0,.4)" : "transparent" }}
-        />
-      </svg>
+        data-tone={tone}
+      />
 
       {/* 3. arrow mode: two chevrons for draggable areas */}
       <div

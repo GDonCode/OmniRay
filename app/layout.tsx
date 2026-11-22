@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Newsreader, Space_Grotesk } from "next/font/google";
 import { Cursor } from "@/components/Cursor";
+import { Footer } from "@/components/footer";
+import { GlowBackground } from "@/components/GlowBackground";
+import { Header } from "@/components/header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +31,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.omniray.org"),
+  metadataBase: new URL("https://omniray.org"),
   title: { default: "OmniRay", template: "%s | OmniRay" },
   description:
     "OmniRay is a software studio that designs, builds and ships web platforms, apps and internal tools.",
@@ -40,7 +43,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}
+      <body className="min-h-full flex flex-col bg-[#111111]">
+        {/* One dark shell for every page: solid #111, dot grid and glow sit behind the content. */}
+        <div className="relative isolate flex min-h-svh flex-1 flex-col overflow-x-clip bg-[#111111] text-white">
+          <GlowBackground />
+          <Header />
+          <div className="flex flex-1 flex-col">{children}</div>
+          <Footer />
+        </div>
         <Cursor />
       </body>
     </html>

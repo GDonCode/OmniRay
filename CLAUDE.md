@@ -2,24 +2,22 @@
 
 ## Brand (OmniRay)
 
-- Brand colours live in `app/omniray-colors.css` (CSS variables) and the Tailwind
-  theme. Full rules and contrast numbers: `docs/brand/BRAND-COLOR-RULES.md`. Follow them for all UI.
-- Always use the `<Logo />` component (`components/logo.tsx`), never hard-coded
-  logo files. Tones: `color` on white or paper, `reversed` on deep green,
-  `ink` on orange, yellow or mint, `white` on photos.
-- Core colour is ink `#0F261F` (deep green): all text, headings and dark sections.
-  Orange `#FF5200` is the single accent: one primary call to action per screen.
-- Orange buttons use ink text, never white. Orange text on light backgrounds uses
-  `#C93B00`, except large text (24px or 19px bold and up).
-- Yellow `#D1BD19` and mint `#B5FFC2` are dark-background colours. Never use them
-  as text or thin lines on white or paper. On light backgrounds they only appear
-  as filled blocks with ink text.
-- Never put two bright colours together (orange on yellow, orange on mint,
-  yellow on mint). Pair each with ink.
-- Dark sections are ink, not black. Page background is paper `#F1FAF3`, cards
-  are white.
-- Headings use Space Grotesk.
+The website is dark only, in light and dark mode. It does not follow the light-theme palette
+rules in `docs/brand/BRAND-COLOR-RULES.md` (those still apply to print and any light surface).
+
+- Page background is solid `#111111` (`color-scheme: dark`). Text is white; secondary text is
+  `text-white/85`; hints and labels may use `text-white/60`. Never use dim greys for body copy.
+- Accent is orange `#ff5f00`: headings accents, the primary call to action (orange background,
+  black text), form focus and errors. One primary call to action per screen.
+- Cream `rgb(232,220,200)` is only for the dot grid. Dots, lines and glow are drawn by
+  `components/GlowBackground.tsx`; its tunables are exported at the top of that file.
+- Buttons are square-cornered (`btn-square`). Showreel cards have no borders or rounding.
+- Always use the `<Logo />` component (`components/logo.tsx`), never hard-coded logo files. On
+  the dark site use `tone="web"`: `nav` in the header, `stacked` in the footer.
 - Website logo (dark backgrounds only): white mark, ring and code tags; 'Omni' white;
   'Ray' #FF5200; exclamation point #FF5200; 'software solutions' white. Files in
   `public/brand/svg/omniray-logo-web-*.svg`. Never place these on light backgrounds; use the
   full-colour logo there.
+- Headings use Space Grotesk.
+- Business details (email, phone, Instagram, legal name) live in `lib/site.ts`; real project
+  content in `lib/projects.ts`. Don't hard-code them in components.

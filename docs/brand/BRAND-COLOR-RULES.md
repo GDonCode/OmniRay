@@ -1,5 +1,9 @@
 # OmniRay colour rules
 
+> **Website exception.** The website is dark only (`#111111` background, white text, `#ff5f00`
+> accent), in both light and dark mode. The rules below apply to print and to any light
+> surface. See the Brand section of `CLAUDE.md` for the website rules.
+
 Palette: deep green (ink), orange, yellow and mint, plus black and white. Contrast ratios below are WCAG 2.1, measured from the exact hex values.
 
 ## The palette

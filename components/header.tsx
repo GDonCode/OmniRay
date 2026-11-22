@@ -57,7 +57,7 @@ export function Header() {
           <Link
             key={t.href}
             href={t.href}
-            className="tab tab-light hover-grow"
+            className="tab hover-grow"
             aria-current={pathname === t.href ? "page" : undefined}
           >
             <span className="grow-inner">{t.label}</span>

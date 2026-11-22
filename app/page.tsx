@@ -1,5 +1,4 @@
-import { GlowBackground } from "@/components/GlowBackground";
-import { Header } from "@/components/header";
+import { Button } from "@/components/button";
 import { ShortcutLink } from "@/components/home/shortcut-link";
 import { ShowReel } from "@/components/home/show-reel";
 
@@ -27,12 +26,7 @@ const PILLARS = [
 
 export default function Home() {
   return (
-    <>
-    <Header />
-    {/* Dark page: solid #111, a faint dot grid and a pointer-driven fluid glow behind the content. */}
-    <main className="relative isolate flex-1 overflow-x-clip bg-[#111111] text-white">
-      <GlowBackground />
-
+    <main className="relative">
       {/* Hero */}
       <section className="relative">
         <div className="mx-auto flex min-h-[min(100svh,860px)] max-w-4xl flex-col items-center justify-center px-6 pt-32 pb-20 text-center sm:pt-36">
@@ -96,8 +90,24 @@ export default function Home() {
           </ul>
         </div>
       </section>
+
+      {/* Closing call to action */}
+      <section className="relative border-t border-white/10">
+        <div className="mx-auto flex max-w-3xl flex-col items-center px-6 py-24 text-center">
+          <h2 className="font-heading text-3xl leading-[1.1] font-medium tracking-tight text-white sm:text-5xl">
+            Got an idea? Let&apos;s build it.
+          </h2>
+          <p className="mt-5 max-w-md font-mono text-[15px] leading-7 tracking-tight text-white/85 sm:text-base sm:leading-8">
+            Tell us what you want to build or fix, and we&apos;ll reply by email.
+          </p>
+          <div className="mt-8">
+            <Button href="/contact" className="btn-square btn-hero-primary" icon={<PowerIcon />}>
+              Start a project
+            </Button>
+          </div>
+        </div>
+      </section>
     </main>
-    </>
   );
 }
 

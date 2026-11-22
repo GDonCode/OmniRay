@@ -141,3 +141,20 @@ Tunable constants are exported at the top of `GlowBackground.tsx` (and `CURSOR_C
 | `lerp` (`Cursor.tsx`) | 0.2 | Ring follower smoothing per frame at 60fps |
 
 Without WebGL2 the glow falls back to a 2D canvas that stamps blurred radial gradients and fades them out. Reduced motion renders no glow, only the base dots. Touch input is accepted as the pointer. Cursor states come from `a, button, [data-cursor]`: links and buttons show the dark hover disc, `data-cursor="drag"` shows chevrons, `data-cursor="view"` (optional `data-cursor-label`) shows an orange label circle, and `data-cursor="alt"` a translucent disc. The follower is hidden on `pointer: coarse` devices.
+
+## Contact form and deployment (Vercel)
+
+The contact form (`app/contact`) is a Server Action that emails enquiries through Resend. Copy `.env.example` to `.env.local` and set:
+
+| Variable | Purpose |
+| --- | --- |
+| `RESEND_API_KEY` | Required. Without it the form shows a "sending isn't set up" message. |
+| `CONTACT_TO_EMAIL` | Where enquiries go (defaults to `rayne@omniray.org`). |
+| `CONTACT_FROM_EMAIL` | Sender, on a domain verified in Resend, e.g. `OmniRay <hello@omniray.org>`. Left empty it uses Resend's test sender, which only delivers to your own Resend account email. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Optional Cloudflare Turnstile captcha. Set both to turn it on. |
+
+Spam protection, always on: a hidden honeypot field, a timing check (the form must be open for 2.5 seconds), validation, and a rate limit of 3 messages per IP per 10 minutes. The rate limit is in memory, so on Vercel it applies per server instance; Turnstile is the stronger layer.
+
+To deploy: import the repo in Vercel, add the variables above under Project Settings > Environment Variables, and point `omniray.org` at the project. In Resend, add and verify the `omniray.org` domain (DNS records) before setting `CONTACT_FROM_EMAIL`.
+
+Business details live in `lib/site.ts` and project content in `lib/projects.ts`.

@@ -31,7 +31,7 @@ export const LENS_RISE = 0.3; // per frame at 60fps, when the pointer speeds up
 export const LENS_FALL = 0.04; // per frame at 60fps, when it slows down
 export const POINTER_LERP = 0.2; // smoothed pointer for the lens, per frame at 60fps
 // Drift: stars float on a slow, smooth field, so neighbours move slightly differently. Lines move with them.
-export const STAR_DRIFT_PX = 7; // peak displacement, css px (0 turns the drift off)
+export const STAR_DRIFT_PX = 7; // peak displacement, css px (0 turns the drift off); constellations move as rigid blocks
 export const STAR_DRIFT_SPEED = 1.8; // 1 = one sway every ~25-30s
 export const STAR_TWINKLE = 0.35; // 0-1: how far a star dips in brightness as it twinkles (0 = steady)
 export const IDLE_FPS = 30; // frame rate once the smoke has faded: only the stars drift, so this is cheap
@@ -106,6 +106,9 @@ vec2 seg(vec2 p, vec2 a, vec2 b) {
 }
 `;
 
+/** Rotation of the near-star cell grid. The bake shader and the display shader must agree on it. */
+const NEAR_ANGLE = -0.23;
+
 const FRAG = {
   splat: head + `
 uniform sampler2D uTarget; uniform float uAspect; uniform vec3 uColor; uniform vec2 uPoint; uniform float uRadius;
@@ -174,6 +177,7 @@ uniform vec2 uViewport; uniform vec3 uStarColor;
 uniform float uFarSpacing; uniform float uFarChance; uniform float uFarOpacity;
 uniform float uSpacing; uniform float uChance; uniform float uStarOpacity; uniform float uStarSize;
 uniform float uBlock; uniform float uBlockChance; uniform float uEdgeChance; uniform float uLineWidth;
+uniform float uPass; // 0 = far stars, 1 = near stars + constellation lines
 
 // One star: crisp core, soft halo and, for the brightest, a faint diffraction cross.
 // dpx is the offset from the star centre in css px; size the core radius; mag 0..1 its brightness.
@@ -223,7 +227,7 @@ void main() {
   vec3 farRGB = starTint(hash21(fc + 1.3));
 
   // near stars + constellations
-  vec2 nq = (rot(-0.23) * px) / uSpacing;
+  vec2 nq = (rot(${NEAR_ANGLE.toFixed(2)}) * px) / uSpacing;
   vec2 nc = floor(nq);
   vec2 npos; float nmag;
   float na = 0.0;
@@ -255,8 +259,8 @@ void main() {
     m *= smoothstep(4.0, 9.0, sd.y);                        // lines stop short of the stars
     line = max(line, m);
   }
-  // rgb: premultiplied star light (unboosted). a: constellation line coverage.
-  o = vec4(min(farRGB * fa + nearRGB * na, vec3(1.0)), line);
+  // rgb: premultiplied star light (unboosted). a: constellation line coverage (near pass only).
+  o = uPass < 0.5 ? vec4(min(farRGB * fa, vec3(1.0)), 0.0) : vec4(min(nearRGB * na, vec3(1.0)), line);
 }`,
   nebula: head + LIB + `
 uniform vec2 uViewport; uniform float uNebScale;
@@ -270,14 +274,14 @@ void main() {
   o = vec4(n, r, dust, 1.0);
 }`,
   display: head + `
-uniform sampler2D uDye; uniform sampler2D uVelocity; uniform sampler2D uScene; uniform sampler2D uStars; uniform sampler2D uNeb;
+uniform sampler2D uDye; uniform sampler2D uVelocity; uniform sampler2D uScene; uniform sampler2D uStars; uniform sampler2D uFar; uniform sampler2D uNeb;
 uniform vec2 uTexel; uniform vec2 uViewport; uniform vec2 uPointer;
 uniform float uLens; uniform float uWarpOn; uniform float uFlowScale; uniform float uWarpMax;
 uniform float uLensRadius; uniform float uLensStrength; uniform float uHasScene;
 uniform vec3 uDust; uniform vec3 uDeep; uniform vec3 uOrange; uniform vec3 uAmber; uniform vec3 uHot; uniform vec3 uStarColor;
 uniform float uMaxAlpha; uniform float uNebDust; uniform float uNebHot;
 uniform float uLitBoost; uniform float uLineBase; uniform float uLineLit;
-uniform float uTime; uniform float uDrift; uniform float uTwinkle;
+uniform float uTime; uniform float uDrift; uniform float uTwinkle; uniform float uSpacing; uniform float uBlock;
 
 void main() {
   // Everything below is sampled at a displaced position, so stars, smoke and scene bend together.
@@ -318,22 +322,38 @@ void main() {
   }
 
   // Stars and constellation lines, baked; brighter inside the glow, as the dots used to be.
-  // Drift: a slow sway on the star lookup only (smoke and scene stay put). A broad component moves
-  // regions together; a finer one (about 100px waves) makes neighbouring stars move differently.
-  // It adds to the warp above, so the pointer still bends the stars as before.
+  // Drift moves the star lookups only (smoke and scene stay put), and adds to the warp above, so the
+  // pointer still bends the stars as before.
+  // Loose far stars: a sway with a broad and a finer component, so neighbours move differently.
   vec2 broad = vec2(sin(uTime * 0.23 + srcPx.y * 0.007) + 0.6 * sin(uTime * 0.11 + srcPx.x * 0.013 + 1.7),
                     cos(uTime * 0.19 + srcPx.x * 0.006) + 0.6 * cos(uTime * 0.13 + srcPx.y * 0.011));
   vec2 fine = vec2(sin(uTime * 0.61 + srcPx.y * 0.052 + srcPx.x * 0.021),
                    cos(uTime * 0.53 + srcPx.x * 0.047 - srcPx.y * 0.026));
-  vec2 starPx = srcPx + (broad * 0.55 + fine * 0.45) * (uDrift / 1.6);
-  vec4 st = texture(uStars, vec2(starPx.x, uViewport.y - starPx.y) / uViewport);
+  vec2 farPx = srcPx + (broad * 0.55 + fine * 0.45) * (uDrift / 1.6);
+
+  // Near stars and constellations: every pixel of a constellation block gets the SAME offset, so the
+  // block moves as one rigid piece and its lines stay straight. Blocks are the baked 4x4-cell squares
+  // of the (rotated) near grid; the margin around each constellation's stars is empty, so the seams
+  // between blocks never cut anything.
+  float na = ${NEAR_ANGLE.toFixed(2)}, ca = cos(na), sa = sin(na);
+  vec2 blk = floor(floor(mat2(ca, -sa, sa, ca) * srcPx / uSpacing) / uBlock);
+  float h1 = fract(sin(dot(blk, vec2(127.1, 311.7))) * 43758.5453);
+  float h2 = fract(sin(dot(blk, vec2(269.5, 183.3))) * 43758.5453);
+  vec2 blockSway = vec2(sin(uTime * (0.31 + 0.22 * h1) + 6.2832 * h2),
+                        cos(uTime * (0.27 + 0.22 * h2) + 6.2832 * h1));
+  vec2 nearPx = srcPx + blockSway * uDrift;
+
+  vec3 farRGB = texture(uFar, vec2(farPx.x, uViewport.y - farPx.y) / uViewport).rgb;
+  vec4 nearT = texture(uStars, vec2(nearPx.x, uViewport.y - nearPx.y) / uViewport);
   // Twinkle: each ~20px cell gets its own phase and rate, so stars dip and recover out of step.
-  vec2 cell = floor(starPx / 20.0);
-  float ph = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
-  float twinkle = 1.0 - uTwinkle * (0.5 + 0.5 * sin(uTime * (1.1 + 1.6 * ph) + 6.2832 * ph));
-  vec3 starRGB = min(st.rgb * twinkle * mix(1.0, uLitBoost, lit), vec3(1.0));
+  vec2 fc = floor(farPx / 20.0), nc = floor(nearPx / 20.0);
+  float fph = fract(sin(dot(fc, vec2(127.1, 311.7))) * 43758.5453);
+  float nph = fract(sin(dot(nc, vec2(127.1, 311.7))) * 43758.5453);
+  float ftw = 1.0 - uTwinkle * (0.5 + 0.5 * sin(uTime * (1.1 + 1.6 * fph) + 6.2832 * fph));
+  float ntw = 1.0 - uTwinkle * (0.5 + 0.5 * sin(uTime * (1.1 + 1.6 * nph) + 6.2832 * nph));
+  vec3 starRGB = min((farRGB * ftw + nearT.rgb * ntw) * mix(1.0, uLitBoost, lit), vec3(1.0));
   float starA = max(starRGB.r, max(starRGB.g, starRGB.b));
-  float lineA = st.a * mix(uLineBase, uLineLit, lit);
+  float lineA = nearT.a * mix(uLineBase, uLineLit, lit);
 
   // Premultiplied composite: nebula first, then lines and stars on top.
   vec3 ink = uStarColor * lineA + starRGB;
@@ -467,7 +487,7 @@ function startGL(canvas: HTMLCanvasElement) {
   };
 
   let velocity!: Double, dye!: Double, pressure!: Double, divergence!: Tex, curl!: Tex;
-  let starTex!: Tex, nebTex!: Tex; // baked, static in screen space
+  let starTex!: Tex, farTex!: Tex, nebTex!: Tex; // baked, static in screen space
   let aspect = 1;
   let cssW = 1, cssH = 1, dpr = 1;
 
@@ -486,7 +506,8 @@ function startGL(canvas: HTMLCanvasElement) {
     divergence = single(sim.w, sim.h);
     curl = single(sim.w, sim.h);
     dye = dbl(dyeR.w, dyeR.h);
-    starTex = single(canvas.width, canvas.height, true); // 1:1 with the canvas: pixel-exact at rest
+    starTex = single(canvas.width, canvas.height, true); // near stars + lines, 1:1 with the canvas: pixel-exact at rest
+    farTex = single(canvas.width, canvas.height, true); // loose far stars
     nebTex = single(Math.ceil(canvas.width / 2), Math.ceil(canvas.height / 2)); // smooth, half res is plenty
   };
   build();
@@ -604,6 +625,9 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.uniform1f(p.u.uBlockChance, CONSTELLATION_CHANCE);
     gl.uniform1f(p.u.uEdgeChance, CONSTELLATION_EDGES);
     gl.uniform1f(p.u.uLineWidth, LINE_WIDTH);
+    gl.uniform1f(p.u.uPass, 0);
+    blit(farTex);
+    gl.uniform1f(p.u.uPass, 1);
     blit(starTex);
     p = pr.nebula;
     bindProgram(p);
@@ -624,6 +648,7 @@ function startGL(canvas: HTMLCanvasElement) {
     tex(d, "uDye", dye.read, 0);
     tex(d, "uVelocity", velocity.read, 1);
     tex(d, "uStars", starTex, 3);
+    tex(d, "uFar", farTex, 5);
     tex(d, "uNeb", nebTex, 4);
     if (scene) {
       // Optional scene: uploaded every frame, premultiplied, y-up, sampled at the warped uv.
@@ -666,6 +691,8 @@ function startGL(canvas: HTMLCanvasElement) {
     gl.uniform1f(d.u.uLitBoost, STAR_LIT_BOOST);
     gl.uniform1f(d.u.uTime, (performance.now() / 1000) * STAR_DRIFT_SPEED);
     gl.uniform1f(d.u.uDrift, STAR_DRIFT_PX);
+    gl.uniform1f(d.u.uSpacing, STAR_SPACING);
+    gl.uniform1f(d.u.uBlock, CONSTELLATION_BLOCK);
     gl.uniform1f(d.u.uTwinkle, STAR_TWINKLE);
     gl.uniform1f(d.u.uLineBase, LINE_BASE_OPACITY);
     gl.uniform1f(d.u.uLineLit, LINE_LIT_OPACITY);

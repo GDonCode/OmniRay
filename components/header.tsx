@@ -39,8 +39,18 @@ export function Header() {
   const pathname = usePathname();
   // Transparent over the hero; picks up a dark blurred backing once the page scrolls.
   const [scrolled, setScrolled] = useState(false);
+  // Mobile only: the logo row collapses while scrolling down and returns on any upward scroll.
+  const [topHidden, setTopHidden] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    let last = Math.max(window.scrollY, 0);
+    const onScroll = () => {
+      const y = Math.max(window.scrollY, 0); // iOS rubber-banding reports negative values
+      setScrolled(y > 24);
+      if (y <= 80) setTopHidden(false);
+      else if (y > last + 4) setTopHidden(true);
+      else if (y < last - 4) setTopHidden(false);
+      if (Math.abs(y - last) > 4) last = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -57,8 +67,8 @@ export function Header() {
       {/* section 1: nav links (below the logo row on mobile, left on desktop) */}
       <nav
         aria-label="main"
-        className={`flex items-stretch justify-center md:h-auto md:justify-start md:pt-0 ${
-          scrolled ? "h-[46px]" : "h-[58.6px] pt-[12.6px]"
+        className={`flex items-stretch justify-center transition-[height,padding] duration-300 ease-out md:h-auto md:justify-start md:pt-0 ${
+          topHidden ? "h-[46px]" : "h-[58.6px] pt-[12.6px]"
         }`}
       >
         {TABS.map((t) => (
@@ -73,40 +83,46 @@ export function Header() {
         ))}
       </nav>
 
-      {/* mobile-only divider between the two rows; inset so it never touches the viewport edges */}
-      <div aria-hidden className={`mx-6 h-px bg-white md:hidden ${scrolled ? "hidden" : ""}`} />
-
-      {/* on mobile this row (and the divider) hides once the page scrolls, leaving only the tabs */}
-      {/* section 2: logo + call / email / build, styled like the tabs (top row on mobile) */}
+      {/* Mobile top row + divider. Collapses (grid 1fr -> 0fr) while scrolling down; on desktop the
+          wrappers are display:contents so the row sits beside the tabs as before. */}
       <div
-        className={`items-stretch justify-between md:flex md:min-h-[60px] md:flex-1 lg:justify-end ${
-          scrolled ? "hidden" : "flex"
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out md:contents ${
+          topHidden ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100"
         }`}
+        aria-hidden={topHidden ? true : undefined}
+        inert={topHidden}
       >
-        <Link
-          href="/"
-          aria-label="omniray software solutions"
-          className="flex shrink-0 items-center py-[12.6px] pl-4 md:pl-0 lg:absolute lg:top-0 lg:left-1/2 lg:-translate-x-1/2 lg:pl-0"
-        >
-          {/* Dark-background lockups: full nav lockup from sm up, wordmark lockup on narrow
-              phones, mark only below 380px. The others stay in the DOM but are display:none. */}
-          <Logo variant="nav" tone="web" height={34.65} alt={LOGO_ALT} priority className="hidden lg:block" />
-          <Logo variant="horizontal" tone="web" height={34.65} alt={LOGO_ALT} priority className="hidden min-[380px]:block lg:hidden" />
-          <Logo variant="mark" tone="web" height={34.65} alt={LOGO_ALT} priority className="min-[380px]:hidden" />
-        </Link>
-        <div className="flex items-stretch">
-          <a href={SITE.phoneHref} className="tab" aria-label={`Call ${SITE.phone}`}>
-            <TabIcon name="call" />
-            call
-          </a>
-          <a href={`mailto:${SITE.email}`} className="tab" aria-label={`Email ${SITE.email}`}>
-            <TabIcon name="email" />
-            email
-          </a>
-          <Link href="/contact" className="tab" aria-current={pathname === "/contact" ? "page" : undefined}>
-            <TabIcon name="build" />
-            build
+        <div className="min-h-0 overflow-hidden md:contents">
+          {/* logo + call / email / build, styled like the tabs */}
+          <div className="flex items-stretch justify-between md:min-h-[60px] md:flex-1 lg:justify-end">
+          <Link
+            href="/"
+            aria-label="omniray software solutions"
+            className="flex shrink-0 items-center py-[12.6px] pl-4 md:pl-0 lg:absolute lg:top-0 lg:left-1/2 lg:-translate-x-1/2 lg:pl-0"
+          >
+            {/* Dark-background lockups: full nav lockup from sm up, wordmark lockup on narrow
+                phones, mark only below 380px. The others stay in the DOM but are display:none. */}
+            <Logo variant="nav" tone="web" height={34.65} alt={LOGO_ALT} priority className="hidden lg:block" />
+            <Logo variant="horizontal" tone="web" height={34.65} alt={LOGO_ALT} priority className="hidden min-[380px]:block lg:hidden" />
+            <Logo variant="mark" tone="web" height={34.65} alt={LOGO_ALT} priority className="min-[380px]:hidden" />
           </Link>
+          <div className="flex items-stretch">
+            <a href={SITE.phoneHref} className="tab" aria-label={`Call ${SITE.phone}`}>
+              <TabIcon name="call" />
+              call
+            </a>
+            <a href={`mailto:${SITE.email}`} className="tab" aria-label={`Email ${SITE.email}`}>
+              <TabIcon name="email" />
+              email
+            </a>
+            <Link href="/contact" className="tab" aria-current={pathname === "/contact" ? "page" : undefined}>
+              <TabIcon name="build" />
+              build
+            </Link>
+          </div>
+          </div>
+          {/* inset divider; never touches the viewport edges */}
+          <div aria-hidden className="mx-6 h-px bg-white md:hidden" />
         </div>
       </div>
     </header>

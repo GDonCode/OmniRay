@@ -240,8 +240,10 @@ body {
   position: absolute;
   inset: var(--btn-lip);
   background-color: var(--btn-bg);
-  /* Even dish all round, like the top-left edge. */
-  box-shadow: inset 1px 1px 2px rgb(0 0 0 / 0.16), inset -1px -1px 2px rgb(0 0 0 / 0.16);
+  /* Nearly the rim's tint, so the face reads as part of the same bevelled surface, not a dark inset. */
+  background-image: linear-gradient(rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.12));
+  /* Even, very soft dish all round. */
+  box-shadow: inset 0 0 2px rgb(0 0 0 / 0.08);
   pointer-events: none;
 }
 

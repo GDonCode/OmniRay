@@ -48,13 +48,13 @@ export function Header() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 flex flex-col border-b transition-colors duration-300 md:flex-row ${
+      className={`fixed inset-x-0 top-0 z-50 flex border-b transition-colors duration-300 flex-col-reverse md:flex-row ${
         scrolled
           ? "border-white/10 bg-black/80 backdrop-blur-md"
           : "border-transparent bg-transparent"
       }`}
     >
-      {/* section 1: nav links */}
+      {/* section 1: nav links (below the logo row on mobile, left on desktop) */}
       <nav aria-label="main" className="flex h-[46px] items-stretch md:h-auto">
         {TABS.map((t) => (
           <Link
@@ -68,7 +68,10 @@ export function Header() {
         ))}
       </nav>
 
-      {/* section 2: logo + call / email / build, styled like the tabs */}
+      {/* mobile-only divider between the two rows; inset so it never touches the viewport edges */}
+      <div aria-hidden className="mx-6 h-px bg-white md:hidden" />
+
+      {/* section 2: logo + call / email / build, styled like the tabs (top row on mobile) */}
       <div className="flex items-stretch justify-between md:min-h-[60px] md:flex-1 lg:justify-end">
         <Link
           href="/"

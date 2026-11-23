@@ -55,7 +55,7 @@ export function Header() {
       }`}
     >
       {/* section 1: nav links (below the logo row on mobile, left on desktop) */}
-      <nav aria-label="main" className="flex h-[46px] items-stretch md:h-auto">
+      <nav aria-label="main" className="flex h-[58.6px] items-stretch justify-center pt-[12.6px] md:h-auto md:justify-start md:pt-0">
         {TABS.map((t) => (
           <Link
             key={t.href}

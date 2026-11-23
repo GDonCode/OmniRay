@@ -55,7 +55,12 @@ export function Header() {
       }`}
     >
       {/* section 1: nav links (below the logo row on mobile, left on desktop) */}
-      <nav aria-label="main" className="flex h-[58.6px] items-stretch justify-center pt-[12.6px] md:h-auto md:justify-start md:pt-0">
+      <nav
+        aria-label="main"
+        className={`flex items-stretch justify-center md:h-auto md:justify-start md:pt-0 ${
+          scrolled ? "h-[46px]" : "h-[58.6px] pt-[12.6px]"
+        }`}
+      >
         {TABS.map((t) => (
           <Link
             key={t.href}
@@ -69,10 +74,15 @@ export function Header() {
       </nav>
 
       {/* mobile-only divider between the two rows; inset so it never touches the viewport edges */}
-      <div aria-hidden className="mx-6 h-px bg-white md:hidden" />
+      <div aria-hidden className={`mx-6 h-px bg-white md:hidden ${scrolled ? "hidden" : ""}`} />
 
+      {/* on mobile this row (and the divider) hides once the page scrolls, leaving only the tabs */}
       {/* section 2: logo + call / email / build, styled like the tabs (top row on mobile) */}
-      <div className="flex items-stretch justify-between md:min-h-[60px] md:flex-1 lg:justify-end">
+      <div
+        className={`items-stretch justify-between md:flex md:min-h-[60px] md:flex-1 lg:justify-end ${
+          scrolled ? "hidden" : "flex"
+        }`}
+      >
         <Link
           href="/"
           aria-label="omniray software solutions"

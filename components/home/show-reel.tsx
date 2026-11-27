@@ -33,6 +33,16 @@ export function ShowReel() {
                       unoptimized={item.image.endsWith(".gif")}
                       className="object-cover object-top"
                     />
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 grid place-items-center bg-black/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 [@media(hover:none)]:bg-black/30"
+                    >
+                      <span className="btn btn-primary btn-square translate-y-2 transition-transform duration-300 group-hover:translate-y-0 group-focus-within:translate-y-0">
+                        <span className="btn-live">
+                          <span className="btn-text">View Project</span>
+                        </span>
+                      </span>
+                    </span>
                   </div>
                 </div>
               </Link>

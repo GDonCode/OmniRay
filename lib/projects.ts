@@ -6,6 +6,8 @@ export type Project = {
   kind: string;
   /** Public site, when there is one to link to. */
   url?: string;
+  /** Client logo in /public (shown once, beside "What we used"). Falls back to the client name as a wordmark. */
+  logo?: { src: string; alt: string };
   result: string;
   built: string[];
   tech: string[];

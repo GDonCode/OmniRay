@@ -37,48 +37,41 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
   const [hero, ...rest] = p.shots;
   // Remaining screenshots follow the text, one per row, alternating sides.
   return (
-    <article id={p.slug} className="scroll-mt-0">
-      {/* Hero: ~65% of the viewport height, a screenshot of the site with a Visit overlay. */}
-      <div className="group relative h-[65vh] min-h-[360px] overflow-hidden">
-        <Image
-          src={hero.src}
-          alt={hero.alt}
-          fill
-          priority={index === 0}
-          sizes="100vw"
-          unoptimized={hero.src.endsWith(".gif")}
-          className="object-cover object-top"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent" aria-hidden />
-        {p.url && (
-          <>
-            <a href={p.url} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden className="absolute inset-0" />
-            <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 [@media(hover:none)]:bg-black/30">
-              <Button
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-square pointer-events-auto"
-              >
-                {`Visit “${p.url.replace("https://", "")}” ↗`}
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
-
+    <article id={p.slug} className="scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6">
-        {/* Peeks up onto the hero. */}
-        <div className="glass relative z-10 -mt-24 grid gap-8 p-6 sm:p-10 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
-          <div className="flex flex-col justify-between gap-8">
+        {/* Hero: ~65% of the viewport height, a screenshot of the site with a Visit overlay. */}
+        <div className="group relative h-[65vh] min-h-[360px] overflow-hidden shadow-[0_24px_48px_-16px_rgb(0_0_0/0.6)]">
+          <Image
+            src={hero.src}
+            alt={hero.alt}
+            fill
+            priority={index === 0}
+            sizes="(min-width: 1152px) 1104px, 100vw"
+            unoptimized={hero.src.endsWith(".gif")}
+            className="object-cover object-top"
+          />
+          {p.url && (
+            <>
+              <a href={p.url} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden className="absolute inset-0" />
+              <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 [@media(hover:none)]:bg-black/30">
+                <Button href={p.url} target="_blank" rel="noopener noreferrer" className="btn-square pointer-events-auto">
+                  {`Visit “${p.url.replace("https://", "")}” ↗`}
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Logo flush under the hero on the left; "What We Used" on the right peeks up onto the hero. */}
+        <div className="grid lg:grid-cols-2">
+          <div className="glass flex flex-col justify-center gap-4 p-6 sm:p-10">
             <ClientMark p={p} />
             <div>
-              <p className={label}>Client</p>
               <p className="font-mono text-[15px] text-white">{p.client}</p>
-              <p className="mt-3 font-mono text-[14px] text-white/85">{p.kind}</p>
+              <p className="mt-1 font-mono text-[14px] text-white/85">{p.kind}</p>
             </div>
           </div>
-          <div>
+          <div className="glass relative z-10 mt-3 p-6 sm:p-10 lg:-mt-14">
             <h2 className="font-heading text-3xl font-medium tracking-tight text-white">What We Used</h2>
             <ul className="mt-4 flex flex-wrap gap-2">
               {p.tech.map((t) => (

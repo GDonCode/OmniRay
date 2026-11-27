@@ -347,3 +347,33 @@ body {
   width: 100%;
   height: 100%;
 }
+
+/* ---------- Work page scroll effect (app/work/project-stage.tsx) ----------
+   --p (0..1) is set on the stage as its section scrolls. At 0 the glass panels sit over the bottom 20% of the
+   hero inside the page gutters; at 1 they fill the viewport below the header edge to edge. Desktop only. */
+.work-panels > .glass { isolation: isolate; }
+.work-panels > .glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #111111;
+  opacity: calc(0.5 + var(--p, 0) * 0.42);
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .work-panels {
+    position: absolute;
+    top: calc(80% * (1 - var(--p, 0)));
+    bottom: calc(-60% * (1 - var(--p, 0)));
+    left: calc((max((100% - 72rem) / 2, 0px) + 1.5rem) * (1 - var(--p, 0)));
+    right: calc((max((100% - 72rem) / 2, 0px) + 1.5rem) * (1 - var(--p, 0)));
+    gap: calc(1.5rem * (1 - var(--p, 0)));
+  }
+  .work-panels > .glass {
+    isolation: isolate;
+    overflow-y: auto;
+    padding-inline: calc(2.5rem + 2rem * var(--p, 0));
+    padding-top: calc(2.5rem + 2rem * var(--p, 0));
+  }
+}

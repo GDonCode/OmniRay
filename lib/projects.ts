@@ -11,8 +11,8 @@ export type Project = {
   result: string;
   built: string[];
   tech: string[];
-  /** Screenshots in /public (16:10 works best). */
-  shots: { src: string; alt: string }[];
+  /** Screenshots in /public. The first is the full-viewport hero on /work; the rest follow the text. */
+  shots: { src: string; alt: string; caption?: string }[];
 };
 
 export const PROJECTS: Project[] = [
@@ -51,7 +51,22 @@ export const PROJECTS: Project[] = [
       "Laragon",
       "Git and GitHub",
     ],
-    shots: [{ src: "/reel/fllogistics.webp", alt: "FL Logistics home page: Think it. Move it. Done." }],
+    shots: [
+      {
+        src: "/work/fl-logistics-hero.webp",
+        alt: "FL Logistics home page: Think it. Move it. Done.",
+      },
+      {
+        src: "/work/placeholder.svg",
+        alt: "Placeholder image",
+        caption: "Placeholder: quote and booking flow",
+      },
+      {
+        src: "/work/placeholder.svg",
+        alt: "Placeholder image",
+        caption: "Placeholder: customer dashboard",
+      },
+    ],
   },
   {
     slug: "gameboy-records",
@@ -65,19 +80,54 @@ export const PROJECTS: Project[] = [
       "Gave the Home music cards a colour-matched 3D edge.",
       "Rebuilt the trivia “guess the music video” round around real video stills.",
     ],
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "WooCommerce", "NextAuth"],
+    tech: [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Supabase",
+      "WooCommerce",
+      "NextAuth",
+    ],
     shots: [
-      { src: "/reel/gameboyrecords.webp", alt: "Gameboy Records home page" },
-      { src: "/reel/gameboyrecords-music.webp", alt: "Gameboy Records music page" },
-      { src: "/reel/gameboyrecords-vibes.webp", alt: "Gameboy Records vibes page" },
+      {
+        src: "/work/gameboy-records-hero.webp",
+        alt: "Gameboy Records home page: Realest sound. Truest vision.",
+      },
+      {
+        src: "/work/placeholder.svg",
+        alt: "Placeholder image",
+        caption: "Placeholder: music page",
+      },
+      {
+        src: "/work/placeholder.svg",
+        alt: "Placeholder image",
+        caption: "Placeholder: trivia round",
+      },
     ],
   },
 ];
 
 /** Cards in the home showreel, each linking to its case study. */
 export const REEL = [
-  { name: "FL Logistics", project: "fl-logistics", image: "/reel/fllogistics.webp" },
-  { name: "Gameboy Records", project: "gameboy-records", image: "/reel/gameboyrecords.gif" },
-  { name: "Gameboy Records: Music", project: "gameboy-records", image: "/reel/gameboyrecords-music.webp" },
-  { name: "Gameboy Records: Vibes", project: "gameboy-records", image: "/reel/gameboyrecords-vibes.webp" },
+  {
+    name: "FL Logistics",
+    project: "fl-logistics",
+    image: "/reel/fllogistics.webp",
+  },
+  {
+    name: "Gameboy Records",
+    project: "gameboy-records",
+    image: "/reel/gameboyrecords.gif",
+  },
+  {
+    name: "Gameboy Records: Music",
+    project: "gameboy-records",
+    image: "/reel/gameboyrecords-music.webp",
+  },
+  {
+    name: "Gameboy Records: Vibes",
+    project: "gameboy-records",
+    image: "/reel/gameboyrecords-vibes.webp",
+  },
 ] as const;

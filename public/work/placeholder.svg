@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="Image placeholder">
+  <rect width="1600" height="1000" fill="#1a1a1a"/>
+  <path d="M0 0L1600 1000M1600 0L0 1000" stroke="#ffffff" stroke-opacity=".08" stroke-width="2"/>
+  <rect x="40" y="40" width="1520" height="920" fill="none" stroke="#ff5f00" stroke-opacity=".5" stroke-width="2" stroke-dasharray="16 12"/>
+  <text x="800" y="510" fill="#ffffff" fill-opacity=".6" font-family="ui-monospace, monospace" font-size="40" text-anchor="middle">Image placeholder</text>
+</svg>

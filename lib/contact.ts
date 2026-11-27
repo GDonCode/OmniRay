@@ -7,7 +7,12 @@ export const PROJECT_TYPES = [
   "Something else",
 ] as const;
 
-export type ContactValues = { name: string; email: string; type: string; message: string };
+export type ContactValues = {
+  name: string;
+  email: string;
+  type: string;
+  message: string;
+};
 export type ContactState = {
   status: "idle" | "success" | "error";
   message?: string;

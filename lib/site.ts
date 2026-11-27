@@ -5,7 +5,10 @@ export const SITE = {
   email: "rayne@omniray.org",
   phone: "+1 876 792 2584",
   phoneHref: "tel:+18767922584",
-  instagram: { handle: "@omniraysoftware", href: "https://www.instagram.com/omniraysoftware" },
+  instagram: {
+    handle: "@omniraysoftware",
+    href: "https://www.instagram.com/omniraysoftware",
+  },
 } as const;
 
 export const NAV = [

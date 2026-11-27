@@ -38,14 +38,17 @@ function Shot({
 
 function ClientMark({ p }: { p: Project }) {
   if (p.logo) {
+    // Client logos are drawn for light backgrounds, so they sit on a light tile.
     return (
-      <Image
-        src={p.logo.src}
-        alt={p.logo.alt}
-        width={240}
-        height={96}
-        className="h-16 w-auto object-contain object-left"
-      />
+      <div className="inline-flex self-start bg-white/95 p-3">
+        <Image
+          src={p.logo.src}
+          alt={p.logo.alt}
+          width={p.logo.width}
+          height={p.logo.height}
+          className="h-20 w-auto object-contain"
+        />
+      </div>
     );
   }
   return (
@@ -61,7 +64,7 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
   const [hero, ...rest] = p.shots;
 
   const heroEl = (
-    <div className="group relative h-[calc(100svh-4rem)] overflow-hidden lg:absolute lg:inset-0 lg:h-auto">
+    <div className="relative h-[calc(100svh-4rem)] overflow-hidden lg:absolute lg:inset-0 lg:h-auto">
       <Image
         src={hero.src}
         alt={hero.alt}
@@ -71,34 +74,26 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
         unoptimized={isStatic(hero.src)}
         className="object-cover object-top"
       />
-      {p.url && (
-        <>
-          <a
-            href={p.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            tabIndex={-1}
-            aria-hidden
-            className="absolute inset-0"
-          />
-          <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 [@media(hover:none)]:bg-black/30">
-            <Button
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-square pointer-events-auto"
-            >
-              {`Visit “${p.url.replace("https://", "")}” ↗`}
-            </Button>
-          </div>
-        </>
-      )}
+    </div>
+  );
+
+  const visit = p.url && (
+    <div className="work-visit pointer-events-none absolute inset-x-0 top-0 z-[5] grid h-[calc(100svh-4rem)] place-items-center">
+      <div className="absolute inset-0 bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100" />
+      <Button
+        href={p.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-square pointer-events-auto relative opacity-0 transition-opacity duration-300 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+      >
+        {`Visit “${p.url.replace("https://", "")}” ↗`}
+      </Button>
     </div>
   );
 
   const panels = (
-    <>
-      <div className="glass relative flex flex-col gap-8 p-6 sm:p-10">
+    <div className="glass relative grid gap-10 p-6 sm:p-10 lg:grid-cols-2 lg:gap-16">
+      <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-4">
           <ClientMark p={p} />
           <div>
@@ -113,7 +108,7 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
           </p>
         </div>
       </div>
-      <div className="glass relative p-6 sm:p-10">
+      <div>
         <h2 className="font-heading text-3xl font-medium tracking-tight text-white">
           What We Used
         </h2>
@@ -134,12 +129,12 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
           ))}
         </ul>
       </div>
-    </>
+    </div>
   );
 
   return (
     <article id={p.slug} className="scroll-mt-16">
-      <ProjectStage hero={heroEl} panels={panels} />
+      <ProjectStage hero={heroEl} visit={visit} panels={panels} />
 
       <div className="mx-auto max-w-6xl px-6">
         {rest.map((s, i) => (

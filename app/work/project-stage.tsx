@@ -10,9 +10,11 @@ import { useEffect, useRef, type ReactNode } from "react";
  */
 export function ProjectStage({
   hero,
+  visit,
   panels,
 }: {
   hero: ReactNode;
+  visit: ReactNode;
   panels: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -50,9 +52,10 @@ export function ProjectStage({
 
   return (
     <div ref={ref} className="lg:h-[calc(180svh-4rem)]">
-      <div className="relative lg:sticky lg:top-16 lg:h-[calc(100svh-4rem)]">
+      <div className="group relative lg:sticky lg:top-16 lg:h-[calc(100svh-4rem)]">
         {hero}
-        <div className="work-panels relative z-10 mx-auto -mt-[20svh] grid max-w-6xl gap-6 px-6 lg:mx-0 lg:mt-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
+        {visit}
+        <div className="work-panels relative z-10 mx-auto -mt-[20svh] grid max-w-6xl gap-6 px-6 lg:mx-0 lg:mt-0 lg:max-w-none lg:px-0">
           {panels}
         </div>
       </div>

@@ -7,7 +7,7 @@ export type Project = {
   /** Public site, when there is one to link to. */
   url?: string;
   /** Client logo in /public (shown once, beside "What we used"). Falls back to the client name as a wordmark. */
-  logo?: { src: string; alt: string };
+  logo?: { src: string; alt: string; width: number; height: number };
   result: string;
   built: string[];
   tech: string[];
@@ -22,6 +22,12 @@ export const PROJECTS: Project[] = [
     client: "FL Logistic Excel International LLC",
     kind: "Freight forwarding platform",
     url: "https://fllogisticsintl.com",
+    logo: {
+      src: "/work/fl-logistics-logo.webp",
+      alt: "FL Logistic Excel Intl LLC logo",
+      width: 285,
+      height: 190,
+    },
     result:
       "Moved a Jamaica–Florida freight forwarder from manual order handling to a self-serve platform where customers quote, book, pay and track freight online, and where the business also runs live auctions and an online shop.",
     built: [
@@ -73,6 +79,12 @@ export const PROJECTS: Project[] = [
     name: "Gameboy Records",
     client: "Gameboy Records (Alexx A-Game)",
     kind: "Record label site, shop and members club",
+    logo: {
+      src: "/work/gameboy-records-logo.png",
+      alt: "Gameboy Records logo",
+      width: 698,
+      height: 200,
+    },
     result:
       "A single branded site where fans can stream the music, buy merch, get show tickets, sign in to a members club and play trivia.",
     built: [

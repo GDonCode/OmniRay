@@ -362,6 +362,11 @@ body {
   pointer-events: none;
 }
 @media (min-width: 1024px) {
+  /* The Visit overlay lives in the part of the hero the panels haven't covered yet, and fades out as they take over. */
+  .work-visit {
+    height: calc(80% * (1 - var(--p, 0)));
+    opacity: calc(1 - var(--p, 0) * 1.6);
+  }
   .work-panels {
     position: absolute;
     top: calc(80% * (1 - var(--p, 0)));

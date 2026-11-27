@@ -2,38 +2,40 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
+const HEADER = 56; // px of fixed header the stage tucks under (matches top-14 below)
+
 /**
- * One project's hero plus its glass panels. On desktop the section is taller than the viewport and the stage
- * sticks while you scroll through it: the panels rise from the bottom 20% of the hero and grow to fill the
- * viewport. The progress (0..1) is written to the `--p` CSS variable (see `.work-panels` in globals.css), so
- * scrolling never re-renders React. Below `lg` it is a plain static layout.
+ * One project: a hero that sticks under the header while a glass card scrolls up over it. As the card rises
+ * from the bottom 20% of the hero it widens to full bleed and darkens. Progress (0..1) is written to the `--p`
+ * CSS variable (see `.work-card` in globals.css), so scrolling never re-renders React.
  */
 export function ProjectStage({
   hero,
-  visit,
-  panels,
+  card,
 }: {
   hero: ReactNode;
-  visit: ReactNode;
-  panels: ReactNode;
+  card: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    const cardEl = el?.querySelector<HTMLElement>("[data-card]");
+    if (!el || !cardEl) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       el.style.setProperty("--p", "1");
       return;
     }
-    const HEADER = 64;
     let frame = 0;
     const update = () => {
       frame = 0;
-      const runway = window.innerHeight * 0.8;
+      const span = 0.8 * (window.innerHeight - HEADER); // card starts 20% up from the hero's bottom
       const t = Math.min(
         1,
-        Math.max(0, (HEADER - el.getBoundingClientRect().top) / runway),
+        Math.max(
+          0,
+          (HEADER + span - cardEl.getBoundingClientRect().top) / span,
+        ),
       );
       el.style.setProperty("--p", String(t * t * (3 - 2 * t))); // smoothstep
     };
@@ -51,13 +53,15 @@ export function ProjectStage({
   }, []);
 
   return (
-    <div ref={ref} className="lg:h-[calc(180svh-4rem)]">
-      <div className="group relative lg:sticky lg:top-16 lg:h-[calc(100svh-4rem)]">
+    <div ref={ref} className="group relative">
+      <div className="relative h-[calc(100svh-3.5rem)] lg:sticky lg:top-14">
         {hero}
-        {visit}
-        <div className="work-panels relative z-10 mx-auto -mt-[20svh] grid max-w-6xl gap-6 px-6 lg:mx-0 lg:mt-0 lg:max-w-none lg:px-0">
-          {panels}
-        </div>
+      </div>
+      <div
+        data-card
+        className="work-card glass relative z-10 -mt-[20svh] p-6 sm:p-10"
+      >
+        {card}
       </div>
     </div>
   );

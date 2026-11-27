@@ -64,7 +64,7 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
   const [hero, ...rest] = p.shots;
 
   const heroEl = (
-    <div className="relative h-[calc(100svh-4rem)] overflow-hidden lg:absolute lg:inset-0 lg:h-auto">
+    <div className="absolute inset-0 overflow-hidden">
       <Image
         src={hero.src}
         alt={hero.alt}
@@ -78,7 +78,7 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
   );
 
   const visit = p.url && (
-    <div className="work-visit pointer-events-none absolute inset-x-0 top-0 z-[5] grid h-[calc(100svh-4rem)] place-items-center">
+    <div className="work-visit pointer-events-none absolute inset-x-0 top-0 z-[5] grid h-[80%] place-items-center">
       <div className="absolute inset-0 bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100" />
       <Button
         href={p.url}
@@ -91,66 +91,75 @@ function ProjectSection({ p, index }: { p: Project; index: number }) {
     </div>
   );
 
-  const panels = (
-    <div className="glass relative grid gap-10 p-6 sm:p-10 lg:grid-cols-2 lg:gap-16">
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-4">
-          <ClientMark p={p} />
+  const card = (
+    <>
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4">
+            <ClientMark p={p} />
+            <div>
+              <p className="font-mono text-[15px] text-white">{p.client}</p>
+              <p className="mt-1 font-mono text-[14px] text-white/85">
+                {p.kind}
+              </p>
+            </div>
+          </div>
           <div>
-            <p className="font-mono text-[15px] text-white">{p.client}</p>
-            <p className="mt-1 font-mono text-[14px] text-white/85">{p.kind}</p>
+            <h3 className={label}>Result</h3>
+            <p className="mt-2 font-mono text-[15px] leading-7 tracking-tight text-white">
+              {p.result}
+            </p>
           </div>
         </div>
         <div>
-          <h3 className={label}>Result</h3>
-          <p className="mt-2 font-mono text-[15px] leading-7 tracking-tight text-white">
-            {p.result}
-          </p>
+          <h2 className="font-heading text-3xl font-medium tracking-tight text-white">
+            What We Used
+          </h2>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {p.tech.map((t) => (
+              <li
+                key={t}
+                className="border border-white/20 px-2.5 py-1 font-mono text-[12px] text-white/85"
+              >
+                {t}
+              </li>
+            ))}
+          </ul>
+          <h3 className={`${label} mt-8`}>What we built</h3>
+          <ul className="mt-2 list-disc space-y-2 pl-5 font-mono text-[14px] leading-6 tracking-tight text-white/85 marker:text-white/40">
+            {p.built.map((b) => (
+              <li key={b}>{b}</li>
+            ))}
+          </ul>
         </div>
       </div>
-      <div>
-        <h2 className="font-heading text-3xl font-medium tracking-tight text-white">
-          What We Used
-        </h2>
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {p.tech.map((t) => (
-            <li
-              key={t}
-              className="border border-white/20 px-2.5 py-1 font-mono text-[12px] text-white/85"
-            >
-              {t}
-            </li>
-          ))}
-        </ul>
-        <h3 className={`${label} mt-8`}>What we built</h3>
-        <ul className="mt-2 list-disc space-y-2 pl-5 font-mono text-[14px] leading-6 tracking-tight text-white/85 marker:text-white/40">
-          {p.built.map((b) => (
-            <li key={b}>{b}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+      {rest.map((s, i) => (
+        <div
+          key={`${s.src}-${i}`}
+          className="mt-16 grid items-center gap-8 lg:grid-cols-2 lg:gap-16"
+        >
+          <div className={i % 2 ? "lg:order-2" : ""}>
+            <Shot src={s.src} alt={s.alt} />
+          </div>
+          <p className="font-mono text-[14px] leading-7 tracking-tight text-white/85">
+            {s.caption ?? s.alt}
+          </p>
+        </div>
+      ))}
+    </>
   );
 
   return (
     <article id={p.slug} className="scroll-mt-16">
-      <ProjectStage hero={heroEl} visit={visit} panels={panels} />
-
-      <div className="mx-auto max-w-6xl px-6">
-        {rest.map((s, i) => (
-          <div
-            key={`${s.src}-${i}`}
-            className="mt-16 grid items-center gap-8 lg:grid-cols-2 lg:gap-16"
-          >
-            <div className={i % 2 ? "lg:order-2" : ""}>
-              <Shot src={s.src} alt={s.alt} />
-            </div>
-            <p className="font-mono text-[14px] leading-7 tracking-tight text-white/85">
-              {s.caption ?? s.alt}
-            </p>
-          </div>
-        ))}
-      </div>
+      <ProjectStage
+        hero={
+          <>
+            {heroEl}
+            {visit}
+          </>
+        }
+        card={card}
+      />
     </article>
   );
 }
